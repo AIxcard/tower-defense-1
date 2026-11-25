@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+    <title>TD</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700;800;900&family=Lilita+One&family=Luckiest+Guy&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=23">
+</head>
+<body>
+
+    <!-- TOP HUD BAR -->
+    <header class="top-hud">
+        <div class="logo-wrap">
+            <span style="font-size:22px;cursor:pointer;" onclick="UIController.switchTab('battle')">🛡️</span>
+            <div class="logo-title" style="cursor:pointer;" onclick="UIController.switchTab('battle')">TD</div>
+            <button class="nav-btn" data-tab="battle" style="margin-left:8px;padding:5px 14px;border-radius:6px;background:linear-gradient(180deg,#2563eb,#1d4ed8);color:#ffffff;border:1px solid #60a5fa;font-weight:900;cursor:pointer;box-shadow:0 0 10px rgba(37,99,235,0.5);" title="Go to Play/Story Stages">⚔️ PLAY</button>
+            
+            <!-- Player Account Level & EXP Bar Widget (Next to PLAY) -->
+            <div class="player-hud-exp-widget" title="Player Account Level & EXP">
+                <span class="player-hud-level-badge">🌟 Lv.<span id="hud-account-level">1</span></span>
+                <div class="player-hud-exp-track">
+                    <div id="hud-account-exp-fill" class="player-hud-exp-fill" style="width: 0%;"></div>
+                    <span id="hud-account-exp-label" class="player-hud-exp-text">0 / 200 EXP</span>
+                </div>
+            </div>
+
+            <span id="hud-vip-badge" class="vip-pill" style="display:none;">👑 VIP</span>
+        </div>
+
+        <div class="hud-currencies">
+            <div class="currency-badge" title="Gems (Used for Summoning)">
+                <svg width="20" height="20" viewBox="0 0 64 64" style="vertical-align:middle;display:inline-block;filter:drop-shadow(0 0 4px rgba(56,189,248,0.7));">
+                    <polygon points="32,10 54,26 32,56 10,26" fill="#000000" stroke="#000000" stroke-width="4" stroke-linejoin="round"/>
+                    <polygon points="32,12 52,26 32,54" fill="#0284c7"/>
+                    <polygon points="32,12 12,26 32,54" fill="#0369a1"/>
+                    <polygon points="32,12 42,26 32,54" fill="#38bdf8"/>
+                    <polygon points="32,12 22,26 32,54" fill="#0ea5e9"/>
+                    <polygon points="22,26 32,12 42,26" fill="#e0f2fe"/>
+                    <line x1="32" y1="12" x2="32" y2="54" stroke="#ffffff" stroke-width="2"/>
+                    <circle cx="32" cy="14" r="2" fill="#ffffff"/>
+                </svg>
+                <span id="hud-gems">0</span>
+            </div>
+            <div class="currency-badge" title="Summon Tickets (Used for Free Banner Pulls)">
+                <svg width="20" height="20" viewBox="0 0 64 64" style="vertical-align:middle;display:inline-block;filter:drop-shadow(0 0 4px rgba(245,158,11,0.6));">
+                    <g transform="rotate(-15 32 32)">
+                        <rect x="12" y="18" width="40" height="28" rx="4" fill="#000000"/>
+                        <rect x="14" y="20" width="36" height="24" rx="3" fill="#b45309"/>
+                        <rect x="16" y="22" width="32" height="20" rx="2" fill="#f59e0b"/>
+                        <circle cx="12" cy="32" r="4" fill="#0b0f19" stroke="#000000" stroke-width="2"/>
+                        <circle cx="52" cy="32" r="4" fill="#0b0f19" stroke="#000000" stroke-width="2"/>
+                        <circle cx="32" cy="32" r="6" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+                        <polygon points="32,28 33.5,31 36.5,31 34,33 35,36 32,34.5 29,36 30,33 27.5,31 30.5,31" fill="#d97706"/>
+                    </g>
+                </svg>
+                <span id="hud-tickets">0</span>
+            </div>
+            <div class="currency-badge" title="Gold (Obtained strictly by selling units)">
+                <svg width="20" height="20" viewBox="0 0 64 64" style="vertical-align:middle;display:inline-block;filter:drop-shadow(0 0 4px rgba(234,179,8,0.5));">
+                    <g transform="translate(14, 28)">
+                        <ellipse cx="14" cy="8" rx="13" ry="5" fill="#000000"/>
+                        <path d="M1 8 L1 15 A13 5 0 0 0 27 15 L27 8 Z" fill="#713f12" stroke="#000000" stroke-width="2.5"/>
+                        <ellipse cx="14" cy="8" rx="12" ry="4" fill="#eab308"/>
+                    </g>
+                    <g transform="translate(24, 28)">
+                        <ellipse cx="14" cy="8" rx="13" ry="5" fill="#000000"/>
+                        <path d="M1 8 L1 15 A13 5 0 0 0 27 15 L27 8 Z" fill="#713f12" stroke="#000000" stroke-width="2.5"/>
+                        <ellipse cx="14" cy="8" rx="12" ry="4" fill="#eab308"/>
+                    </g>
+                    <g transform="translate(18, 14)">
+                        <path d="M1 18 L1 26 A14 6 0 0 0 29 26 L29 18 Z" fill="#854d0e" stroke="#000000" stroke-width="2.5"/>
+                        <ellipse cx="15" cy="18" rx="13" ry="5" fill="#ca8a04"/>
+                        <path d="M1 11 L1 18 A14 6 0 0 0 29 18 L29 11 Z" fill="#a16207" stroke="#000000" stroke-width="2.5"/>
+                        <ellipse cx="15" cy="11" rx="13" ry="5" fill="#eab308"/>
+                        <path d="M1 4 L1 11 A14 6 0 0 0 29 11 L29 4 Z" fill="#ca8a04" stroke="#000000" stroke-width="2.5"/>
+                        <ellipse cx="15" cy="4" rx="14" ry="6" fill="#000000"/>
+                        <ellipse cx="15" cy="4" rx="12" ry="5" fill="#facc15"/>
+                        <ellipse cx="15" cy="4" rx="9" ry="3.5" fill="#fef08a"/>
+                    </g>
+                </svg>
+                <span id="hud-gold">0</span>
+            </div>
+            <div class="currency-badge" title="Trait Reroll Tokens (Used at the Trait Altar)">
+                <svg width="20" height="20" viewBox="0 0 64 64" style="vertical-align:middle;display:inline-block;filter:drop-shadow(0 0 5px rgba(192,132,252,0.8));">
+                    <path d="M14 44 C10 32, 16 16, 32 12 C48 8, 54 22, 50 36 C46 50, 26 54, 18 46" fill="none" stroke="#c084fc" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+                    <g transform="rotate(-15 32 32)">
+                        <polygon points="32,6 50,26 32,58 14,38" fill="#000000" stroke="#000000" stroke-width="4" stroke-linejoin="round"/>
+                        <polygon points="32,8 48,26 32,56" fill="#7e22ce"/>
+                        <polygon points="32,8 16,38 32,56" fill="#581c87"/>
+                        <polygon points="32,8 38,28 32,56" fill="#a855f7"/>
+                        <polygon points="32,8 24,34 32,56" fill="#6b21a8"/>
+                        <polygon points="24,34 32,8 38,28" fill="#c084fc"/>
+                        <polygon points="32,16 35,28 32,46 29,32" fill="#f3e8ff" opacity="0.9"/>
+                        <line x1="32" y1="8" x2="32" y2="56" stroke="#ffffff" stroke-width="2"/>
+                    </g>
+                </svg>
+                <span id="hud-trait-rr">0</span>
+            </div>
+            <div id="hud-sync-status" class="currency-badge" title="Cloud / Save Status">
+                <span>● Cloud Synced</span>
+            </div>
+            <button id="hud-user-account-btn" onclick="UIController.openAuthModal()" class="currency-badge" style="cursor:pointer;background:#1e293b;border:1px solid #38bdf8;color:#f8fafc;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;" title="Google Account & Profile Manager">
+                <span>👤</span>
+                <span id="hud-user-name">Sign In</span>
+            </button>
+            <button onclick="UIController.openSettingsModal()" class="currency-badge" style="cursor:pointer;background:#334155;border:1px solid #475569;color:#f8fafc;font-size:16px;" title="Game Settings">⚙️</button>
+            <button onclick="AudioService.toggleMute(); this.textContent = AudioService.muted ? '🔇' : '🔊';" class="currency-badge" style="cursor:pointer;border:none;">
+                🔊
+            </button>
+        </div>
+    </header>
+
+    <!-- NAVIGATION TABS -->
+    <nav class="nav-bar">
+        <button class="nav-btn active" data-tab="battle">⚔️ PLAY</button>
+        <button class="nav-btn" data-tab="challenges">🏆 CHALLENGES</button>
+        <button class="nav-btn" data-tab="summon">🎴 SUMMON</button>
+        <button class="nav-btn" data-tab="inventory">👥 UNITS</button>
+        <button class="nav-btn" data-tab="crafting">🔨 CRAFT</button>
+        <button class="nav-btn" data-tab="evolution">🧬 EVOLUTION</button>
+        <button class="nav-btn" data-tab="items">🎒 ITEMS</button>
+        <button class="nav-btn" data-tab="index">📖 INDEX</button>
+        <button class="nav-btn" data-tab="traits">🔮 TRAITS</button>
+        <button class="nav-btn" data-tab="shop">🛒 GOLD SHOP</button>
+        <button class="nav-btn" data-tab="gemshop">💎 GEM SHOP</button>
+        <button class="nav-btn" data-tab="quests">📜 QUESTS</button>
+        <button class="nav-btn" data-tab="codes">🎁 CODES</button>
+        <button class="nav-btn" data-tab="chatbot">🤖 AI BOT</button>
+        <button class="nav-btn" data-tab="wiki">📚 WIKI</button>
+    </nav>
+
+    <!-- LOBBY VIEW -->
+    <div id="lobby-view" class="main-content">
+        <!-- TAB: STAGES / BATTLE -->
+        <div id="tab-battle" class="tab-pane active">
+            <div id="stages-container"></div>
+        </div>
+
+        <!-- TAB: CHALLENGES (DAILY 30 WAVES & HALF HOURLY 15 WAVES) -->
+        <div id="tab-challenges" class="tab-pane">
+            <div class="mode-header">
+                <h2>🏆 CHALLENGES</h2>
+                <p>Beat the stage to earn rewards! You must have the corresponding Story Act unlocked to play.</p>
+            </div>
+            <div id="challenges-grid-container" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));gap:20px;max-width:900px;margin:0 auto;"></div>
+        </div>
+
+        <!-- TAB: SUMMON BANNERS -->
+        <div id="tab-summon" class="tab-pane">
+            <div class="mode-header">
+                <h2>🎴 SUMMON BANNERS</h2>
+                <p>Featured summon probabilities & pity counter. VIP members enjoy a 20% Gem discount!</p>
+            </div>
+            <div id="banners-container"></div>
+        </div>
+
+        <!-- TAB: UNITS INVENTORY -->
+        <div id="tab-inventory" class="tab-pane">
+            <div class="mode-header">
+                <h2>👥 UNIT COLLECTION & EQUIPPED TEAM</h2>
+                <p>Equip up to 6 unique units on your battle team. Selling units is the ONLY way to earn Gold!</p>
+            </div>
+
+            <!-- EQUIPPED TEAM LOADOUT CONTAINER -->
+            <div id="team-loadout-container"></div>
+
+            <!-- UNIT SEARCH & FILTER TOOLBAR -->
+            <div class="unit-toolbar">
+                <div class="search-input-wrap">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="unit-search-input" placeholder="Search units by name, element, trait, placement..." oninput="UIController.renderInventory()">
+                    <button class="clear-search-btn" onclick="document.getElementById('unit-search-input').value = ''; UIController.renderInventory();" title="Clear search">✕</button>
+                </div>
+                
+                <div class="filter-controls">
+                    <select id="unit-rarity-filter" onchange="UIController.renderInventory()">
+                        <option value="all">All Rarities</option>
+                        <option value="Secret">Secret</option>
+                        <option value="Mythic">Mythic</option>
+                        <option value="Legendary">Legendary</option>
+                        <option value="Epic">Epic</option>
+                        <option value="Rare">Rare</option>
+                    </select>
+
+                    <select id="unit-sort-filter" onchange="UIController.renderInventory()">
+                        <option value="rarity">Sort by: Rarity (Highest First)</option>
+                        <option value="level">Sort by: Level</option>
+                        <option value="name">Sort by: Name (A-Z)</option>
+                        <option value="newest">Sort by: Recently Obtained</option>
+                    </select>
+                </div>
+            </div>
+            <div id="unit-count-display" style="font-size:12px;color:var(--text-muted);margin-bottom:12px;"></div>
+
+            <div id="inventory-units-container" class="inv-grid"></div>
+        </div>
+
+        <!-- TAB: CRAFTING WORKSHOP -->
+        <div id="tab-crafting" class="tab-pane">
+            <div class="mode-header">
+                <h2>🔨 CRAFTING WORKSHOP</h2>
+                <p>Forge Evolution Items from Star Fruits, convert and fuse Star Fruits, and craft powerful Relics from Relic Shards!</p>
+            </div>
+            <div id="crafting-container"></div>
+        </div>
+
+        <!-- TAB: EVOLUTION ALTAR -->
+        <div id="tab-evolution" class="tab-pane">
+            <div class="mode-header">
+                <h2>🧬 EVOLUTION ALTAR</h2>
+                <p>Awaken your units into their supreme evolved forms! Requires Star Fruits (always 1 Rainbow Star Fruit) and 10,000 Gold.</p>
+            </div>
+            <div id="evolution-container" style="max-width:800px;margin:0 auto;"></div>
+        </div>
+
+        <!-- TAB: ITEMS & MATERIALS INVENTORY -->
+        <div id="tab-items" class="tab-pane">
+            <div class="mode-header">
+                <h2>🎒 ITEMS & MATERIALS</h2>
+                <p>View all your stored Food, Evolution Star Fruits, and Consumables.</p>
+            </div>
+            <div id="items-inventory-container"></div>
+        </div>
+
+        <!-- TAB: UNIT & ENEMY INDEX -->
+        <div id="tab-index" class="tab-pane">
+            <div class="mode-header">
+                <h2>📖 UNIT & ENEMY INDEX</h2>
+                <p>Track your collection. Claim Gem rewards for every unit and enemy unlocked, plus 500 Gems and 5 Trait RRs for World 1 completion!</p>
+            </div>
+            <div class="index-subnav" style="display:flex;gap:12px;margin-bottom:18px;">
+                <button class="stage-btn" id="btn-subnav-units" onclick="UIController.setIndexSubtab('units')">👥 Unit Index</button>
+                <button class="stage-btn" id="btn-subnav-enemies" onclick="UIController.setIndexSubtab('enemies')">👾 Enemy Index</button>
+            </div>
+            <div id="index-display-container"></div>
+        </div>
+
+        <!-- TAB: TRAIT TEMPLE -->
+        <div id="tab-traits" class="tab-pane">
+            <div class="mode-header">
+                <h2>🔮 TRAIT ALTAR</h2>
+                <p>Awaken hidden power with exact 100% probability distribution. Consumes 🔮 1 Trait RR token per roll.</p>
+            </div>
+            <div id="trait-altar-container"></div>
+            <h3 style="color:#facc15;margin-top:24px;text-align:center;">📜 Trait Chances</h3>
+            <div id="trait-probability-table"></div>
+        </div>
+
+        <!-- TAB: GOLD SHOP -->
+        <div id="tab-shop" class="tab-pane">
+            <div class="mode-header">
+                <h2>🛒 THE GOLD SHOP</h2>
+                <p>Stock refreshes daily at 7:00 AM Thailand time (Asia/Bangkok). Star Fruits have a 3/day purchase limit.</p>
+            </div>
+            
+            <h3 class="shop-section-title">🍙 Food (Unit EXP Only)</h3>
+            <div id="shop-food-grid" class="shop-grid"></div>
+
+            <h3 class="shop-section-title">⭐ Evolution Materials (Star Fruits - Max 3/day)</h3>
+            <div id="shop-mats-grid" class="shop-grid"></div>
+
+            <h3 class="shop-section-title">👑 Game Passes (0.5% Daily Restock Chance)</h3>
+            <div id="shop-passes-grid" class="shop-grid"></div>
+        </div>
+
+        <!-- TAB: GEM SHOP -->
+        <div id="tab-gemshop" class="tab-pane">
+            <div class="mode-header">
+                <h2>💎 THE GEM SHOP</h2>
+                <p>Curated hourly stock: 3 random items rotated every hour (1x purchase limit each). Features Star Fruits and the elusive 🧪 Luck Potion (+25% Summon Luck)!</p>
+                <div style="font-size:13px;color:#38bdf8;font-weight:800;margin-top:6px;">
+                    Hourly Rotation: <span id="gemshop-timer" style="color:#facc15;">--:--:--</span>
+                </div>
+            </div>
+            
+            <div id="gemshop-grid" class="shop-grid" style="max-width:900px;margin:20px auto;"></div>
+        </div>
+
+        <!-- TAB: QUESTS -->
+        <div id="tab-quests" class="tab-pane">
+            <div class="mode-header">
+                <h2>📜 STORY QUESTS</h2>
+                <p>Clear Story Mode acts to claim Gem rewards! (Acts drop Food during battle).</p>
+            </div>
+            <div id="quests-list-container"></div>
+        </div>
+
+        <!-- TAB: PROMO CODES -->
+        <div id="tab-codes" class="tab-pane">
+            <div class="mode-header">
+                <h2>🎁 PROMO CODES</h2>
+                <p>Redeem secret codes for free Gems, Gold, Star Fruits, and Trait RRs!</p>
+            </div>
+            <div class="codes-card" style="max-width:550px;margin:0 auto;background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:24px;">
+                <div style="display:flex;gap:10px;">
+                    <input type="text" id="promo-code-input" placeholder="ENTER CODE HERE..." style="flex:1;padding:12px;background:#090d16;color:#fff;border:2px solid #3b82f6;border-radius:8px;font-size:16px;text-transform:uppercase;font-weight:700;">
+                    <button class="tactile-green-btn" style="width:130px;height:48px;font-size:15px;" onclick="UIController.redeemPromoCode()">Redeem</button>
+                </div>
+                <div id="promo-code-msg" style="margin-top:12px;font-weight:700;font-size:13px;display:none;"></div>
+                
+                <div style="margin-top:24px;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px;">
+                    <h4 style="color:#facc15;margin-bottom:8px;">Active Launch Codes:</h4>
+                    <div style="font-size:12px;color:#94a3b8;line-height:1.8;">
+                        • <b style="color:#fff;">RELEASE</b>: 500 Gems, 10 Normal Star Fruits, 5 Rice Balls<br>
+                        • <b style="color:#fff;">PTD2026</b>: 1,000 Gems, 10 Trait RR<br>
+                        • <b style="color:#fff;">EVOLUTION</b>: 1 Rainbow Star Fruit, 10,000 Gold, 3 Blue Star Fruits, 3 Pink Star Fruits
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- TAB: AI CHATBOT -->
+        <div id="tab-chatbot" class="tab-pane">
+            <div class="mode-header">
+                <h2>🤖 TOWER DEFENSE AI GUIDE</h2>
+                <p>Ask anything about game mechanics, evolution recipes, star fruits, traits, farming, or story stages!</p>
+            </div>
+            
+            <div class="chatbot-container" style="max-width:760px;margin:0 auto;background:#0f172a;border:2px solid #38bdf8;border-radius:14px;display:flex;flex-direction:column;height:550px;box-shadow:0 0 25px rgba(56,189,248,0.25);overflow:hidden;">
+                <!-- Chatbot Suggestions Bar -->
+                <div style="background:#1e293b;border-bottom:1px solid #334155;padding:10px 14px;display:flex;gap:8px;overflow-x:auto;">
+                    <button class="chat-prompt-pill" onclick="UIController.sendChatbotQuery('How do I get Star Fruits?')">⭐ Star Fruits?</button>
+                    <button class="chat-prompt-pill" onclick="UIController.sendChatbotQuery('How do I evolve Void Assassin?')">🧬 Evolution?</button>
+                    <button class="chat-prompt-pill" onclick="UIController.sendChatbotQuery('Where do I get Food?')">🍙 Food?</button>
+                    <button class="chat-prompt-pill" onclick="UIController.sendChatbotQuery('What are Farm units and Yen?')">💰 Farm Units?</button>
+                    <button class="chat-prompt-pill" onclick="UIController.sendChatbotQuery('How do Trait Rerolls work?')">🔮 Trait Altar?</button>
+                    <button class="chat-prompt-pill" onclick="UIController.sendChatbotQuery('What are the active codes?')">🎁 Promo Codes?</button>
+                </div>
+
+                <!-- Chat Messages Scroll Area -->
+                <div id="chatbot-messages" style="flex:1;padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;"></div>
+
+                <!-- Chat Input Form -->
+                <form id="chatbot-form" onsubmit="event.preventDefault(); UIController.submitChatbotMessage();" style="display:flex;gap:8px;padding:12px;background:#1e293b;border-top:1px solid #334155;">
+                    <input type="text" id="chatbot-input" placeholder="Type a question about Tower Defense (e.g. How to get Star Fruits?)..." style="flex:1;background:#090d16;color:#fff;border:1px solid #475569;border-radius:8px;padding:10px 14px;font-size:14px;">
+                    <button type="submit" style="background:linear-gradient(180deg,#2563eb,#1d4ed8);color:#fff;border:1px solid #60a5fa;border-radius:8px;padding:10px 20px;font-weight:900;cursor:pointer;">Send 🚀</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- TAB: GAME WIKI -->
+        <div id="tab-wiki" class="tab-pane">
+            <div class="mode-header">
+                <h2>📚 TOWER DEFENSE WIKI</h2>
+                <p>Complete official encyclopedia of all heroes, traits, evolution materials, food, enemies, and core mechanics.</p>
+            </div>
+
+            <!-- Wiki Sub-Navigation -->
+            <div style="display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
+                <button class="wiki-subnav-btn active" data-wiki-cat="units" onclick="WikiController.setCategory('units')">👥 Units</button>
+                <button class="wiki-subnav-btn" data-wiki-cat="traits" onclick="WikiController.setCategory('traits')">🔮 Traits</button>
+                <button class="wiki-subnav-btn" data-wiki-cat="crafting" onclick="WikiController.setCategory('crafting')">🔨 Crafting & Relics</button>
+                <button class="wiki-subnav-btn" data-wiki-cat="materials" onclick="WikiController.setCategory('materials')">⭐ Star Fruits</button>
+                <button class="wiki-subnav-btn" data-wiki-cat="food" onclick="WikiController.setCategory('food')">🍙 Food</button>
+                <button class="wiki-subnav-btn" data-wiki-cat="enemies" onclick="WikiController.setCategory('enemies')">👾 Enemies & Bosses</button>
+                <button class="wiki-subnav-btn" data-wiki-cat="mechanics" onclick="WikiController.setCategory('mechanics')">⚙️ Mechanics</button>
+                <button class="wiki-subnav-btn" data-wiki-cat="tierlist" onclick="WikiController.setCategory('tierlist')">🏆 Tier List</button>
+                <button class="wiki-subnav-btn" data-wiki-cat="dps_calc" onclick="WikiController.setCategory('dps_calc')">🧮 DPS Calculator</button>
+            </div>
+
+            <div id="wiki-content-area"></div>
+        </div>
+    </div>
+
+    <!-- IN-BATTLE VIEW -->
+    <div id="battle-view">
+        <div class="battle-top-hud">
+            <div>❤️ Base: <span id="battle-base-hp" style="color:#22c55e;">3/3</span></div>
+            <div style="display:flex;align-items:center;gap:5px;">
+                <span id="hud-yen-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:middle;">
+                        <circle cx="12" cy="12" r="11" fill="#eab308" stroke="#ca8a04" stroke-width="1.5"/>
+                        <path d="M7 6 L12 13 L17 6 M12 13 L12 20 M8 14.5 L16 14.5 M8 17 L16 17" stroke="#451a03" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </span>
+                <span>Yen:</span>
+                <span id="battle-yen" style="color:#facc15;font-weight:900;">3,000 ¥</span>
+            </div>
+            <div>🌊 Wave: <span id="battle-wave">1/15</span></div>
+            <div style="display:flex;align-items:center;gap:6px;">
+                <button id="battle-pause-btn" onclick="UIController.toggleBattlePause()" style="background:#475569;color:#fff;border:none;padding:5px 12px;border-radius:4px;cursor:pointer;font-weight:800;">⏸️ Pause</button>
+                <button id="battle-speed-btn" onclick="UIController.toggleGameSpeed()" style="background:#1e3a8a;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:800;">1x Speed</button>
+                <button onclick="if(confirm('Surrender and return to lobby?')) UIController.exitBattleToLobby();" style="background:#7f1d1d;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:800;">Surrender</button>
+            </div>
+        </div>
+
+        <!-- READY / PREPARATION BANNER -->
+        <div id="battle-ready-banner" style="display:none;position:absolute;top:60px;left:50%;transform:translateX(-50%);background:rgba(15,23,42,0.95);border:2px solid #22c55e;box-shadow:0 0 24px rgba(34,197,94,0.55);border-radius:12px;padding:12px 24px;z-index:100;align-items:center;gap:18px;backdrop-filter:blur(8px);">
+            <div>
+                <div style="font-size:14px;color:#f8fafc;font-weight:800;">
+                    ⏳ PREPARATION TIME: <span id="battle-ready-timer" style="color:#facc15;font-size:18px;font-weight:900;">60s</span>
+                </div>
+                <div style="font-size:11px;color:#94a3b8;">Place your towers and build your defense before Wave 1 starts!</div>
+            </div>
+            <button id="battle-ready-btn" onclick="CombatEngine.startBattleWaves()" style="background:linear-gradient(180deg,#16a34a,#15803d);color:#fff;border:1px solid #4ade80;padding:8px 20px;border-radius:8px;font-size:14px;font-weight:900;cursor:pointer;box-shadow:0 0 12px rgba(34,197,94,0.6);">
+                ⚔️ READY (START)
+            </button>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="battleCanvas" width="800" height="500"></canvas>
+            <!-- Placed Unit Inspector -->
+            <div id="unit-inspector-panel" class="unit-inspector"></div>
+        </div>
+
+        <div class="battle-bottom-hud">
+            <div style="font-size:11px;color:#94a3b8;margin-bottom:4px;">DEPLOY DEFENDERS (Click unit, then click valid Ground or Hill tile):</div>
+            <div id="battle-deployment-bar" class="deployment-bar"></div>
+        </div>
+    </div>
+
+    <!-- FULLSCREEN CINEMATIC SUMMON THEATRE -->
+    <div id="summon-theatre-modal" class="fullscreen-theatre" style="display:none;" onclick="UIController.onSummonTheatreClick(event)">
+        <button class="theatre-skip-btn" onclick="UIController.skipSummonAnimation(event)">Skip ⏭</button>
+        
+        <!-- Phase 1 & 2: Floating & Interactive Cracking Celestial Star -->
+        <div id="theatre-star-stage" class="star-stage">
+            <div id="theatre-star-container" class="celestial-star-wrap" onclick="UIController.handleStarClick(event)">
+                <svg id="theatre-star-svg" viewBox="-25 -25 150 150" class="celestial-star-svg" style="overflow:visible;">
+                    <defs>
+                        <radialGradient id="starGlowGrad" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#ffffff" />
+                            <stop offset="30%" stop-color="#fef08a" />
+                            <stop offset="70%" stop-color="#facc15" />
+                            <stop offset="100%" stop-color="#d97706" />
+                        </radialGradient>
+                        <linearGradient id="facetGrad1" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/>
+                            <stop offset="100%" stop-color="#ca8a04" stop-opacity="0.2"/>
+                        </linearGradient>
+                        <linearGradient id="facetGrad2" x1="1" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#fef08a" stop-opacity="0.5"/>
+                            <stop offset="100%" stop-color="#78350f" stop-opacity="0.3"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Ambient Starlight Glow -->
+                    <circle cx="50" cy="50" r="48" fill="rgba(250, 204, 21, 0.3)" />
+
+                    <!-- Golden Star Base Silhouette -->
+                    <polygon points="50,2 64,35 98,35 71,56 81,90 50,68 19,90 29,56 2,35 36,35" fill="url(#starGlowGrad)" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" />
+
+                    <!-- 3D Faceted Crystal Shading Lines -->
+                    <line x1="50" y1="50" x2="50" y2="2" stroke="#ffffff" stroke-width="2" />
+                    <line x1="50" y1="50" x2="98" y2="35" stroke="#ffffff" stroke-width="2" />
+                    <line x1="50" y1="50" x2="81" y2="90" stroke="#ca8a04" stroke-width="2" />
+                    <line x1="50" y1="50" x2="19" y2="90" stroke="#ca8a04" stroke-width="2" />
+                    <line x1="50" y1="50" x2="2" y2="35" stroke="#ffffff" stroke-width="2" />
+
+                    <polygon points="50,50 50,2 64,35" fill="url(#facetGrad1)" />
+                    <polygon points="50,50 98,35 71,56" fill="url(#facetGrad2)" />
+                    <polygon points="50,50 81,90 50,68" fill="url(#facetGrad1)" />
+                    <polygon points="50,50 19,90 29,56" fill="url(#facetGrad2)" />
+                    <polygon points="50,50 2,35 36,35" fill="url(#facetGrad1)" />
+
+                    <!-- Glowing Neon Cracks Group -->
+                    <g id="star-crack-lines" class="crack-lines-group" style="opacity:0;transition:opacity 0.3s;">
+                        <path d="M50,12 L48,36 L56,46 L44,60 L50,70" stroke="#ffffff" stroke-width="3.5" fill="none" stroke-linecap="round" />
+                        <path d="M48,36 L24,40" stroke="#38bdf8" stroke-width="3" fill="none" />
+                        <path d="M56,46 L76,44" stroke="#38bdf8" stroke-width="3" fill="none" />
+                        <path d="M44,60 L28,76" stroke="#f472b6" stroke-width="3" fill="none" />
+                        <path d="M44,60 L68,74" stroke="#f472b6" stroke-width="3" fill="none" />
+                    </g>
+                </svg>
+            </div>
+            <div id="theatre-status-text" class="theatre-status-text">✨ Tap the Celestial Star to Crack it! ✨</div>
+        </div>
+
+        <!-- Phase 3: Step-by-Step Individual Unit Reveal (Unit Model Showcase, No Box) -->
+        <div id="theatre-card-stage" class="card-stage" style="display:none;">
+            <div id="theatre-unit-card" class="theatre-unit-showcase">
+                <!-- Dynamically populated unit showcase -->
+            </div>
+            <div class="theatre-click-hint">
+                <span id="theatre-card-counter">Unit 1 of 10</span> • Click anywhere to reveal next unit
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- MODAL: SUMMON RESULTS -->
+    <div id="summon-result-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <h2 style="text-align:center;color:#38bdf8;margin-bottom:12px;">✨ SUMMON RESULTS ✨</h2>
+            <div id="summon-result-grid" class="summon-grid"></div>
+            <div style="text-align:center;margin-top:20px;">
+                <button class="stage-btn special-btn" style="width:160px;" onclick="UIController.closeAllModals()">Awesome!</button>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- MODAL: SUMMON RATES BY RARITY (IMAGE 2 REPLICA) -->
+    <div id="summon-rates-modal" class="modal-overlay">
+        <div class="modal-content rates-modal-content">
+            <button class="modal-close-btn" onclick="UIController.closeAllModals()">&times;</button>
+            <h2 class="rates-modal-title">Summon rates by rarity</h2>
+            <p class="rates-modal-subtitle">Summon for the newest units! New units in this banner will no longer appear in the Legacy banner. Featured units have a much higher chance to be pulled!</p>
+            
+            <div class="rates-shiny-pill">
+                <span>Shiny Chance (All Units):</span> <b>1%</b>
+            </div>
+
+            <div id="rates-breakdown-container" class="rates-breakdown-list">
+                <!-- Dynamically populated per rarity and character -->
+            </div>
+
+            <div style="text-align:center;margin-top:24px;">
+                <button class="tactile-green-btn rates-close-btn" onclick="UIController.closeAllModals()">Close</button>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- MODAL: FEED UNIT EXP -->
+    <div id="feed-unit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn">&times;</button>
+            <div id="feed-unit-body"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: MATCH RESULT -->
+    <div id="match-result-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="match-result-body"></div>
+        </div>
+    </div>
+
+    <!-- MODAL: GAME SETTINGS -->
+    <div id="settings-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content" style="max-width:440px;background:#0f172a;border:2px solid #38bdf8;border-radius:14px;padding:22px;box-shadow:0 0 30px rgba(56,189,248,0.35);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h3 style="margin:0;font-size:18px;color:#38bdf8;font-weight:900;">⚙️ GAME SETTINGS</h3>
+                <button class="modal-close-btn" onclick="UIController.closeAllModals()">&times;</button>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:14px;font-size:13px;color:#e2e8f0;">
+                <!-- AUTO SELL ON SUMMON -->
+                <div style="background:#1e293b;border-radius:8px;padding:12px;border:1px solid #334155;">
+                    <div style="font-weight:800;color:#facc15;margin-bottom:8px;">💰 Auto-Sell on Summon</div>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;">
+                        <input type="checkbox" id="setting-auto-sell-rare" onchange="UIController.toggleSetting('autoSellRare', this.checked)">
+                        <span>Auto-Sell Rare Units (+🪙100 Gold)</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;">
+                        <input type="checkbox" id="setting-auto-sell-epic" onchange="UIController.toggleSetting('autoSellEpic', this.checked)">
+                        <span>Auto-Sell Epic Units (+🪙300 Gold)</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                        <input type="checkbox" id="setting-auto-sell-leg" onchange="UIController.toggleSetting('autoSellLegendary', this.checked)">
+                        <span>Auto-Sell Legendary Units (+🪙1,000 Gold)</span>
+                    </label>
+                </div>
+
+                <!-- BATTLE SETTINGS -->
+                <div style="background:#1e293b;border-radius:8px;padding:12px;border:1px solid #334155;">
+                    <div style="font-weight:800;color:#38bdf8;margin-bottom:8px;">⚔️ Battle & Wave Settings</div>
+                    <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;cursor:pointer;">
+                        <input type="checkbox" id="setting-auto-skip" onchange="UIController.toggleSetting('autoSkipWave', this.checked)">
+                        <span>Auto Skip Wave</span>
+                    </label>
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                        <span>Default Battle Speed:</span>
+                        <select id="setting-default-speed" onchange="UIController.toggleSetting('defaultSpeed', parseInt(this.value))" style="background:#0f172a;color:#fff;border:1px solid #475569;border-radius:6px;padding:4px 10px;font-weight:700;">
+                            <option value="1">1x Speed</option>
+                            <option value="2">2x Speed</option>
+                            <option value="3">3x Speed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- AUDIO SETTINGS -->
+                <div style="background:#1e293b;border-radius:8px;padding:12px;border:1px solid #334155;">
+                    <div style="font-weight:800;color:#a855f7;margin-bottom:8px;">🔊 Audio Settings</div>
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                        <input type="checkbox" id="setting-sfx-mute" onchange="UIController.toggleAudioMute(this.checked)">
+                        <span>Mute Sound Effects & Music</span>
+                    </label>
+                </div>
+            </div>
+
+            <button onclick="UIController.resetSettingsToDefault()" style="width:100%;margin-top:12px;background:#334155;color:#e2e8f0;border:1px solid #475569;padding:9px;border-radius:8px;font-weight:800;cursor:pointer;font-size:12.5px;">
+                🔄 Reset Everything to Default
+            </button>
+
+            <button onclick="UIController.closeAllModals()" style="width:100%;margin-top:8px;background:#2563eb;color:#fff;border:none;padding:10px;border-radius:8px;font-weight:900;cursor:pointer;">
+                Done
+            </button>
+        </div>
+    </div>
+
+    <!-- BOTTOM LEFT ACTIVE BUFFS HUD (VIP, SHINY HUNTER, LUCK POTION) -->
+    <div id="active-buffs-hud" class="active-buffs-container"></div>
+
+    <!-- MODAL: TRAIT REROLL WARNING CONFIRMATION -->
+    <div id="trait-warning-modal" class="modal-overlay" style="display:none;z-index:9999;">
+        <div class="modal-content" style="max-width:440px;background:#0f172a;border:2px solid #ef4444;border-radius:14px;padding:22px;text-align:center;box-shadow:0 0 35px rgba(239,68,68,0.5);">
+            <div style="font-size:42px;margin-bottom:8px;">⚠️</div>
+            <h3 style="margin:0;font-size:20px;color:#ef4444;font-weight:900;">PROTECTED TRAIT DETECTED</h3>
+            <p id="trait-warning-desc" style="font-size:13.5px;color:#cbd5e1;margin:12px 0 20px;line-height:1.5;"></p>
+            <div style="display:flex;gap:10px;justify-content:center;">
+                <button id="trait-confirm-reroll-btn" class="danger-btn" style="flex:1;padding:12px;opacity:0.5;cursor:not-allowed;" disabled>
+                    Confirm Reroll (5s)
+                </button>
+                <button onclick="UIController.closeAllModals()" class="ghost-btn" style="flex:1;padding:12px;">
+                    Keep Current Trait
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: UNIQUE TRAIT AWAKENING -->
+    <div id="unique-awakening-modal" class="modal-overlay" style="display:none;background:rgba(2,6,23,0.96);z-index:99999;">
+        <div class="modal-content unique-awakening-box" style="max-width:520px;background:radial-gradient(circle at center, #3b0764 0%, #0f172a 80%);border:3px solid #facc15;border-radius:20px;padding:32px 24px;text-align:center;box-shadow:0 0 70px rgba(250,204,21,0.6);">
+            <div class="unique-crown-anim" style="margin-bottom:14px;">
+                <svg width="110" height="90" viewBox="0 0 32 32" style="filter:drop-shadow(0 0 16px rgba(250,204,21,0.9));">
+                    <defs>
+                        <linearGradient id="uniqueCrownModalGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#ff0055"/>
+                            <stop offset="25%" stop-color="#ff9900"/>
+                            <stop offset="50%" stop-color="#ffee00"/>
+                            <stop offset="75%" stop-color="#00ff66"/>
+                            <stop offset="100%" stop-color="#00ffff"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M4,24 L28,24 L26,10 L20,17 L16,6 L12,17 L6,10 Z" fill="url(#uniqueCrownModalGrad)" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/>
+                    <rect x="4" y="24" width="24" height="4" rx="1.5" fill="#f59e0b" stroke="#fff" stroke-width="0.8"/>
+                    <circle cx="16" cy="6" r="2.2" fill="#facc15" stroke="#fff" stroke-width="0.6"/>
+                    <circle cx="6" cy="10" r="1.8" fill="#facc15" stroke="#fff" stroke-width="0.6"/>
+                    <circle cx="26" cy="10" r="1.8" fill="#facc15" stroke="#fff" stroke-width="0.6"/>
+                    <circle cx="16" cy="18" r="2" fill="#ef4444"/>
+                    <circle cx="11" cy="22" r="1.3" fill="#38bdf8"/>
+                    <circle cx="21" cy="22" r="1.3" fill="#38bdf8"/>
+                </svg>
+            </div>
+            <div style="font-size:13px;letter-spacing:3px;color:#facc15;font-weight:900;text-transform:uppercase;margin-bottom:6px;">⚡ DIVINE RARITY AWAKENED ⚡</div>
+            <h1 class="mythic-rainbow-name" style="font-size:38px;margin:6px 0;letter-spacing:3px;">👑 UNIQUE 👑</h1>
+            <div style="font-size:17px;color:#fde047;font-weight:800;margin:10px 0;">+300% Damage • -10% SPA • +10% Range</div>
+            
+            <button onclick="UIController.closeAllModals()" class="stage-btn normal-btn" style="width:200px;font-size:16px;font-weight:900;background:linear-gradient(180deg,#f59e0b,#d97706);border:2px solid #fef08a;margin:0 auto;box-shadow:0 0 20px rgba(245,158,11,0.7);">
+                CLAIM POWER ✨
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: GOOGLE LOGIN & PLAYER PROFILE GATEWAY -->
+    <div id="auth-gateway-modal" class="modal-overlay" style="display:none;background:rgba(2,6,23,0.94);backdrop-filter:blur(12px);z-index:999999;">
+        <div class="modal-content" style="max-width:480px;background:linear-gradient(180deg,#0f172a,#020617);border:2px solid #38bdf8;border-radius:16px;padding:26px;box-shadow:0 0 35px rgba(56,189,248,0.4);text-align:center;">
+            <div id="auth-gateway-content">
+                <!-- Populated dynamically by UIController.renderAuthModal() -->
+            </div>
+        </div>
+    </div>
+
+    <!-- FLOATING TOAST NOTIFICATION POPUPS (NON-BLOCKING) -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- INSTANT HOVER TOOLTIP -->
+    <div id="custom-tooltip" class="custom-tooltip"></div>
+
+    <!-- SCRIPTS -->
+    <script src="js/engine/pixelSprites.js?v=26"></script>
+    <script src="js/config/traits.js?v=26"></script>
+    <script src="js/config/units.js?v=26"></script>
+    <script src="js/config/enemies.js?v=26"></script>
+    <script src="js/config/stages.js?v=26"></script>
+    <script src="js/config/shop.js?v=26"></script>
+    <script src="js/engine/timeService.js?v=26"></script>
+    <script src="js/engine/saveService.js?v=26"></script>
+    <script src="js/engine/traitEngine.js?v=26"></script>
+    <script src="js/engine/gachaEngine.js?v=26"></script>
+    <script src="js/engine/audioService.js?v=26"></script>
+    <script src="js/engine/combatEngine.js?v=26"></script>
+    <script src="js/ui/uiController.js?v=26"></script>
+    <script src="js/engine/aiChatbot.js?v=26"></script>
+    <script src="js/ui/wikiController.js?v=26"></script>
+
+    <script>
+        // Start game on load
+        window.addEventListener("DOMContentLoaded", async () => {
+            console.log("[PTD] Bootstrapping Pixel Tower Defense...");
+            await window.SaveService.init();
+            window.UIController.init();
+            console.log("[PTD] Game ready!");
+        });
+    </script>
+
+    <!-- Anti-Cheat and Anti-Zoom Protection -->
+    <script>
+        // Disable pinch and wheel zoom
+        window.addEventListener('wheel', function(e) {
+            if (e.ctrlKey) e.preventDefault();
+        }, { passive: false });
+
+        window.addEventListener('keydown', function(e) {
+            // Prevent Ctrl +/-/0 zoom
+            if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '=' || e.key === '0')) {
+                e.preventDefault();
+            }
+            // Ban F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+U
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.ctrlKey && e.key === 'u')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+        document.addEventListener('touchmove', function(e) { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+
+        // Disable right-click context menu to prevent inspecting
+        document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+
+        // Ban eval
+        window.eval = function() { throw new Error("Scripts prohibited"); };
+    </script>
+
+</body>
+</html>
