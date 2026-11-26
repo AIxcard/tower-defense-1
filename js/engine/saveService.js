@@ -21,6 +21,10 @@ const SaveService = {
         if (raw) {
             try { this.currentGoogleUser = JSON.parse(raw); } catch (e) { this.currentGoogleUser = null; }
         }
+        if (!this.currentGoogleUser && typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
+            this.currentGoogleUser = { id: "dev_local_user", name: "LocalDev", email: "dev@localhost" };
+            localStorage.setItem("ptd_google_user", JSON.stringify(this.currentGoogleUser));
+        }
         return this.currentGoogleUser;
     },
 
@@ -43,10 +47,11 @@ const SaveService = {
                     }
                 } catch(e) {}
             }
+            const isLocal = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
             const profile = {
                 id: "profile_main",
-                name: legacyName || "",
-                usernameChosen: legacyChosen,
+                name: legacyName || (isLocal ? "LocalPlayer" : ""),
+                usernameChosen: legacyChosen || isLocal,
                 createdAt: new Date().toISOString()
             };
             localStorage.setItem(key, JSON.stringify(profile));
@@ -240,7 +245,7 @@ const SaveService = {
         return {
             version: 1,
             id: playerId,
-            username: "Commander",
+            username: "Player",
             gems: 250,               // Starter Gems
             gold: 1500,              // Starter Gold
             traitRerolls: 5,         // Starter Trait Reroll Tokens
@@ -838,7 +843,7 @@ const SaveService = {
             food: { "rice_ball": 5 }
         },
         "PTD2026": {
-            description: "Commander welcome gift!",
+            description: "Player welcome gift!",
             gems: 1000,
             traitRerolls: 10
         },

@@ -440,7 +440,7 @@ const PixelSprites = {
         if (mLower === "relic_shard") return this.getRelicShardIcon(size);
         if (mLower === "light_energy" || mLower === "clock") return this.getLightEnergyIcon(size);
         if (mLower === "blaze") return this.getBlazeIcon(size);
-        if (mLower === "abyssal_shadow_dagger") return this.getShadowDaggerIcon(size);
+        if (mLower === "shadow_dagger" || mLower === "abyssal_shadow_dagger") return this.getShadowDaggerIcon(size);
         if (mLower === "dagger" || mLower === "normal_dagger") return this.getNormalDaggerIcon(size);
         if (mLower === "fire_scroll") return this.getFireScrollIcon(size);
         if (mLower === "water_scroll") return this.getWaterScrollIcon(size);
@@ -1714,12 +1714,27 @@ const PixelSprites = {
             symbolPaths = `
                 <polygon points="18,3 8,16 15,16 13,29 24,14 17,14" fill="${primaryColor}" stroke="#ffffff" stroke-width="1.2" stroke-linejoin="miter"/>
             `;
-        } else if (type === "muscles") {
-            // Flexed Muscle Bicep (Superior)
+        } else if (type === "muscles" || type === "superior") {
+            // Radiant Crossed Battle Blades (Superior)
             symbolPaths = `
-                <path d="M6,24 C6,18 10,14 16,14 C19,10 24,10 26,14 C28,18 26,24 20,26 L12,26 Z" fill="${primaryColor}" stroke="#ffffff" stroke-width="1"/>
-                <path d="M16,14 C18,18 20,20 22,21" stroke="#ffffff" stroke-width="1.2" fill="none"/>
-                <circle cx="23" cy="14" r="3" fill="${primaryColor}" stroke="#ffffff" stroke-width="0.8"/>
+                <!-- Sword 1 (top-left to bottom-right) -->
+                <line x1="6" y1="6" x2="26" y2="26" stroke="#0f172a" stroke-width="4.5" stroke-linecap="round"/>
+                <line x1="7" y1="7" x2="25" y2="25" stroke="${primaryColor}" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="8" y1="8" x2="22" y2="22" stroke="#ffffff" stroke-width="1"/>
+                <line x1="20" y1="24" x2="24" y2="20" stroke="#f8fafc" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="26" cy="26" r="1.5" fill="#f8fafc"/>
+                
+                <!-- Sword 2 (top-right to bottom-left) -->
+                <line x1="26" y1="6" x2="6" y2="26" stroke="#0f172a" stroke-width="4.5" stroke-linecap="round"/>
+                <line x1="25" y1="7" x2="7" y2="25" stroke="${primaryColor}" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="24" y1="8" x2="10" y2="22" stroke="#ffffff" stroke-width="1"/>
+                <line x1="8" y1="20" x2="12" y2="24" stroke="#f8fafc" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="6" cy="26" r="1.5" fill="#f8fafc"/>
+
+                <!-- Central Radiant Power Diamond -->
+                <polygon points="16,9 19,16 16,23 13,16" fill="#ffffff" stroke="${primaryColor}" stroke-width="1"/>
+                <circle cx="16" cy="16" r="2" fill="${primaryColor}"/>
+                <circle cx="16" cy="16" r="0.8" fill="#ffffff"/>
             `;
         } else if (type === "kunai") {
             // Ninja Kunai Dagger (Nimble)
@@ -1739,12 +1754,28 @@ const PixelSprites = {
                 <line x1="4" y1="16" x2="9" y2="16" stroke="${primaryColor}" stroke-width="1.8"/>
                 <line x1="23" y1="16" x2="28" y2="16" stroke="${primaryColor}" stroke-width="1.8"/>
             `;
-        } else if (type === "tome") {
-            // Arcane Knowledge Tome (Adept)
+        } else if (type === "tome" || type === "adept") {
+            // Illuminated Arcane Grimoire (Adept)
             symbolPaths = `
-                <rect x="7" y="6" width="18" height="20" rx="2" fill="${primaryColor}" stroke="#ffffff" stroke-width="1"/>
-                <rect x="5" y="6" width="3" height="20" fill="#4a044e"/>
-                <polygon points="16,10 18,15 23,16 19,19 20,24 16,21 12,24 13,19 9,16 14,15" fill="#facc15"/>
+                <!-- Book Base & Cover Shadow -->
+                <path d="M4,25 Q16,22 28,25 L28,14 Q16,11 4,14 Z" fill="#1e1b4b" stroke="#0f172a" stroke-width="1.5"/>
+                
+                <!-- Open Pages (Left & Right) -->
+                <path d="M5,23 Q16,20 16,12 Q9,10 5,12 Z" fill="#f8fafc" stroke="#334155" stroke-width="0.8"/>
+                <path d="M27,23 Q16,20 16,12 Q23,10 27,12 Z" fill="#e2e8f0" stroke="#334155" stroke-width="0.8"/>
+                
+                <!-- Page Runic Text Lines -->
+                <line x1="8" y1="15" x2="13" y2="15" stroke="${primaryColor}" stroke-width="1" stroke-linecap="round"/>
+                <line x1="8" y1="18" x2="13" y2="18" stroke="${primaryColor}" stroke-width="1" stroke-linecap="round"/>
+                <line x1="19" y1="15" x2="24" y2="15" stroke="${primaryColor}" stroke-width="1" stroke-linecap="round"/>
+                <line x1="19" y1="18" x2="24" y2="18" stroke="${primaryColor}" stroke-width="1" stroke-linecap="round"/>
+
+                <!-- Golden Bookmark Ribbon -->
+                <path d="M16,12 L16,25 L14,23 L16,25 L18,23" fill="#facc15" stroke="#ca8a04" stroke-width="1"/>
+                
+                <!-- Floating Arcane Wisdom Spark Above Grimoire -->
+                <polygon points="16,3 17.5,6.5 21,7.5 17.5,8.5 16,12 14.5,8.5 11,7.5 14.5,6.5" fill="#facc15" stroke="#ffffff" stroke-width="0.5"/>
+                <circle cx="16" cy="7.5" r="1.2" fill="#ffffff"/>
             `;
         }
 

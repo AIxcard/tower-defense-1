@@ -652,7 +652,7 @@ const WikiController = {
     // ====================================================
     // DPS CALCULATOR (INCLUDES UNEVOLVED MYTHICS & TRAITS)
     // ====================================================
-        // ====================================================
+    // ====================================================
     // DPS CALCULATOR (INCLUDES UNEVOLVED MYTHICS & TRAITS)
     // ====================================================
     renderDPSCalcWiki(container) {
@@ -660,7 +660,10 @@ const WikiController = {
             this.dpsCalcState = {
                 unitId: "shinobi_god",
                 upgradeLevel: "max",
+                unitLevel: 1,
                 trait: "None",
+                isHill: false,
+                targetType: "normal", // normal, boss, low_hp, flying
                 passivesEnabled: {}
             };
         }
@@ -679,27 +682,48 @@ const WikiController = {
             }
         });
 
-        // Generate upgrade options dynamically for this unit
+        // Generate upgrade options dynamically strictly bounded to this unit's upgrade array
         const upgCount = (currentUnit.upgrades || []).length;
-        let upgOptionsHtml = `<option value="0" ${state.upgradeLevel === "0" ? "selected" : ""}>Base (Level 0)</option>`;
-        for (let i = 1; i <= upgCount; i++) {
-            const isSel = state.upgradeLevel === String(i) ? "selected" : "";
-            upgOptionsHtml += `<option value="${i}" ${isSel}>Upgrade ${i}</option>`;
+        let upgOptionsHtml = "";
+        
+        if (currentUnit.isFarm) {
+            upgOptionsHtml += `<option value="0" ${state.upgradeLevel === "0" ? "selected" : ""}>Base (Lv 0) - Cost: ${currentUnit.baseCost || 400}¥ | Yield: ${currentUnit.incomePerWave || 200}¥/w</option>`;
+            for (let i = 1; i <= upgCount; i++) {
+                const up = currentUnit.upgrades[i - 1];
+                const isSel = state.upgradeLevel === String(i) ? "selected" : "";
+                upgOptionsHtml += `<option value="${i}" ${isSel}>Upgrade ${i} - Cost: +${up.cost || 0}¥ | Yield: ${up.incomePerWave || up.income || 0}¥/w</option>`;
+            }
+        } else {
+            upgOptionsHtml += `<option value="0" ${state.upgradeLevel === "0" ? "selected" : ""}>Base (Lv 0) - Dmg: ${currentUnit.baseDamage} | SPA: ${currentUnit.baseSpa}s | Rng: ${currentUnit.baseRange}</option>`;
+            for (let i = 1; i <= upgCount; i++) {
+                const up = currentUnit.upgrades[i - 1];
+                const isSel = state.upgradeLevel === String(i) ? "selected" : "";
+                upgOptionsHtml += `<option value="${i}" ${isSel}>Upgrade ${i} (+${up.cost || 0}¥) - Dmg: ${up.damage} | SPA: ${up.spa}s | Rng: ${up.range}</option>`;
+            }
         }
-        upgOptionsHtml += `<option value="max" ${state.upgradeLevel === "max" ? "selected" : ""}>Max Upgraded (Recommended)</option>`;
+        upgOptionsHtml += `<option value="max" ${state.upgradeLevel === "max" ? "selected" : ""}>Max Upgraded (${upgCount} upgrades)</option>`;
+
+        // Trait options from TRAIT_CONFIG
+        const traits = window.TRAIT_CONFIG || {};
+        let traitOptionsHtml = `<option value="None" ${state.trait === "None" ? 'selected' : ''}>None (No Trait)</option>`;
+        Object.keys(traits).forEach(tName => {
+            const tr = traits[tName];
+            const isSel = state.trait === tName ? 'selected' : '';
+            traitOptionsHtml += `<option value="${tName}" ${isSel}>${tName} (${tr.description})</option>`;
+        });
 
         let html = `
             <div style="margin-bottom:20px;">
                 <h2 style="color:#38bdf8;margin-bottom:6px;display:flex;align-items:center;gap:8px;">
-                    <span>🧮</span> Interactive Tower DPS Calculator
+                    <span>🧮</span> Interactive Tower DPS & Economy Calculator
                 </h2>
-                <p style="color:#94a3b8;font-size:14px;">
-                    Simulate real damage, attack speed (SPA), traits, and passive multipliers for any unit in the game.
+                <p style="color:#94a3b8;font-size:14px;margin:0;">
+                    Calculate exact damage, attack speed (SPA), unit level compounding, traits, target bonuses, and farm income.
                 </p>
             </div>
 
             <!-- Controls Panel -->
-            <div style="background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:20px;display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px;margin-bottom:24px;">
+            <div style="background:#0f172a;border:1px solid #1e293b;border-radius:12px;padding:20px;display:grid;grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));gap:16px;margin-bottom:20px;">
                 <!-- Unit Select -->
                 <div>
                     <label style="display:block;font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:6px;">SELECT UNIT</label>
@@ -709,7 +733,7 @@ const WikiController = {
         Object.keys(allUnits).forEach(uId => {
             const u = allUnits[uId];
             const sel = (uId === state.unitId) ? 'selected' : '';
-            html += `<option value="${uId}" ${sel}>[${u.rarity}] ${u.name}</option>`;
+            html += `<option value="${uId}" ${sel}>[${u.rarity}] ${u.name} (${(u.upgrades || []).length} Upgs)</option>`;
         });
 
         html += `
@@ -718,34 +742,50 @@ const WikiController = {
 
                 <!-- Upgrade Level Select -->
                 <div>
-                    <label style="display:block;font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:6px;">UPGRADE LEVEL</label>
+                    <label style="display:block;font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:6px;">UPGRADE LEVEL (${upgCount} max)</label>
                     <select id="calc-upg-select" onchange="WikiController.updateDPSCalc('upgradeLevel', this.value)" style="width:100%;padding:10px;background:#1e293b;color:#f8fafc;border:1px solid #334155;border-radius:8px;font-size:13px;">
                         ${upgOptionsHtml}
                     </select>
+                </div>
+
+                <!-- Unit Level (1-100) -->
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <label style="font-size:12px;font-weight:700;color:#94a3b8;">UNIT LEVEL</label>
+                        <span id="calc-level-label" style="font-size:11px;color:#38bdf8;font-weight:700;">Lv ${state.unitLevel || 1} (+${((Math.pow(1.01, (state.unitLevel || 1) - 1) - 1) * 100).toFixed(1)}% Dmg)</span>
+                    </div>
+                    <div style="display:flex;gap:6px;align-items:center;">
+                        <input id="calc-level-slider" type="range" min="1" max="100" value="${state.unitLevel || 1}" oninput="WikiController.updateDPSCalc('unitLevel', parseInt(this.value, 10))" style="flex:1;cursor:pointer;">
+                        <input id="calc-level-input" type="number" min="1" max="100" value="${state.unitLevel || 1}" oninput="WikiController.updateDPSCalc('unitLevel', Math.max(1, Math.min(100, parseInt(this.value, 10) || 1)))" onchange="WikiController.updateDPSCalc('unitLevel', Math.max(1, Math.min(100, parseInt(this.value, 10) || 1)))" style="width:54px;padding:6px;background:#1e293b;color:#f8fafc;border:1px solid #334155;border-radius:6px;font-size:12px;text-align:center;">
+                    </div>
                 </div>
 
                 <!-- Trait Select -->
                 <div>
                     <label style="display:block;font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:6px;">EQUIPPED TRAIT</label>
                     <select id="calc-trait-select" onchange="WikiController.updateDPSCalc('trait', this.value)" style="width:100%;padding:10px;background:#1e293b;color:#f8fafc;border:1px solid #334155;border-radius:8px;font-size:13px;">
-                        <option value="None" ${state.trait === "None" ? 'selected' : ''}>None</option>
-                        <option value="Superior I" ${state.trait === "Superior I" ? 'selected' : ''}>Superior I (+5% Dmg)</option>
-                        <option value="Superior II" ${state.trait === "Superior II" ? 'selected' : ''}>Superior II (+10% Dmg)</option>
-                        <option value="Superior III" ${state.trait === "Superior III" ? 'selected' : ''}>Superior III (+15% Dmg)</option>
-                        <option value="Nimble I" ${state.trait === "Nimble I" ? 'selected' : ''}>Nimble I (-5% SPA)</option>
-                        <option value="Nimble II" ${state.trait === "Nimble II" ? 'selected' : ''}>Nimble II (-10% SPA)</option>
-                        <option value="Nimble III" ${state.trait === "Nimble III" ? 'selected' : ''}>Nimble III (-15% SPA)</option>
-                        <option value="Range I" ${state.trait === "Range I" ? 'selected' : ''}>Range I (+5% Range)</option>
-                        <option value="Range II" ${state.trait === "Range II" ? 'selected' : ''}>Range II (+10% Range)</option>
-                        <option value="Range III" ${state.trait === "Range III" ? 'selected' : ''}>Range III (+15% Range)</option>
-                        <option value="Godspeed" ${state.trait === "Godspeed" ? 'selected' : ''}>Godspeed (-20% SPA)</option>
-                        <option value="Reaper" ${state.trait === "Reaper" ? 'selected' : ''}>Reaper (+15% Dmg, +25% vs Bosses)</option>
-                        <option value="Culling" ${state.trait === "Culling" ? 'selected' : ''}>Culling (+20% under 30% HP)</option>
-                        <option value="Celestial" ${state.trait === "Celestial" ? 'selected' : ''}>Celestial (+10% Dmg, +10% Range)</option>
-                        <option value="Divine" ${state.trait === "Divine" ? 'selected' : ''}>Divine (+20% Dmg, -10% SPA, +20% Rng)</option>
-                        <option value="Eternal" ${state.trait === "Eternal" ? 'selected' : ''}>Eternal (+50% Dmg, -10% SPA, +20% Rng)</option>
-                        <option value="Unique" ${state.trait === "Unique" ? 'selected' : ''}>Unique (+300% Dmg, -10% SPA, +10% Rng)</option>
+                        ${traitOptionsHtml}
                     </select>
+                </div>
+
+                <!-- Target Type Scenario -->
+                <div>
+                    <label style="display:block;font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:6px;">ENEMY TARGET SCENARIO</label>
+                    <select id="calc-target-select" onchange="WikiController.updateDPSCalc('targetType', this.value)" style="width:100%;padding:10px;background:#1e293b;color:#f8fafc;border:1px solid #334155;border-radius:8px;font-size:13px;">
+                        <option value="normal" ${state.targetType === "normal" ? 'selected' : ''}>Normal Enemy (>30% HP)</option>
+                        <option value="boss" ${state.targetType === "boss" ? 'selected' : ''}>Boss Enemy (Triggers Reaper/Boss passives)</option>
+                        <option value="low_hp" ${state.targetType === "low_hp" ? 'selected' : ''}>Low HP Enemy (<30% HP, Triggers Culling)</option>
+                        <option value="flying" ${state.targetType === "flying" ? 'selected' : ''}>Flying Enemy (Triggers Anti-Air Hunter)</option>
+                    </select>
+                </div>
+
+                <!-- Hill Vantage Placement -->
+                <div>
+                    <label style="display:block;font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:6px;">TILE PLACEMENT</label>
+                    <label style="display:flex;align-items:center;gap:8px;background:#1e293b;padding:9px 12px;border-radius:8px;border:1px solid ${state.isHill ? '#38bdf8' : '#334155'};cursor:pointer;margin-top:1px;">
+                        <input type="checkbox" ${state.isHill ? 'checked' : ''} onchange="WikiController.updateDPSCalc('isHill', this.checked)" style="width:18px;height:18px;cursor:pointer;">
+                        <span style="font-size:12px;color:${state.isHill ? '#38bdf8' : '#cbd5e1'};font-weight:700;">⛰️ Hill Tile (Soaring Bonus)</span>
+                    </label>
                 </div>
             </div>
 
@@ -805,6 +845,23 @@ const WikiController = {
     updateDPSCalc(key, val) {
         if (!this.dpsCalcState) this.dpsCalcState = {};
         this.dpsCalcState[key] = val;
+        
+        // If updating unitLevel, sync slider, input, and label text
+        if (key === "unitLevel") {
+            const lvl = Math.max(1, Math.min(100, parseInt(val, 10) || 1));
+            this.dpsCalcState.unitLevel = lvl;
+            const slider = document.getElementById("calc-level-slider");
+            const input = document.getElementById("calc-level-input");
+            const label = document.getElementById("calc-level-label");
+            if (slider && slider.value != lvl) slider.value = lvl;
+            if (input && input.value != lvl) input.value = lvl;
+            if (label) {
+                const bonus = ((Math.pow(1.01, lvl - 1) - 1) * 100).toFixed(1);
+                label.textContent = `Lv ${lvl} (+${bonus}% Dmg)`;
+            }
+        }
+        
+        // Re-render calculation result area
         const resultArea = document.getElementById("dps-calc-result-area");
         if (resultArea) {
             resultArea.innerHTML = this.computeDPSCalcHtml(this.dpsCalcState);
@@ -815,10 +872,97 @@ const WikiController = {
         const u = window.UNIT_CONFIG && window.UNIT_CONFIG[state.unitId];
         if (!u) return `<p style="color:#ef4444;">Unit not found.</p>`;
 
-        // Determine upgrade level stats
-        let lvl = state.upgradeLevel === "max" ? (u.upgrades ? u.upgrades.length : 0) : parseInt(state.upgradeLevel, 10);
-        if (u.upgrades && lvl > u.upgrades.length) lvl = u.upgrades.length;
+        const maxUpgs = (u.upgrades || []).length;
+        let lvl = state.upgradeLevel === "max" ? maxUpgs : parseInt(state.upgradeLevel, 10);
+        if (lvl > maxUpgs) lvl = maxUpgs;
+        if (isNaN(lvl) || lvl < 0) lvl = 0;
 
+        // Total cash investment up to this upgrade
+        let totalInvested = u.baseCost || 400;
+        for (let i = 0; i < lvl; i++) {
+            if (u.upgrades && u.upgrades[i]) {
+                totalInvested += (u.upgrades[i].cost || 0);
+            }
+        }
+
+        // ----------------------------------------------------
+        // FARM UNIT ECONOMY CALCULATOR (Speedwagon / Bulma)
+        // ----------------------------------------------------
+        if (u.isFarm) {
+            let baseIncome = u.incomePerWave || 200;
+            if (lvl > 0 && u.upgrades && u.upgrades[lvl - 1]) {
+                const upg = u.upgrades[lvl - 1];
+                baseIncome = upg.incomePerWave || upg.income || baseIncome;
+            }
+
+            // Apply Fortune trait if equipped (+20% farm income)
+            let incomeMult = 1.0;
+            const trConf = window.TRAIT_CONFIG && window.TRAIT_CONFIG[state.trait];
+            if (trConf && trConf.incomeBonus) {
+                incomeMult += trConf.incomeBonus;
+            }
+
+            const effectiveIncome = Math.round(baseIncome * incomeMult);
+            const payoffWaves = effectiveIncome > 0 ? (totalInvested / effectiveIncome).toFixed(1) : "N/A";
+            const maxPlacement = u.maxPlacements || (u.id === "gold_alchemist" ? 1 : 3);
+            const totalMaxTeamIncome = effectiveIncome * maxPlacement;
+
+            return `
+                <div style="background:#0b1324;border:2px solid #eab308;border-radius:12px;padding:20px;box-shadow:0 10px 25px rgba(234,179,8,0.2);">
+                    <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px;border-bottom:1px solid #1e293b;padding-bottom:16px;flex-wrap:wrap;">
+                        <img src="${window.PixelSprites ? window.PixelSprites.getUnitSprite(u.id, 64) : ''}" style="width:64px;height:64px;border-radius:8px;border:2px solid #eab308;background:#0f172a;object-fit:contain;">
+                        <div>
+                            <h3 style="color:#f8fafc;margin:0 0 4px 0;font-size:18px;">${u.name} (Upgrade ${lvl} / ${maxUpgs})</h3>
+                            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                                <span class="rarity-badge ${u.rarity.toLowerCase()}">${u.rarity}</span>
+                                <span style="background:rgba(234,179,8,0.2);color:#facc15;border:1px solid #eab308;padding:2px 8px;border-radius:6px;font-weight:800;font-size:11px;">🌾 ECONOMY FARM TOWER</span>
+                                <span style="color:#94a3b8;font-size:12px;">Map Limit: <b>${maxPlacement} unit${maxPlacement > 1 ? 's' : ''}</b></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Farm Stats Grid -->
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));gap:14px;margin-bottom:20px;">
+                        <div style="background:#0f172a;padding:14px;border-radius:8px;border:1px solid #eab308;text-align:center;box-shadow:0 0 15px rgba(234,179,8,0.15);">
+                            <span style="font-size:11px;color:#facc15;font-weight:700;display:block;">WAVE YEN PAYOUT</span>
+                            <strong style="font-size:24px;color:#fde047;">${effectiveIncome.toLocaleString()} ¥</strong>
+                            <span style="font-size:10px;color:#ca8a04;display:block;">Paid out at start of every wave</span>
+                        </div>
+                        <div style="background:#0f172a;padding:14px;border-radius:8px;border:1px solid #1e293b;text-align:center;">
+                            <span style="font-size:11px;color:#94a3b8;display:block;">TOTAL CASH INVESTED</span>
+                            <strong style="font-size:22px;color:#38bdf8;">${totalInvested.toLocaleString()} ¥</strong>
+                            <span style="font-size:10px;color:#64748b;display:block;">Base ${u.baseCost}¥ + Upgrades</span>
+                        </div>
+                        <div style="background:#0f172a;padding:14px;border-radius:8px;border:1px solid #1e293b;text-align:center;">
+                            <span style="font-size:11px;color:#94a3b8;display:block;">BREAK-EVEN TIME</span>
+                            <strong style="font-size:22px;color:#4ade80;">~${payoffWaves} Waves</strong>
+                            <span style="font-size:10px;color:#64748b;display:block;">Invested Cash ÷ Payout</span>
+                        </div>
+                        <div style="background:#0f172a;padding:14px;border-radius:8px;border:1px solid #22c55e;text-align:center;box-shadow:0 0 15px rgba(34,197,94,0.15);">
+                            <span style="font-size:11px;color:#86efac;font-weight:700;display:block;">MAX TEAM YIELD (x${maxPlacement})</span>
+                            <strong style="font-size:24px;color:#22c55e;">${totalMaxTeamIncome.toLocaleString()} ¥/w</strong>
+                            <span style="font-size:10px;color:#4ade80;display:block;">If max cap placed on field</span>
+                        </div>
+                    </div>
+
+                    <!-- Breakdown -->
+                    <div style="background:#090d16;border:1px solid #1e293b;border-radius:8px;padding:14px;">
+                        <strong style="color:#facc15;font-size:12px;display:block;margin-bottom:6px;">📊 FARM ECONOMY BREAKDOWN:</strong>
+                        <ul style="margin:0;padding-left:18px;color:#cbd5e1;font-size:12px;line-height:1.6;">
+                            <li><b>Base Yield at Upgrade ${lvl}:</b> ${baseIncome.toLocaleString()} ¥/wave</li>
+                            ${trConf && trConf.incomeBonus ? `<li style="color:#4ade80;"><b>Fortune Trait Bonus:</b> +${Math.round(trConf.incomeBonus * 100)}% extra Yen (+${effectiveIncome - baseIncome} ¥/wave)</li>` : `<li><b>Trait:</b> None (+0% bonus)</li>`}
+                            <li><b>Placement Limit:</b> Strictly limited to ${maxPlacement} placement${maxPlacement > 1 ? 's' : ''} on the battlefield.</li>
+                            <li><b>Sell Refund:</b> In battle, selling this tower refunds 50% of total invested cash (<b>${Math.floor(totalInvested * 0.50).toLocaleString()} ¥</b>).</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ----------------------------------------------------
+        // COMBAT UNIT DPS CALCULATOR
+        // ----------------------------------------------------
+        // Base stats at selected upgrade
         let baseDmg = u.baseDamage;
         let baseSpa = u.baseSpa;
         let baseRng = u.baseRange;
@@ -830,62 +974,78 @@ const WikiController = {
             baseRng = upg.range !== undefined ? upg.range : baseRng;
         }
 
-        // Apply Trait modifiers
-        let traitDmgMult = 1.0;
-        let traitSpaMult = 1.0;
-        let traitRngBonus = 0;
+        // Unit Level Compounding Scaling: 1.01^(lvl - 1)
+        const unitLvl = Math.max(1, Math.min(100, Math.round(state.unitLevel || 1)));
+        const levelMult = Math.pow(1.01, unitLvl - 1);
+        let currentDmg = baseDmg * levelMult;
+
+        // Trait Modifiers
+        let traitDmgBonus = 0;
+        let traitSpaReduction = 0;
+        let traitRangeBonus = 0;
         const trConf = window.TRAIT_CONFIG && window.TRAIT_CONFIG[state.trait];
         if (trConf) {
-            traitDmgMult = 1.0 + (trConf.damageBonus || 0);
-            traitSpaMult = Math.max(0.1, 1.0 - (trConf.spaReduction || 0));
-            traitRngBonus = Math.round((u.baseRange || 100) * (trConf.rangeBonus || 0));
+            traitDmgBonus = trConf.damageBonus || 0;
+            traitSpaReduction = trConf.spaReduction || 0;
+            traitRangeBonus = trConf.rangeBonus || 0;
         }
 
-        const effectiveDmg = Math.round(baseDmg * traitDmgMult);
-        const effectiveSpa = Math.max(0.2, +(baseSpa * traitSpaMult).toFixed(2));
-        const effectiveRng = Math.round(baseRng + traitRngBonus);
+        let effectiveDmg = currentDmg * (1 + traitDmgBonus);
+        let effectiveSpa = Math.max(0.2, +(baseSpa * (1 - traitSpaReduction)).toFixed(2));
+        let effectiveRng = Math.round(baseRng * (1 + traitRangeBonus));
 
         const rawDps = effectiveSpa > 0 ? (effectiveDmg / effectiveSpa) : 0;
 
-        // Calculate Real DPS based on individually selected passives
+        // Passive Multipliers & Conditional Mechanics
         let realDpsMult = 1.0;
         const notes = [];
         const passivesOn = state.passivesEnabled || {};
 
-        // Hill Soaring
-        if (u.hasSoaring) {
-            realDpsMult += 0.20;
-            notes.push("🪽 +20% Hill Soaring Bonus");
+        notes.push(`📈 Unit Level ${unitLvl}: x${levelMult.toFixed(2)} (+${((levelMult - 1) * 100).toFixed(1)}% base damage)`);
+
+        if (trConf) {
+            if (traitDmgBonus > 0) notes.push(`✨ ${trConf.name} Trait: +${Math.round(traitDmgBonus * 100)}% Damage`);
+            if (traitSpaReduction > 0) notes.push(`⚡ ${trConf.name} Trait: -${Math.round(traitSpaReduction * 100)}% SPA`);
+            if (traitRangeBonus > 0) notes.push(`🎯 ${trConf.name} Trait: +${Math.round(traitRangeBonus * 100)}% Range`);
         }
 
-        // Only Shinobi and Flame Emperor have burn damage!
+        // Hill Soaring
+        if (state.isHill && u.hasSoaring) {
+            realDpsMult += 0.20;
+            notes.push("🪽 +20% Hill Soaring Bonus active");
+        }
+
+        // Culling trait (+20% under 30% HP)
+        if (trConf && trConf.cullingBonus && state.targetType === "low_hp") {
+            realDpsMult += trConf.cullingBonus;
+            notes.push(`💀 Culling Trait: +${Math.round(trConf.cullingBonus * 100)}% Damage against low HP enemies (<30%)`);
+        }
+
+        // Reaper trait (+25% vs bosses)
+        if (trConf && trConf.bossDamageBonus && state.targetType === "boss") {
+            realDpsMult += trConf.bossDamageBonus;
+            notes.push(`🩸 Reaper Trait: +${Math.round(trConf.bossDamageBonus * 100)}% Damage against Bosses`);
+        }
+
+        // Unit-Specific Passives
         if (u.id === "shinobi" || u.id === "shinobi_god") {
-            const isBurnActive = passivesOn["Black Flame Ignition"] !== false && passivesOn["Infernal Amaterasu"] !== false;
-            if (isBurnActive) {
-                // Shinobi black flames do 100% of unit damage
-                realDpsMult += (u.id === "shinobi_god" ? 0.35 : 0.25);
-                notes.push("🔥 Black Flames Burn: 100% of unit damage applied over 3 seconds");
+            if (passivesOn["Black Flame Ignition"] !== false && passivesOn["Infernal Amaterasu"] !== false) {
+                const burnBonus = (u.id === "shinobi_god" ? 0.35 : 0.25);
+                realDpsMult += burnBonus;
+                notes.push(`🔥 Black Flames Burn: 100% of unit damage over 3s (+${Math.round(burnBonus * 100)}% effective DPS)`);
             }
             if (passivesOn["Heavenly Meteor"]) {
                 notes.push("☄️ Heavenly Meteor: 350% burst strike unlocked");
             }
         } else if (u.id === "flame_emperor" || u.id === "flame_emperor_awakened") {
-            const isBurnActive = passivesOn["Ignition Blaze"] !== false && passivesOn["Infernal Blaze"] !== false;
-            if (isBurnActive) {
-                // Flame emperor does 50% of unit damage
+            if (passivesOn["Ignition Blaze"] !== false && passivesOn["Infernal Blaze"] !== false) {
                 realDpsMult += 0.15;
-                notes.push("🔥 Lingering Fire Burn: 50% of unit damage applied over 3 seconds");
+                notes.push("🔥 Lingering Fire Burn: 50% of unit damage over 3s (+15% effective DPS)");
             }
             if (passivesOn["Scorched Earth"]) {
                 realDpsMult += 0.20;
                 notes.push("🌋 Scorched Earth: +20% bonus damage vs burning targets");
             }
-        }
-
-        // Shadow Assassin passives
-        if (u.id === "shadow_assassin" && passivesOn["Shadow Mark"]) {
-            realDpsMult += 0.05;
-            notes.push("🎯 Shadow Mark: +35% bonus every 8th attack on same target");
         } else if (u.id === "shadow_assassin_awakened") {
             if (passivesOn["Endless Hunt"]) {
                 realDpsMult += 0.30;
@@ -895,53 +1055,43 @@ const WikiController = {
                 realDpsMult += 0.05;
                 notes.push("🗡️ Phantom Rhythm: +50% bonus damage on every 10th attack");
             }
-        }
-
-        // Thunder God Chain Lightning
-        if (u.id === "thunder_god" && passivesOn["Shocking Discharge"]) {
-            realDpsMult *= 2.30; // 3 targets 25% falloff
-            notes.push("⚡ Chain Lightning: 3 targets (25% falloff per jump)");
         } else if (u.id === "thunder_god_awakened") {
             if (passivesOn["Divine Chain Lightning"]) {
                 realDpsMult *= 2.73; // 4 targets 25% falloff
-                notes.push("⚡ Divine Chain Lightning: 4 targets (25% falloff per jump)");
+                notes.push("⚡ Divine Chain Lightning: 4 targets (25% falloff per jump, ~2.73x total area output)");
             }
             if (passivesOn["Thunderous Overload"]) {
                 realDpsMult += 0.15;
                 notes.push("⚡ Thunderous Overload: +15% damage to shocked targets");
             }
-        }
-
-        // Vampire King
-        if (u.id === "vampire_king") {
+        } else if (u.id === "thunder_god") {
+            if (passivesOn["Shocking Discharge"]) {
+                realDpsMult *= 2.30; // 3 targets 25% falloff
+                notes.push("⚡ Chain Lightning: 3 targets (25% falloff per jump, ~2.3x total output)");
+            }
+        } else if (u.id === "vampire_king") {
             if (passivesOn["Blood Curse"]) {
                 realDpsMult += 0.15;
-                notes.push("🩸 Blood Curse: 50% bleed damage applied over 8 seconds");
+                notes.push("🩸 Blood Curse: 50% bleed damage over 8s");
             }
             if (passivesOn["Crimson Feast"]) {
                 realDpsMult += 0.15;
                 notes.push("🩸 Crimson Feast: +15% direct damage to bleeding targets");
             }
-            if (passivesOn["Army of the Fallen"]) {
-                notes.push("💀 Army of the Fallen: raises dead enemies as allied base defenders");
-            }
-        }
-
-        // Star Mage
-        if (u.id === "star_mage_explosion") {
+        } else if (u.id === "star_mage_explosion") {
             if (passivesOn["Stellar Blast Zone"]) {
                 realDpsMult += 0.30;
                 notes.push("✨ Stellar Blast Zone: +30% extra light damage on hit enemies");
             }
-            if (passivesOn["Cosmic Execution"]) {
+            if (passivesOn["Cosmic Execution"] && state.targetType === "boss") {
                 realDpsMult += 0.25;
-                notes.push("🌟 Cosmic Execution: +25% bonus damage to bosses");
+                notes.push("🌟 Cosmic Execution: +25% bonus damage against Bosses");
             }
-        }
-
-        // Hunter
-        if (u.id === "hunter" && passivesOn["Eagle Eye"]) {
-            notes.push("🦅 Eagle Eye: +35% bonus damage against flying enemies");
+        } else if (u.id === "hunter" && state.targetType === "flying") {
+            if (passivesOn["Eagle Eye"] !== false) {
+                realDpsMult += 0.35;
+                notes.push("🦅 Eagle Eye: +35% bonus damage against Flying targets");
+            }
         }
 
         const realDps = rawDps * realDpsMult;
@@ -951,10 +1101,12 @@ const WikiController = {
                 <div style="display:flex;gap:16px;align-items:center;margin-bottom:16px;border-bottom:1px solid #1e293b;padding-bottom:16px;flex-wrap:wrap;">
                     <img src="${window.PixelSprites ? window.PixelSprites.getUnitSprite(u.id, 64) : ''}" style="width:64px;height:64px;border-radius:8px;border:2px solid #3b82f6;background:#0f172a;object-fit:contain;">
                     <div>
-                        <h3 style="color:#f8fafc;margin:0 0 4px 0;font-size:18px;">${u.name} (Upgrade ${lvl})</h3>
-                        <div style="display:flex;gap:8px;align-items:center;">
+                        <h3 style="color:#f8fafc;margin:0 0 4px 0;font-size:18px;">${u.name} (Upgrade ${lvl} / ${maxUpgs})</h3>
+                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                             <span class="rarity-badge ${u.rarity.toLowerCase()}">${u.rarity}</span>
-                            <span style="color:#94a3b8;font-size:12px;">Level: Upgrade ${lvl} / ${u.upgrades ? u.upgrades.length : 0}</span>
+                            <span style="color:#38bdf8;font-size:12px;font-weight:700;">Lv ${unitLvl}</span>
+                            <span style="color:#94a3b8;font-size:12px;">Role: <b>${u.placement || "Ground"}</b></span>
+                            <span style="color:#94a3b8;font-size:12px;">Total Cash Invested: <b>${totalInvested.toLocaleString()} ¥</b></span>
                         </div>
                     </div>
                 </div>
@@ -963,13 +1115,18 @@ const WikiController = {
                 <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(160px, 1fr));gap:14px;margin-bottom:20px;">
                     <div style="background:#0f172a;padding:12px;border-radius:8px;border:1px solid #1e293b;text-align:center;">
                         <span style="font-size:11px;color:#94a3b8;display:block;">DAMAGE PER HIT</span>
-                        <strong style="font-size:22px;color:#f43f5e;">${effectiveDmg.toLocaleString()}</strong>
-                        <span style="font-size:10px;color:#64748b;display:block;">Base: ${baseDmg}</span>
+                        <strong style="font-size:22px;color:#f43f5e;">${Math.round(effectiveDmg).toLocaleString()}</strong>
+                        <span style="font-size:10px;color:#64748b;display:block;">Base: ${baseDmg} × Lv & Trait</span>
                     </div>
                     <div style="background:#0f172a;padding:12px;border-radius:8px;border:1px solid #1e293b;text-align:center;">
                         <span style="font-size:11px;color:#94a3b8;display:block;">ATTACK SPEED (SPA)</span>
                         <strong style="font-size:22px;color:#38bdf8;">${effectiveSpa}s</strong>
                         <span style="font-size:10px;color:#64748b;display:block;">Base: ${baseSpa}s</span>
+                    </div>
+                    <div style="background:#0f172a;padding:12px;border-radius:8px;border:1px solid #1e293b;text-align:center;">
+                        <span style="font-size:11px;color:#94a3b8;display:block;">ATTACK RANGE</span>
+                        <strong style="font-size:22px;color:#a855f7;">${effectiveRng}</strong>
+                        <span style="font-size:10px;color:#64748b;display:block;">Base: ${baseRng}</span>
                     </div>
                     <div style="background:#0f172a;padding:12px;border-radius:8px;border:1px solid #1e293b;text-align:center;">
                         <span style="font-size:11px;color:#94a3b8;display:block;">RAW SINGLE DPS</span>
@@ -979,7 +1136,7 @@ const WikiController = {
                     <div style="background:#0f172a;padding:12px;border-radius:8px;border:1px solid #22c55e;text-align:center;box-shadow:0 0 15px rgba(34,197,94,0.15);">
                         <span style="font-size:11px;color:#4ade80;font-weight:700;display:block;">REAL POTENTIAL DPS</span>
                         <strong style="font-size:24px;color:#22c55e;">${realDps.toFixed(1)}</strong>
-                        <span style="font-size:10px;color:#86efac;display:block;">Passives & Trait Included</span>
+                        <span style="font-size:10px;color:#86efac;display:block;">Passives & Scenario Included</span>
                     </div>
                 </div>
 

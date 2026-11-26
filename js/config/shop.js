@@ -53,7 +53,7 @@ const SHOP_CONFIG = {
             dailyLimit: 3,
             color: "#facc15",
             icon: "⭐",
-            description: "Fundamental evolution fruit."
+            description: "Evolution material"
         },
         {
             id: "pink_star_fruit",
@@ -62,7 +62,7 @@ const SHOP_CONFIG = {
             dailyLimit: 3,
             color: "#ec4899",
             icon: "🌸",
-            description: "Attuned to vitality and speed."
+            description: "Evolution material"
         },
         {
             id: "red_star_fruit",
@@ -71,7 +71,7 @@ const SHOP_CONFIG = {
             dailyLimit: 3,
             color: "#ef4444",
             icon: "🔥",
-            description: "Attuned to fury and fire."
+            description: "Evolution material"
         },
         {
             id: "green_star_fruit",
@@ -80,7 +80,7 @@ const SHOP_CONFIG = {
             dailyLimit: 3,
             color: "#22c55e",
             icon: "🍃",
-            description: "Attuned to nature and life."
+            description: "Evolution material"
         },
         {
             id: "blue_star_fruit",
@@ -89,7 +89,7 @@ const SHOP_CONFIG = {
             dailyLimit: 3,
             color: "#3b82f6",
             icon: "💧",
-            description: "Attuned to water and ice."
+            description: "Evolution material"
         },
         {
             id: "yellow_star_fruit",
@@ -98,7 +98,7 @@ const SHOP_CONFIG = {
             dailyLimit: 3,
             color: "#eab308",
             icon: "⚡",
-            description: "Attuned to lightning and holy light."
+            description: "Evolution material"
         },
         {
             id: "rainbow_star_fruit",
@@ -107,7 +107,7 @@ const SHOP_CONFIG = {
             dailyLimit: 3,
             color: "#a855f7",
             icon: "🌈",
-            description: "Ultra-rare pristine fruit attuned to all cosmic elements."
+            description: "Supreme evolution material"
         }
     ],
 

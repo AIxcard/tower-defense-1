@@ -1135,7 +1135,7 @@ const UIController = {
             }
             rewardQueue.push({
                 type: "accountExp",
-                title: "COMMANDER EXP",
+                title: "PLAYER EXP",
                 value: `+${data.isHard ? 120 : 60} EXP 🌟`,
                 sub: "Player Account Progression",
                 color: "#a855f7",
@@ -2396,13 +2396,13 @@ const UIController = {
 
         const pool = [
             { id: "luck_potion", name: "Luck Potion", cost: 200, type: "consumable", targetKey: "luck_potion", desc: "+25% Summon Luck on banners for 30 minutes! (Boosts Mythic & Secret rates)", model: window.PixelSprites.getLuckPotionIcon(60) },
-            { id: "normal_star_fruit", name: "Normal Star Fruit", cost: 50, type: "material", targetKey: "normal_star_fruit", desc: "Basic unit evolution fruit.", icon: "⭐" },
-            { id: "pink_star_fruit", name: "Pink Star Fruit", cost: 200, type: "material", targetKey: "pink_star_fruit", desc: "Refined pink evolution fruit.", icon: "🌸" },
-            { id: "red_star_fruit", name: "Red Star Fruit", cost: 200, type: "material", targetKey: "red_star_fruit", desc: "Blazing crimson evolution fruit.", icon: "🔥" },
-            { id: "green_star_fruit", name: "Green Star Fruit", cost: 200, type: "material", targetKey: "green_star_fruit", desc: "Verdant nature evolution fruit.", icon: "🍃" },
-            { id: "blue_star_fruit", name: "Blue Star Fruit", cost: 200, type: "material", targetKey: "blue_star_fruit", desc: "Mystic oceanic evolution fruit.", icon: "💧" },
-            { id: "yellow_star_fruit", name: "Yellow Star Fruit", cost: 200, type: "material", targetKey: "yellow_star_fruit", desc: "Electrified lightning evolution fruit.", icon: "⚡" },
-            { id: "rainbow_star_fruit", name: "Rainbow Star Fruit", cost: 400, type: "material", targetKey: "rainbow_star_fruit", desc: "Prismatic cosmic evolution fruit.", icon: "🌈" }
+            { id: "normal_star_fruit", name: "Normal Star Fruit", cost: 50, type: "material", targetKey: "normal_star_fruit", desc: "Evolution material", icon: "⭐" },
+            { id: "pink_star_fruit", name: "Pink Star Fruit", cost: 200, type: "material", targetKey: "pink_star_fruit", desc: "Evolution material", icon: "🌸" },
+            { id: "red_star_fruit", name: "Red Star Fruit", cost: 200, type: "material", targetKey: "red_star_fruit", desc: "Evolution material", icon: "🔥" },
+            { id: "green_star_fruit", name: "Green Star Fruit", cost: 200, type: "material", targetKey: "green_star_fruit", desc: "Evolution material", icon: "🍃" },
+            { id: "blue_star_fruit", name: "Blue Star Fruit", cost: 200, type: "material", targetKey: "blue_star_fruit", desc: "Evolution material", icon: "💧" },
+            { id: "yellow_star_fruit", name: "Yellow Star Fruit", cost: 200, type: "material", targetKey: "yellow_star_fruit", desc: "Evolution material", icon: "⚡" },
+            { id: "rainbow_star_fruit", name: "Rainbow Star Fruit", cost: 400, type: "material", targetKey: "rainbow_star_fruit", desc: "Supreme evolution material", icon: "🌈" }
         ];
 
         // Pick 3 deterministic random items for the hour
@@ -3124,7 +3124,7 @@ const UIController = {
                         <div>
                             <div class="crafting-header-box">
                                 <div class="crafting-item-img" style="height:48px;display:flex;align-items:center;justify-content:center;">
-                                    ${window.PixelSprites.getDaggerIcon(44)}
+                                    ${window.PixelSprites.getShadowDaggerIcon(44)}
                                 </div>
                                 <div>
                                     <div style="font-weight:900;color:#c084fc;font-size:15px;">Shadow Dagger</div>
@@ -3134,7 +3134,7 @@ const UIController = {
                             </div>
                             <div class="crafting-cost-list">
                                 <div class="crafting-cost-item ${rawDaggerCount >= 12 ? 'met' : 'unmet'}">
-                                    <span>🗡️ Daggers (Hills Legend Act 3)</span>
+                                    <span style="display:inline-flex;align-items:center;gap:6px;">${window.PixelSprites.getNormalDaggerIcon(20)} Daggers (Hills Legend Act 3)</span>
                                     <span>${rawDaggerCount} / 12</span>
                                 </div>
                                 <div class="crafting-cost-item ${rainbowCount >= 1 ? 'met' : 'unmet'}">
@@ -4190,7 +4190,7 @@ const UIController = {
         }
         const profile = window.SaveService && window.SaveService.getUserProfile();
         if (!profile || !profile.usernameChosen || !profile.name || !profile.name.trim()) {
-            this.showToast("You cannot play until you choose your Commander username!", "warning");
+            this.showToast("You must choose a username to start playing!", "warning");
             return;
         }
         const modal = document.getElementById("auth-gateway-modal");
@@ -4252,18 +4252,18 @@ const UIController = {
                 </div>
 
                 <div style="display:flex;justify-content:center;margin-bottom:14px;">
-                    <div style="width:64px;height:64px;border-radius:20px;background:#0f172a;border:2px solid #facc15;display:flex;align-items:center;justify-content:center;box-shadow:0 0 25px rgba(250,204,21,0.3);font-size:30px;">
+                    <div style="width:64px;height:64px;border-radius:20px;background:#0f172a;border:2px solid #38bdf8;display:flex;align-items:center;justify-content:center;box-shadow:0 0 25px rgba(56,189,248,0.3);font-size:30px;">
                         ⚔️
                     </div>
                 </div>
 
                 <h2 style="color:#ffffff;font-size:22px;font-weight:900;letter-spacing:-0.5px;margin-bottom:6px;">Choose Your Username</h2>
                 <p style="color:#94a3b8;font-size:13px;line-height:1.4;margin-bottom:22px;">
-                    Enter your in-game Commander name to start playing. You cannot proceed without choosing a username.
+                    Enter your username to start playing. You cannot proceed without choosing a username.
                 </p>
 
                 <div style="margin-bottom:20px;text-align:left;">
-                    <label style="display:block;font-size:11px;font-weight:800;color:#38bdf8;margin-bottom:6px;letter-spacing:0.5px;">COMMANDER USERNAME</label>
+                    <label style="display:block;font-size:11px;font-weight:800;color:#38bdf8;margin-bottom:6px;letter-spacing:0.5px;">USERNAME</label>
                     <input id="choose-username-input" type="text" maxlength="16" placeholder="Enter username (3-16 chars)" style="width:100%;height:50px;background:#0f172a;border:2px solid #334155;border-radius:12px;padding:0 16px;color:#f8fafc;font-size:15px;font-weight:700;box-sizing:border-box;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='#38bdf8'" onblur="this.style.borderColor='#334155'" onkeydown="if(event.key==='Enter') UIController.handleConfirmUsername();" />
                     <div id="username-error-msg" style="display:none;color:#ef4444;font-size:12px;font-weight:700;margin-top:6px;"></div>
                 </div>
@@ -4289,7 +4289,7 @@ const UIController = {
                 </div>
 
                 <h2 style="color:#facc15;font-size:22px;font-weight:900;margin-bottom:4px;">${profile.name}</h2>
-                <div style="font-size:12px;color:#94a3b8;margin-bottom:18px;">Level ${pLevel} Commander • ${googleUser.email}</div>
+                <div style="font-size:12px;color:#94a3b8;margin-bottom:18px;">Level ${pLevel} • ${googleUser.email}</div>
 
                 <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;">
                     <button onclick="UIController.closeAuthModal()" style="width:100%;height:48px;background:#22c55e;color:#000;border:none;border-radius:12px;font-weight:900;font-size:15px;cursor:pointer;box-shadow:0 0 20px rgba(34,197,94,0.35);transition:all 0.2s ease;">
@@ -4337,7 +4337,7 @@ const UIController = {
 
                     if (profile && profile.usernameChosen && profile.name && profile.name.trim()) {
                         this.closeAuthModal();
-                        this.showToast("Welcome back, Commander " + profile.name + "!", "success");
+                        this.showToast("Welcome back, " + profile.name + "!", "success");
                     } else {
                         // Open and enforce username selection screen!
                         this.openAuthModal();
@@ -4408,7 +4408,7 @@ const UIController = {
         this.renderBanners();
         this.renderInventory();
         this.closeAuthModal();
-        this.showToast("Welcome, Commander " + prof.name + "!", "success");
+        this.showToast("Welcome, " + prof.name + "!", "success");
     },
 
     closeAllModals() {
