@@ -744,7 +744,7 @@ const UIController = {
         }
 
         let html = "";
-        equippedUnits.forEach(u => {
+        equippedUnits.forEach((u, slotIdx) => {
             const conf = window.UNIT_CONFIG[u.unitId];
             if (!conf) return;
 
@@ -755,11 +755,13 @@ const UIController = {
             const limit = conf.maxPlacements || 4;
             const placedCount = window.CombatEngine.placedUnits.filter(p => p.config.id === conf.id).length;
             const limitReached = placedCount >= limit;
+            const slotNum = slotIdx + 1;
 
             html += `
                 <div class="deploy-unit-card ${isSelected ? 'selected' : ''} ${(!canAfford || limitReached) ? 'disabled' : ''}" 
                      onclick="${limitReached ? `UIController.showToast('Placement limit reached (Max ${limit} for ${conf.name})!', 'warning')` : `UIController.selectUnitToDeploy('${u.id}')`}">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="background:rgba(250,204,21,0.2);color:#facc15;font-size:10px;font-weight:900;padding:1px 5px;border-radius:4px;border:1px solid rgba(250,204,21,0.4);">[${slotNum}]</span>
                         <span class="deploy-rarity ${conf.rarity.toLowerCase()}">${conf.rarity}</span>
                         <span class="deploy-cost">${conf.baseCost} ¥</span>
                     </div>
@@ -897,72 +899,93 @@ const UIController = {
         };
     },
 
-        getActiveBuffsHtml(placedUnit) {
+        getCommanderBonus(placedUnit) {
+        if (!placedUnit || placedUnit.config.damageType !== "Physical" || !window.CombatEngine || !window.CombatEngine.placedUnits) return 0;
+        let maxBonus = 0;
+        window.CombatEngine.placedUnits.forEach(b => {
+            if (b.config.id === "commander" && b !== placedUnit) {
+                const dist = Math.hypot(b.x - placedUnit.x, b.y - placedUnit.y);
+                if (dist <= b.stats.range) {
+                    const bonus = 0.30 + (b.upgradeLevel || 0) * 0.05;
+                    if (bonus > maxBonus) maxBonus = bonus;
+                }
+            }
+        });
+        return Math.min(0.60, maxBonus);
+    },
+
+    getMagicGirlBonus(placedUnit) {
+        if (!placedUnit || placedUnit.config.damageType !== "Magical" || !window.CombatEngine || !window.CombatEngine.placedUnits) return 0;
+        let maxBonus = 0;
+        window.CombatEngine.placedUnits.forEach(b => {
+            if (b.config.id === "magic_girl" && b !== placedUnit) {
+                const dist = Math.hypot(b.x - placedUnit.x, b.y - placedUnit.y);
+                if (dist <= b.stats.range) {
+                    const bonus = 0.30 + (b.upgradeLevel || 0) * 0.05;
+                    if (bonus > maxBonus) maxBonus = bonus;
+                }
+            }
+        });
+        return Math.min(0.60, maxBonus);
+    },
+
+    getActiveBuffsHtml(placedUnit) {
         const buffs = [];
         const conf = placedUnit.config;
         const inst = placedUnit.unitInstance;
 
-        // 1. Trait Bonus
+        // 1. Trait Bonus (Correctly parses percentage bonus properties)
         if (inst && inst.trait && inst.trait !== "None") {
             const trConf = window.TRAIT_CONFIG && window.TRAIT_CONFIG[inst.trait];
             if (trConf) {
                 const parts = [];
-                if (trConf.damageMultiplier && trConf.damageMultiplier !== 1.0) {
-                    const pct = Math.round((trConf.damageMultiplier - 1.0) * 100);
-                    parts.push(`${pct > 0 ? '+' : ''}${pct}% Dmg`);
+                if (trConf.damageBonus) {
+                    const pct = Math.round(trConf.damageBonus * 100);
+                    parts.push(`+${pct}% Dmg`);
                 }
-                if (trConf.spaMultiplier && trConf.spaMultiplier !== 1.0) {
-                    const pct = Math.round((1.0 - trConf.spaMultiplier) * 100);
-                    parts.push(`${pct > 0 ? '-' : '+'}${pct}% SPA`);
+                if (trConf.spaReduction) {
+                    const pct = Math.round(trConf.spaReduction * 100);
+                    parts.push(`-${pct}% SPA`);
                 }
-                if (trConf.rangeBonus) parts.push(`+${trConf.rangeBonus} Rng`);
-                buffs.push(`<div style="color:#22c55e;">• <b>Trait (${inst.trait}):</b> ${parts.join(', ')}</div>`);
+                if (trConf.rangeBonus) {
+                    const pct = Math.round(trConf.rangeBonus * 100);
+                    parts.push(`+${pct}% Range`);
+                }
+                if (trConf.bossDamageBonus) {
+                    parts.push(`+${Math.round(trConf.bossDamageBonus * 100)}% Boss Dmg`);
+                }
+                if (trConf.cullingBonus) {
+                    parts.push(`+${Math.round(trConf.cullingBonus * 100)}% Culling`);
+                }
+                if (trConf.incomeBonus) {
+                    parts.push(`+${Math.round(trConf.incomeBonus * 100)}% Income`);
+                }
+                const details = parts.length > 0 ? parts.join(', ') : (trConf.description || "Active");
+                buffs.push(`<div style="color:#22c55e;">• <b>Trait (${inst.trait}):</b> ${details}</div>`);
             }
         }
 
         // 2. Commander Physical Buff (if within range)
-        if (conf.damageType === "Physical" && window.CombatEngine && window.CombatEngine.placedUnits) {
-            let cmdBonus = 0;
-            window.CombatEngine.placedUnits.forEach(b => {
-                if (b.config.id === "commander") {
-                    const dist = Math.hypot(b.x - placedUnit.x, b.y - placedUnit.y);
-                    if (dist <= b.stats.range) {
-                        cmdBonus += Math.min(0.50, (b.upgradeLevel || 0) * 0.10);
-                    }
-                }
-            });
-            if (cmdBonus > 0) {
-                buffs.push(`<div style="color:#38bdf8;">• <b>Commander Aura:</b> +${Math.round(cmdBonus * 100)}% Physical Dmg</div>`);
-            }
+        const cmdBonus = this.getCommanderBonus(placedUnit);
+        if (cmdBonus > 0) {
+            buffs.push(`<div style="color:#38bdf8;">• <b>Commander Aura:</b> +${Math.round(cmdBonus * 100)}% Physical Dmg (Active)</div>`);
         }
 
         // 3. Magic Girl Magical Buff (if within range)
-        if (conf.damageType === "Magical" && window.CombatEngine && window.CombatEngine.placedUnits) {
-            let magicBonus = 0;
-            window.CombatEngine.placedUnits.forEach(b => {
-                if (b.config.id === "magic_girl") {
-                    const dist = Math.hypot(b.x - placedUnit.x, b.y - placedUnit.y);
-                    if (dist <= b.stats.range) {
-                        magicBonus += Math.min(0.50, (b.upgradeLevel || 0) * 0.10);
-                    }
-                }
-            });
-            if (magicBonus > 0) {
-                buffs.push(`<div style="color:#e879f9;">• <b>Magic Girl Aura:</b> +${Math.round(magicBonus * 100)}% Magical Dmg</div>`);
-            }
+        const magicBonus = this.getMagicGirlBonus(placedUnit);
+        if (magicBonus > 0) {
+            buffs.push(`<div style="color:#c084fc;">• <b>Arcane Aura:</b> +${Math.round(magicBonus * 100)}% Magical Dmg (Active)</div>`);
         }
 
-        // 5. Relic Bonus
-        const uRelic = window.SaveService && window.SaveService.getUnitEquippedRelic ? window.SaveService.getUnitEquippedRelic(inst.id || placedUnit.id) : null;
-        if (uRelic) {
-            const relConf = window.RELIC_CONFIG && window.RELIC_CONFIG[uRelic];
-            const name = relConf ? relConf.name : uRelic;
-            buffs.push(`<div style="color:#facc15;">• <b>Relic (${name}):</b> Active</div>`);
+        // 4. Hill Vantage Rule
+        if (placedUnit.isHill && conf.hasSoaring) {
+            buffs.push(`<div style="color:#38bdf8;">• <b>Hill Vantage:</b> Soaring Altitude Active 🪽</div>`);
         }
 
         if (buffs.length === 0) {
-            return `<span style="color:#64748b;font-style:italic;">No active auras or external buffs</span>`;
+            buffs.push(`<div style="color:#64748b;">No active auras or passives</div>`);
         }
+
         return buffs.join('');
     },
     showUnitInspector(placedUnit) {
@@ -979,8 +1002,23 @@ const UIController = {
         const placedCount = window.CombatEngine.placedUnits.filter(p => p.config.id === conf.id).length;
         const currentAbility = (conf.upgrades && placedUnit.upgradeLevel > 0 && conf.upgrades[placedUnit.upgradeLevel - 1].abilityName) || conf.abilityName || "Basic Attack";
 
+        // Calculate Effective Next Upgrade Stats WITH Traits, Level Scaling, and Hill
+        const nextEffectiveStats = nextUpgrade ? window.TraitEngine.calculateEffectiveStats(
+            conf,
+            nextLvl,
+            placedUnit.unitInstance.trait,
+            placedUnit.isHill,
+            placedUnit.unitInstance.level || 1
+        ) : null;
+
+        // Aura Buff Multiplier (Commander for Physical, Magic Girl for Magical)
+        const auraBuff = conf.damageType === "Physical" ? this.getCommanderBonus(placedUnit) : this.getMagicGirlBonus(placedUnit);
+        const auraLabel = conf.damageType === "Physical" ? "Commander" : "Arcane";
+
         // DPS Calculation Breakdown
         const dpsData = this.calculateDPSBreakdown(conf, placedUnit.upgradeLevel, placedUnit.unitInstance.trait, placedUnit.unitInstance.level || 1, placedUnit.isHill);
+        const effectiveDps = Math.round(dpsData.directDps * (1 + auraBuff));
+        const effectivePassiveDps = Math.round(dpsData.passiveDps * (1 + auraBuff));
 
         const isFarm = !!(conf.isFarm || conf.role === "Farm" || conf.incomePerWave !== undefined);
         const currentIncome = (stats.income !== undefined && stats.income > 0) ? stats.income : ((placedUnit.upgradeLevel > 0 && conf.upgrades && (conf.upgrades[placedUnit.upgradeLevel - 1].incomePerWave || conf.upgrades[placedUnit.upgradeLevel - 1].income)) || conf.incomePerWave || 0);
@@ -1027,7 +1065,7 @@ const UIController = {
                         </div>
                     </div>
                 ` : `
-                    <div><b>Damage per Attack:</b> <span style="color:#f8fafc;font-weight:700;">${stats.damage}</span></div>
+                    <div><b>Damage per Attack:</b> <span style="color:#f8fafc;font-weight:700;">${Math.round(stats.damage * (1 + auraBuff))}</span> ${auraBuff > 0 ? `<span style="color:#38bdf8;font-size:11px;">(${stats.damage} + ${Math.round(stats.damage * auraBuff)} ${auraLabel})</span>` : ''}</div>
                     <div><b>SPA:</b> <span style="color:#f8fafc;font-weight:700;">${stats.spa}s</span></div>
                     <div><b>Range:</b> <span style="color:#f8fafc;font-weight:700;">${stats.range}</span></div>
                 `}
@@ -1036,10 +1074,10 @@ const UIController = {
                 <div style="background:#090d16;border:1px solid #38bdf8;border-radius:8px;padding:8px;margin:8px 0;box-shadow:0 0 10px rgba(56,189,248,0.2);">
                     <div style="font-size:11px;font-weight:900;color:#38bdf8;margin-bottom:4px;display:flex;justify-content:space-between;">
                         <span>📊 DPS CHECKER</span>
-                        <span style="color:#facc15;">Direct: ${dpsData.directDps} /s</span>
+                        <span style="color:#facc15;">Direct: ${effectiveDps} /s</span>
                     </div>
                     <div style="font-size:12px;font-weight:800;color:#4ade80;">
-                        Passive-Adjusted DPS: ${dpsData.passiveDps} /s
+                        Passive-Adjusted DPS: ${effectivePassiveDps} /s
                     </div>
                     ${dpsData.passiveBreakdown.length > 0 ? `
                         <div style="font-size:10.5px;color:#94a3b8;margin-top:4px;">
@@ -1082,22 +1120,18 @@ const UIController = {
                                 <span>${currentIncome.toLocaleString()} ¥ ➔ <b class="upgrade-diff-val" style="color:#4ade80;font-size:13px;">${nextIncome.toLocaleString()} ¥ (+${incomeIncrease.toLocaleString()} ¥/wave)</b></span>
                             </div>
                         ` : ''}
-                        ${!isFarm && nextUpgrade.damage !== undefined ? `
+                        ${!isFarm && nextUpgrade ? `
                             <div class="upgrade-diff-row">
                                 <span>Damage:</span>
-                                <span>${stats.damage} ➔ <b class="upgrade-diff-val">${nextUpgrade.damage} (+${nextUpgrade.damage - stats.damage})</b></span>
+                                <span>${stats.damage} ➔ <b class="upgrade-diff-val">${nextEffectiveStats ? nextEffectiveStats.damage : nextUpgrade.damage} (${((nextEffectiveStats ? nextEffectiveStats.damage : nextUpgrade.damage) - stats.damage) >= 0 ? '+' : ''}${((nextEffectiveStats ? nextEffectiveStats.damage : nextUpgrade.damage) - stats.damage)})</b></span>
                             </div>
-                        ` : ''}
-                        ${!isFarm && nextUpgrade.spa !== undefined ? `
                             <div class="upgrade-diff-row">
                                 <span>SPA:</span>
-                                <span>${stats.spa}s ➔ <b class="upgrade-diff-val">${nextUpgrade.spa}s</b></span>
+                                <span>${stats.spa}s ➔ <b class="upgrade-diff-val">${nextEffectiveStats ? nextEffectiveStats.spa : nextUpgrade.spa}s ${((nextEffectiveStats ? nextEffectiveStats.spa : nextUpgrade.spa) - stats.spa) < 0 ? `(${((nextEffectiveStats ? nextEffectiveStats.spa : nextUpgrade.spa) - stats.spa).toFixed(2)}s)` : ''}</b></span>
                             </div>
-                        ` : ''}
-                        ${!isFarm && nextUpgrade.range !== undefined ? `
                             <div class="upgrade-diff-row">
                                 <span>Range:</span>
-                                <span>${stats.range} ➔ <b class="upgrade-diff-val">${nextUpgrade.range} (+${nextUpgrade.range - stats.range})</b></span>
+                                <span>${stats.range} ➔ <b class="upgrade-diff-val">${nextEffectiveStats ? nextEffectiveStats.range : nextUpgrade.range} (${((nextEffectiveStats ? nextEffectiveStats.range : nextUpgrade.range) - stats.range) >= 0 ? '+' : ''}${((nextEffectiveStats ? nextEffectiveStats.range : nextUpgrade.range) - stats.range)})</b></span>
                             </div>
                         ` : ''}
                         ${nextUpgrade.abilityName ? `
@@ -4874,4 +4908,60 @@ const UIController = {
 
 if (typeof window !== 'undefined') {
     window.UIController = UIController;
+}
+
+
+// Global PC Keyboard Shortcuts (X = Sell, R = Upgrade, 1-6 = Select Deploy Slot)
+if (typeof window !== 'undefined') {
+    window.addEventListener("keydown", (e) => {
+        const activeEl = document.activeElement;
+        const isTyping = activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA" || activeEl.isContentEditable);
+        if (isTyping) return;
+
+        const ce = window.CombatEngine;
+        if (!ce || !ce.isActive) return;
+
+        const key = e.key;
+
+        // Keys 1-6: Select Unit to Place from Equipped Hotbar
+        if (key >= "1" && key <= "6") {
+            const slotIndex = parseInt(key, 10) - 1;
+            const state = window.SaveService && window.SaveService.state;
+            const equippedIds = state && Array.isArray(state.equippedUnits) ? state.equippedUnits : [];
+            if (equippedIds[slotIndex]) {
+                const u = state.inventoryUnits.find(unit => unit.id === equippedIds[slotIndex]);
+                if (u) {
+                    const conf = window.UNIT_CONFIG[u.unitId];
+                    const limit = conf ? (conf.maxPlacements || 4) : 4;
+                    const placedCount = ce.placedUnits.filter(p => p.config.id === conf.id).length;
+                    if (placedCount >= limit) {
+                        if (window.UIController && window.UIController.showToast) {
+                            window.UIController.showToast(`Placement limit reached (Max ${limit} for ${conf.name})!`, "warning");
+                        }
+                    } else {
+                        if (window.UIController) {
+                            window.UIController.selectUnitToDeploy(u.id);
+                        }
+                    }
+                }
+            }
+            return;
+        }
+
+        // 'x' or 'X': Sell selected unit
+        if (key === "x" || key === "X") {
+            if (ce.selectedPlacedUnit && window.UIController) {
+                window.UIController.sellSelectedUnit(ce.selectedPlacedUnit.id);
+            }
+            return;
+        }
+
+        // 'r' or 'R': Upgrade selected unit
+        if (key === "r" || key === "R") {
+            if (ce.selectedPlacedUnit && window.UIController) {
+                window.UIController.upgradeSelectedUnit(ce.selectedPlacedUnit.id);
+            }
+            return;
+        }
+    });
 }

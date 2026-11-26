@@ -423,6 +423,7 @@ const CombatEngine = {
             if (window.AudioService) window.AudioService.playSellSound();
             if (window.UIController) {
                 window.UIController.updateBattleHUD();
+                window.UIController.renderUnitDeploymentBar();
                 window.UIController.hideUnitInspector();
             }
         }
@@ -545,9 +546,10 @@ const CombatEngine = {
 
         this.spawnQueue = [];
 
-        // Story Mode Wave definitions
-        if (diffConfig && diffConfig.waveEnemies && diffConfig.waveEnemies[this.currentWave - 1]) {
-            const waveData = diffConfig.waveEnemies[this.currentWave - 1];
+        // Story Mode Wave definitions (Uses stage waveEnemies, falling back to normal waves on hard)
+        const waveEnemiesList = (diffConfig && diffConfig.waveEnemies) || (this.stageConfig.normal && this.stageConfig.normal.waveEnemies);
+        if (waveEnemiesList && waveEnemiesList[this.currentWave - 1]) {
+            const waveData = waveEnemiesList[this.currentWave - 1];
             for (let i = 0; i < waveData.count; i++) {
                 const enemyType = waveData.enemies[i % waveData.enemies.length];
                 this.spawnQueue.push({
@@ -588,6 +590,17 @@ const CombatEngine = {
                     speedMult: 0.75
                 });
             }
+        }
+
+        // World 1 & World 2 Ironclad Aerial Ban: ZERO flying or soaring enemies in World 1 and 2
+        const isWorld1or2 = this.stageConfig && (this.stageConfig.worldId === "world_1" || this.stageConfig.worldId === "world_2");
+        if (isWorld1or2) {
+            this.spawnQueue.forEach(item => {
+                const cfg = window.ENEMY_CONFIG && window.ENEMY_CONFIG[item.type];
+                if (cfg && (cfg.isFlying || cfg.isSoaring)) {
+                    item.type = "armored_golem";
+                }
+            });
         }
 
         // Story and Legend stages: Bosses will ONLY spawn at last wave (wave 15)!
@@ -1204,29 +1217,32 @@ const CombatEngine = {
 
         // 1. Support Buffer Passives (Magic Girl for Magical, Commander for Physical)
         if (unit.config.damageType === "Magical") {
-            let magicBonus = 0;
+            let maxMagicBonus = 0;
             this.placedUnits.forEach(b => {
-                if (b.config.id === "magic_girl") {
+                if (b.config.id === "magic_girl" && b !== unit) {
                     const dist = Math.hypot(b.x - unit.x, b.y - unit.y);
                     if (dist <= b.stats.range) {
-                        magicBonus += Math.min(1.0, (b.upgradeLevel || 0) * 0.10);
+                        const bonus = 0.30 + (b.upgradeLevel || 0) * 0.05;
+                        if (bonus > maxMagicBonus) maxMagicBonus = bonus;
                     }
                 }
             });
-            if (magicBonus > 0) finalDamage *= (1 + Math.min(1.0, magicBonus));
+            if (maxMagicBonus > 0) finalDamage *= (1 + Math.min(0.60, maxMagicBonus));
         }
 
         if (unit.config.damageType === "Physical") {
-            let physBonus = 0;
+            let maxPhysBonus = 0;
             this.placedUnits.forEach(b => {
-                if (b.config.id === "commander") {
+                if (b.config.id === "commander" && b !== unit) {
                     const dist = Math.hypot(b.x - unit.x, b.y - unit.y);
                     if (dist <= b.stats.range) {
-                        physBonus += Math.min(1.0, (b.upgradeLevel || 0) * 0.10);
+                        // Base Commander War Cry aura is +30%, scaling with upgrades up to +60%
+                        const bonus = 0.30 + (b.upgradeLevel || 0) * 0.05;
+                        if (bonus > maxPhysBonus) maxPhysBonus = bonus;
                     }
                 }
             });
-            if (physBonus > 0) finalDamage *= (1 + Math.min(1.0, physBonus));
+            if (maxPhysBonus > 0) finalDamage *= (1 + Math.min(0.60, maxPhysBonus));
         }
 
         // 2. Stage Modifiers (Physical vs Magical and Elements)

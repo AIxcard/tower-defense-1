@@ -43,7 +43,7 @@ const STAGE_CONFIG = {
             ],
             modifier: null
         },
-        hard: { firstClearGems: 100, repeatGems: 20, baseMobHpMultiplier: 1.2, mobSpeedMultiplier: 1.05, startCash: 3000, totalWaves: 15 }
+        hard: { firstClearGems: 100, repeatGems: 20, baseMobHpMultiplier: 1.15, mobSpeedMultiplier: 1.02, startCash: 3000, totalWaves: 15 }
     },
     "world1_act2": {
         id: "world1_act2",
@@ -76,7 +76,7 @@ const STAGE_CONFIG = {
                 { wave: 15, enemies: ["grunt", "scout_dasher", "armored_golem"], count: 12, interval: 1.1 }
             ]
         },
-        hard: { firstClearGems: 120, repeatGems: 25, baseMobHpMultiplier: 1.3, mobSpeedMultiplier: 1.08, startCash: 3000, totalWaves: 15 }
+        hard: { firstClearGems: 120, repeatGems: 25, baseMobHpMultiplier: 1.20, mobSpeedMultiplier: 1.03, startCash: 3000, totalWaves: 15 }
     },
     "world1_act3": {
         id: "world1_act3",
@@ -109,7 +109,7 @@ const STAGE_CONFIG = {
                 { wave: 15, enemies: ["armored_golem", "scout_dasher", "grunt"], count: 14, interval: 1.0 }
             ]
         },
-        hard: { firstClearGems: 140, repeatGems: 30, baseMobHpMultiplier: 1.4, mobSpeedMultiplier: 1.10, startCash: 3000, totalWaves: 15 }
+        hard: { firstClearGems: 140, repeatGems: 30, baseMobHpMultiplier: 1.25, mobSpeedMultiplier: 1.04, startCash: 3000, totalWaves: 15 }
     },
     "world1_act4": {
         id: "world1_act4",
@@ -142,7 +142,7 @@ const STAGE_CONFIG = {
                 { wave: 15, enemies: ["armored_golem", "scout_dasher", "grunt"], count: 15, interval: 1.0 }
             ]
         },
-        hard: { firstClearGems: 160, repeatGems: 35, baseMobHpMultiplier: 1.5, mobSpeedMultiplier: 1.12, startCash: 3000, totalWaves: 15 }
+        hard: { firstClearGems: 160, repeatGems: 35, baseMobHpMultiplier: 1.30, mobSpeedMultiplier: 1.05, startCash: 3000, totalWaves: 15 }
     },
     "world1_act5": {
         id: "world1_act5",
@@ -175,7 +175,7 @@ const STAGE_CONFIG = {
                 { wave: 15, enemies: ["armored_golem", "scout_dasher", "grunt"], count: 16, interval: 1.0 }
             ]
         },
-        hard: { firstClearGems: 180, repeatGems: 40, baseMobHpMultiplier: 1.6, mobSpeedMultiplier: 1.15, startCash: 3000, totalWaves: 15 }
+        hard: { firstClearGems: 180, repeatGems: 40, baseMobHpMultiplier: 1.35, mobSpeedMultiplier: 1.05, startCash: 3000, totalWaves: 15 }
     },
     "world1_act6": {
         id: "world1_act6",
@@ -208,7 +208,7 @@ const STAGE_CONFIG = {
                 { wave: 15, enemies: ["world_boss_demon"], count: 1, interval: 3.0 }
             ]
         },
-        hard: { firstClearGems: 200, repeatGems: 50, baseMobHpMultiplier: 1.7, mobSpeedMultiplier: 1.15, startCash: 3000, totalWaves: 15 }
+        hard: { firstClearGems: 200, repeatGems: 50, baseMobHpMultiplier: 1.40, mobSpeedMultiplier: 1.06, startCash: 3000, totalWaves: 15 }
     },
 
     // ----------------------------------------------------
@@ -245,7 +245,7 @@ const STAGE_CONFIG = {
                 { wave: 15, enemies: ["armored_golem", "scout_dasher", "grunt"], count: 12, interval: 1.2 }
             ]
         },
-        hard: { firstClearGems: 120, repeatGems: 20, baseMobHpMultiplier: 2.2, mobSpeedMultiplier: 1.15, startCash: 3000, totalWaves: 15 }
+        hard: { firstClearGems: 120, repeatGems: 20, baseMobHpMultiplier: 1.45, mobSpeedMultiplier: 1.05, startCash: 3000, totalWaves: 15 }
     },
     "world2_act2": {
         id: "world2_act2",
@@ -278,7 +278,7 @@ const STAGE_CONFIG = {
                 { wave: 15, enemies: ["armored_golem", "scout_dasher", "grunt"], count: 15, interval: 1.1 }
             ]
         },
-        hard: { firstClearGems: 150, repeatGems: 25, baseMobHpMultiplier: 2.6, mobSpeedMultiplier: 1.20, startCash: 3000, totalWaves: 15 }
+        hard: { firstClearGems: 150, repeatGems: 25, baseMobHpMultiplier: 1.50, mobSpeedMultiplier: 1.05, startCash: 3000, totalWaves: 15 }
     },
     "world2_act3": {
         id: "world2_act3",
@@ -311,7 +311,7 @@ const STAGE_CONFIG = {
                 { wave: 15, enemies: ["scout_dasher", "armored_golem", "scout_dasher"], count: 14, interval: 1.1 }
             ]
         },
-        hard: { firstClearGems: 180, repeatGems: 30, baseMobHpMultiplier: 3.0, mobSpeedMultiplier: 1.25, startCash: 3000, totalWaves: 15 }
+        hard: { firstClearGems: 180, repeatGems: 30, baseMobHpMultiplier: 1.60, mobSpeedMultiplier: 1.06, startCash: 3000, totalWaves: 15 }
     },
     "world2_act4": {
         id: "world2_act4",
@@ -344,7 +344,7 @@ const STAGE_CONFIG = {
                 { wave: 15, enemies: ["magic_shieldbearer", "armored_golem", "scout_dasher"], count: 14, interval: 1.1 }
             ]
         },
-        hard: { firstClearGems: 200, repeatGems: 35, baseMobHpMultiplier: 3.4, mobSpeedMultiplier: 1.25, startCash: 3000, totalWaves: 15 }
+        hard: { firstClearGems: 200, repeatGems: 35, baseMobHpMultiplier: 1.70, mobSpeedMultiplier: 1.06, startCash: 3000, totalWaves: 15 }
     },
     "world2_act5": {
         id: "world2_act5",
@@ -377,7 +377,7 @@ const STAGE_CONFIG = {
                 { wave: 15, enemies: ["berserker_orc", "armored_golem", "scout_dasher"], count: 15, interval: 1.1 }
             ]
         },
-        hard: { firstClearGems: 250, repeatGems: 45, baseMobHpMultiplier: 3.8, mobSpeedMultiplier: 1.30, startCash: 3000, totalWaves: 15 }
+        hard: { firstClearGems: 250, repeatGems: 45, baseMobHpMultiplier: 1.80, mobSpeedMultiplier: 1.07, startCash: 3000, totalWaves: 15 }
     },
     "world2_act6": {
         id: "world2_act6",
@@ -412,7 +412,7 @@ const STAGE_CONFIG = {
                 { wave: 15, enemies: ["berserker_orc", "armored_golem"], count: 8, interval: 1.5 }
             ]
         },
-        hard: { firstClearGems: 400, repeatGems: 60, baseMobHpMultiplier: 4.5, mobSpeedMultiplier: 1.35, startCash: 3000, totalWaves: 15 }
+        hard: { firstClearGems: 400, repeatGems: 60, baseMobHpMultiplier: 2.00, mobSpeedMultiplier: 1.08, startCash: 3000, totalWaves: 15 }
     },
 
     // ----------------------------------------------------
@@ -450,7 +450,7 @@ const STAGE_CONFIG = {
                 { wave: 15, enemies: ["flying_harpy", "berserker_orc", "armored_golem"], count: 16, interval: 0.95 }
             ]
         },
-        hard: { firstClearGems: 160, repeatGems: 30, baseMobHpMultiplier: 3.8, mobSpeedMultiplier: 1.25, startCash: 3000, totalWaves: 15 }
+        hard: { firstClearGems: 160, repeatGems: 30, baseMobHpMultiplier: 2.10, mobSpeedMultiplier: 1.08, startCash: 3000, totalWaves: 15 }
     },
     "world3_act2": {
         id: "world3_act2",
@@ -484,7 +484,7 @@ const STAGE_CONFIG = {
                 { wave: 15, enemies: ["soaring_sky_serpent", "flying_harpy", "berserker_orc"], count: 16, interval: 0.9 }
             ]
         },
-        hard: { firstClearGems: 190, repeatGems: 36, baseMobHpMultiplier: 4.0, mobSpeedMultiplier: 1.28, startCash: 3000, totalWaves: 15 }
+        hard: { firstClearGems: 190, repeatGems: 36, baseMobHpMultiplier: 2.20, mobSpeedMultiplier: 1.08, startCash: 3000, totalWaves: 15 }
     },
     "world3_act3": {
         id: "world3_act3",
@@ -518,7 +518,7 @@ const STAGE_CONFIG = {
                 { wave: 15, enemies: ["flying_wyvern", "soaring_sky_serpent", "celestial_soarer"], count: 10, interval: 1.2 }
             ]
         },
-        hard: { firstClearGems: 220, repeatGems: 42, baseMobHpMultiplier: 4.4, mobSpeedMultiplier: 1.30, startCash: 3000, totalWaves: 15 }
+        hard: { firstClearGems: 220, repeatGems: 42, baseMobHpMultiplier: 2.35, mobSpeedMultiplier: 1.09, startCash: 3000, totalWaves: 15 }
     },
     "world3_act4": {
         id: "world3_act4",
@@ -552,7 +552,7 @@ const STAGE_CONFIG = {
                 { wave: 15, enemies: ["celestial_soarer", "flying_wyvern", "soaring_sky_serpent"], count: 14, interval: 1.0 }
             ]
         },
-        hard: { firstClearGems: 260, repeatGems: 50, baseMobHpMultiplier: 4.8, mobSpeedMultiplier: 1.32, startCash: 3000, totalWaves: 15 }
+        hard: { firstClearGems: 260, repeatGems: 50, baseMobHpMultiplier: 2.50, mobSpeedMultiplier: 1.09, startCash: 3000, totalWaves: 15 }
     },
     "world3_act5": {
         id: "world3_act5",
@@ -586,7 +586,7 @@ const STAGE_CONFIG = {
                 { wave: 15, enemies: ["celestial_soarer", "flying_wyvern", "soaring_sky_serpent"], count: 15, interval: 0.95 }
             ]
         },
-        hard: { firstClearGems: 300, repeatGems: 60, baseMobHpMultiplier: 5.2, mobSpeedMultiplier: 1.35, startCash: 3000, totalWaves: 15 }
+        hard: { firstClearGems: 300, repeatGems: 60, baseMobHpMultiplier: 2.70, mobSpeedMultiplier: 1.10, startCash: 3000, totalWaves: 15 }
     },
     "world3_act6": {
         id: "world3_act6",
@@ -622,7 +622,7 @@ const STAGE_CONFIG = {
                 { wave: 15, enemies: ["world_boss_demon", "celestial_soarer", "flying_wyvern"], count: 10, interval: 1.5 }
             ]
         },
-        hard: { firstClearGems: 500, repeatGems: 80, baseMobHpMultiplier: 5.8, mobSpeedMultiplier: 1.40, startCash: 3000, totalWaves: 15 }
+        hard: { firstClearGems: 500, repeatGems: 80, baseMobHpMultiplier: 3.00, mobSpeedMultiplier: 1.10, startCash: 3000, totalWaves: 15 }
     },
 
 // ----------------------------------------------------
@@ -748,8 +748,7 @@ const STAGE_CONFIG = {
         hard: {
             firstClearGems: 160,
             repeatGems: 40,
-            baseMobHpMultiplier: 3.5,
-            mobSpeedMultiplier: 1.25,
+            baseMobHpMultiplier: 1.80, mobSpeedMultiplier: 1.07,
             totalWaves: 15
         }
     },
@@ -789,8 +788,7 @@ const STAGE_CONFIG = {
         hard: {
             firstClearGems: 200,
             repeatGems: 50,
-            baseMobHpMultiplier: 4.0,
-            mobSpeedMultiplier: 1.30,
+            baseMobHpMultiplier: 2.00, mobSpeedMultiplier: 1.08,
             totalWaves: 15
         }
     },
@@ -831,8 +829,7 @@ const STAGE_CONFIG = {
         hard: {
             firstClearGems: 240,
             repeatGems: 60,
-            baseMobHpMultiplier: 4.5,
-            mobSpeedMultiplier: 1.35,
+            baseMobHpMultiplier: 2.20, mobSpeedMultiplier: 1.08,
             totalWaves: 15
         }
     },
@@ -880,8 +877,7 @@ const STAGE_CONFIG = {
         hard: {
             firstClearGems: 280,
             repeatGems: 75,
-            baseMobHpMultiplier: 4.8,
-            mobSpeedMultiplier: 1.30,
+            baseMobHpMultiplier: 2.40, mobSpeedMultiplier: 1.08,
             totalWaves: 15
         }
     },
@@ -922,8 +918,7 @@ const STAGE_CONFIG = {
         hard: {
             firstClearGems: 320,
             repeatGems: 85,
-            baseMobHpMultiplier: 5.2,
-            mobSpeedMultiplier: 1.32,
+            baseMobHpMultiplier: 2.60, mobSpeedMultiplier: 1.09,
             totalWaves: 15
         }
     },
