@@ -16,6 +16,9 @@ const UIController = {
         this.initTooltips();
         window.alert = (msg) => { this.showToast(msg, "info"); };
 
+        // Check for returning Google OAuth redirect callback
+        this.checkGoogleOAuthCallback();
+
         // Force Login & Profile selection before playing
         const googleUser = window.SaveService && window.SaveService.getGoogleUser();
         const activeProfileId = localStorage.getItem("ptd_active_profile_id");
@@ -4185,7 +4188,7 @@ const UIController = {
         const googleUser = window.SaveService && window.SaveService.getGoogleUser();
         const activeProfileId = localStorage.getItem("ptd_active_profile_id");
         if (!googleUser || !activeProfileId) {
-            this.showToast("Please sign in with Google and select a username to play!", "warning");
+            this.showToast("Please sign in with Google to play!", "warning");
             return;
         }
         const modal = document.getElementById("auth-gateway-modal");
@@ -4205,55 +4208,64 @@ const UIController = {
 
         if (!googleUser) {
             container.innerHTML = `
-                <div style="font-size:36px;margin-bottom:8px;">🎮</div>
-                <h2 style="color:#38bdf8;font-size:22px;font-weight:900;margin-bottom:6px;">PLAYER LOGIN</h2>
-                <p style="color:#94a3b8;font-size:13px;line-height:1.5;margin-bottom:20px;">
-                    Sign in with your Google account email to save your progress, units, and gems to the database.
-                </p>
-
-                <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px;">
-                    <div style="display:flex;flex-direction:column;gap:8px;">
-                        <input id="google-email-input" type="email" placeholder="Enter your Google email (e.g. player@gmail.com)" style="background:#1e293b;border:1px solid #475569;border-radius:8px;padding:12px;color:#fff;font-size:14px;" />
-                        <button onclick="UIController.handleGoogleLogin()" style="background:#2563eb;color:#fff;border:none;border-radius:8px;padding:12px;font-weight:800;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 0 15px rgba(37,99,235,0.4);">
-                            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#ffffff" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/><path fill="#ffffff" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.76-2.1-6.71-4.93H1.25v3.14C3.26 21.36 7.33 24 12 24z"/><path fill="#ffffff" d="M5.29 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.59H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.41l4.04-3.14z"/><path fill="#ffffff" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.59l4.04 3.14c.95-2.83 3.59-4.98 6.71-4.98z"/></svg>
-                            <span>Sign In with Google</span>
-                        </button>
+                <div style="display:flex;justify-content:center;margin-bottom:18px;">
+                    <div style="width:56px;height:56px;border-radius:16px;background:#1e293b;border:1px solid #334155;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.5);">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                            <polyline points="10 17 15 12 10 7"></polyline>
+                            <line x1="15" y1="12" x2="3" y2="12"></line>
+                        </svg>
                     </div>
                 </div>
+                <h2 style="color:#ffffff;font-size:24px;font-weight:900;letter-spacing:-0.5px;margin-bottom:8px;">Welcome back</h2>
+                <p style="color:#94a3b8;font-size:14px;line-height:1.5;margin-bottom:28px;">
+                    Sign in with your Google account to save your game progress, units, and gems.
+                </p>
+
+                <!-- 1-CLICK GOOGLE SIGN IN BUTTON -->
+                <button onclick="UIController.handleContinueWithGoogle()" style="width:100%;height:52px;background:#0f172a;color:#f8fafc;border:1px solid #38bdf8;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:all 0.2s ease;box-shadow:0 0 20px rgba(56,189,248,0.25);" onmouseover="this.style.background='#1e293b';this.style.boxShadow='0 0 25px rgba(56,189,248,0.45)';" onmouseout="this.style.background='#0f172a';this.style.boxShadow='0 0 20px rgba(56,189,248,0.25)';">
+                    <svg width="22" height="22" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"/>
+                        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.76-2.1-6.71-4.93H1.25v3.14C3.26 21.36 7.33 24 12 24z"/>
+                        <path fill="#FBBC05" d="M5.29 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.59H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.41l4.04-3.14z"/>
+                        <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.59l4.04 3.14c.95-2.83 3.59-4.98 6.71-4.98z"/>
+                    </svg>
+                    <span>Continue with Google</span>
+                </button>
             `;
         } else {
             // Logged in — show user info and player profiles selection
             container.innerHTML = `
-                <div style="background:#1e293b;border:1px solid #334155;border-radius:10px;padding:12px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-                    <div style="display:flex;align-items:center;gap:10px;text-align:left;">
-                        <div style="width:36px;height:36px;border-radius:50%;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;">
+                <div style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+                    <div style="display:flex;align-items:center;gap:12px;text-align:left;">
+                        <div style="width:40px;height:40px;border-radius:50%;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;box-shadow:0 0 10px rgba(37,99,235,0.5);">
                             ${(googleUser.name || "P")[0].toUpperCase()}
                         </div>
                         <div>
-                            <div style="font-weight:800;color:#f8fafc;font-size:13px;">${googleUser.name}</div>
-                            <div style="font-size:11px;color:#94a3b8;">${googleUser.email}</div>
+                            <div style="font-weight:800;color:#f8fafc;font-size:14px;">${googleUser.name}</div>
+                            <div style="font-size:12px;color:#94a3b8;">${googleUser.email}</div>
                         </div>
                     </div>
-                    <button onclick="UIController.handleLogout()" style="background:#dc2626;color:#fff;border:none;border-radius:6px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;">
+                    <button onclick="UIController.handleLogout()" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;">
                         Log Out
                     </button>
                 </div>
 
-                <h3 style="color:#facc15;font-size:16px;font-weight:900;margin-bottom:10px;">SELECT PLAYER PROFILE</h3>
-                <p style="color:#94a3b8;font-size:12px;margin-bottom:14px;">Select your username to start playing:</p>
+                <h3 style="color:#facc15;font-size:16px;font-weight:900;margin-bottom:8px;">SELECT PLAYER PROFILE</h3>
+                <p style="color:#94a3b8;font-size:13px;margin-bottom:16px;">Pick a profile to load your save data and start playing:</p>
 
-                <div style="display:flex;flex-direction:column;gap:8px;max-height:180px;overflow-y:auto;margin-bottom:16px;">
+                <div style="display:flex;flex-direction:column;gap:10px;max-height:200px;overflow-y:auto;margin-bottom:16px;">
                     ${profiles.map(p => {
                         const isCurrent = p.id === activeProfileId;
                         return `
-                            <div style="background:${isCurrent ? '#0369a1' : '#0f172a'};border:1px solid ${isCurrent ? '#38bdf8' : '#334155'};border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;">
+                            <div style="background:${isCurrent ? '#0369a1' : '#0f172a'};border:1px solid ${isCurrent ? '#38bdf8' : '#334155'};border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;">
                                 <div style="text-align:left;">
                                     <div style="font-weight:800;color:#fff;font-size:14px;">
                                         ${p.name} ${isCurrent ? '<span style="font-size:10px;background:#38bdf8;color:#000;padding:2px 6px;border-radius:4px;font-weight:900;margin-left:6px;">ACTIVE</span>' : ''}
                                     </div>
                                     <div style="font-size:11px;color:#cbd5e1;">Level ${p.level || 1} • Profile ID: ${p.id}</div>
                                 </div>
-                                <button onclick="UIController.handleSelectProfile('${p.id}')" style="background:${isCurrent ? '#22c55e' : '#2563eb'};color:#fff;border:none;border-radius:6px;padding:7px 14px;font-weight:800;font-size:12px;cursor:pointer;">
+                                <button onclick="UIController.handleSelectProfile('${p.id}')" style="background:${isCurrent ? '#22c55e' : '#2563eb'};color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:800;font-size:12px;cursor:pointer;">
                                     ${isCurrent ? 'Playing ▶' : 'Select ▶'}
                                 </button>
                             </div>
@@ -4261,15 +4273,15 @@ const UIController = {
                     }).join('')}
                 </div>
 
-                <div style="display:flex;gap:8px;margin-bottom:14px;">
-                    <input id="new-profile-name-input" type="text" placeholder="New Username" style="flex:1;background:#1e293b;border:1px solid #475569;border-radius:8px;padding:8px 12px;color:#fff;font-size:12px;" />
-                    <button onclick="UIController.handleCreateProfile()" style="background:#10b981;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-weight:800;font-size:12px;cursor:pointer;">
+                <div style="display:flex;gap:8px;margin-bottom:18px;">
+                    <input id="new-profile-name-input" type="text" placeholder="New Username" style="flex:1;background:#1e293b;border:1px solid #475569;border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;" onkeydown="if(event.key==='Enter') UIController.handleCreateProfile();" />
+                    <button onclick="UIController.handleCreateProfile()" style="background:#10b981;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:800;font-size:13px;cursor:pointer;">
                         + New Username
                     </button>
                 </div>
 
                 ${activeProfileId ? `
-                    <button onclick="UIController.closeAuthModal()" style="width:100%;background:#22c55e;color:#000;border:none;border-radius:8px;padding:12px;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 0 15px rgba(34,197,94,0.4);">
+                    <button onclick="UIController.closeAuthModal()" style="width:100%;background:#22c55e;color:#000;border:none;border-radius:10px;padding:14px;font-weight:900;font-size:15px;cursor:pointer;box-shadow:0 0 20px rgba(34,197,94,0.4);transition:all 0.2s ease;">
                         ▶ Start Playing
                     </button>
                 ` : ''}
@@ -4277,17 +4289,55 @@ const UIController = {
         }
     },
 
-    handleGoogleLogin() {
-        const input = document.getElementById("google-email-input");
-        const email = input ? input.value : null;
-        if (!email || !email.includes("@")) {
-            this.showToast("Please enter a valid Google Account email!", "warning");
-            return;
+    checkGoogleOAuthCallback() {
+        if (!window.location.hash) return;
+        const hash = window.location.hash.substring(1);
+        if (!hash.includes("id_token=") && !hash.includes("access_token=")) return;
+
+        try {
+            const params = new URLSearchParams(hash);
+            const idToken = params.get("id_token");
+            if (idToken) {
+                const base64Url = idToken.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                const payload = JSON.parse(jsonPayload);
+
+                if (payload && payload.email) {
+                    const cleanEmail = payload.email.toLowerCase();
+                    const userObj = {
+                        id: "google_" + cleanEmail.replace(/[^a-z0-9]/g, "_").slice(0, 20),
+                        email: cleanEmail,
+                        name: payload.name || cleanEmail.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, l => l.toUpperCase()),
+                        avatar: payload.picture || "https://lh3.googleusercontent.com/a/default-user",
+                        provider: "google"
+                    };
+                    window.SaveService.setGoogleUser(userObj);
+                    window.SaveService.pushToSupabaseAsync();
+                    this.updateTopBar();
+                    this.renderStages();
+                    this.renderBanners();
+                    this.renderInventory();
+                    this.closeAuthModal();
+                    this.showToast("Welcome back, " + userObj.name + "!", "success");
+                }
+            }
+        } catch (e) {
+            console.error("[PTD] Failed to parse Google OAuth callback:", e);
+        } finally {
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState(null, null, window.location.pathname);
+            }
         }
-        window.SaveService.loginWithGoogle(email);
-        this.renderAuthModal();
-        this.updateTopBar();
-        this.showToast("Signed in as " + email + "!", "success");
+    },
+
+    handleContinueWithGoogle() {
+        this.showToast("Opening Google Sign-In...", "info");
+        const clientId = "780493286065-m69482n34lv29hmaef49jqjgg9k8e3uk.apps.googleusercontent.com";
+        const redirectUri = window.location.origin + window.location.pathname;
+        const nonce = "ptd_" + Date.now();
+        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${nonce}&prompt=select_account`;
+        window.location.href = authUrl;
     },
 
     handleLogout() {
