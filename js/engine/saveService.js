@@ -22,7 +22,7 @@ const SaveService = {
             try { this.currentGoogleUser = JSON.parse(raw); } catch (e) { this.currentGoogleUser = null; }
         }
         if (!this.currentGoogleUser && typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) {
-            this.currentGoogleUser = { id: "dev_local_user", name: "LocalDev", email: "dev@localhost" };
+            this.currentGoogleUser = { id: "dev_local_user", name: "Creator", email: "thabpanaphat.p2031@icsn.ac.th" };
             localStorage.setItem("ptd_google_user", JSON.stringify(this.currentGoogleUser));
         }
         return this.currentGoogleUser;
@@ -836,14 +836,13 @@ const SaveService = {
     },
 
     // ----------------------------------------------------
-    // PROMO CODES SYSTEM
+    // PROMO CODES SYSTEM & CREATOR CODE STUDIO
     // ----------------------------------------------------
     PROMO_CODES: {
         "RELEASE": {
             description: "Launch celebration pack!",
             gems: 500,
-            starFruits: { "normal_star_fruit": 10 },
-            food: { "rice_ball": 5 }
+            traitRerolls: 5
         },
         "TD2026": {
             description: "Player welcome gift!",
@@ -862,10 +861,69 @@ const SaveService = {
         }
     },
 
+    isCreatorAccount() {
+        const u = this.getGoogleUser();
+        const email = (u && u.email) ? u.email.toLowerCase().trim() : "";
+        return email === "thabpanaphat.p2031@icsn.ac.th";
+    },
+
+    getCustomPromoCodes() {
+        if (!this.state.customPromoCodes) {
+            try {
+                const raw = localStorage.getItem("ptd_custom_promo_codes");
+                this.state.customPromoCodes = raw ? JSON.parse(raw) : {};
+            } catch (e) {
+                this.state.customPromoCodes = {};
+            }
+        }
+        return this.state.customPromoCodes || {};
+    },
+
+    getAllPromoCodes() {
+        return {
+            ...this.PROMO_CODES,
+            ...this.getCustomPromoCodes()
+        };
+    },
+
+    createCustomPromoCode(codeName, rewards) {
+        if (!this.isCreatorAccount()) {
+            return { success: false, message: "Unauthorized. Creator access only." };
+        }
+        const cleaned = (codeName || "").trim().toUpperCase();
+        if (!cleaned || cleaned.length < 3) {
+            return { success: false, message: "Code must be at least 3 characters long!" };
+        }
+        if (this.PROMO_CODES[cleaned]) {
+            return { success: false, message: "This code name is reserved as a base game code!" };
+        }
+
+        const customCodes = this.getCustomPromoCodes();
+        customCodes[cleaned] = {
+            description: "Creator generated reward pack!",
+            createdAt: new Date().toISOString(),
+            ...rewards
+        };
+
+        this.state.customPromoCodes = customCodes;
+        try {
+            localStorage.setItem("ptd_custom_promo_codes", JSON.stringify(customCodes));
+        } catch (e) {}
+
+        this.save();
+
+        if (window.WikiController && window.WikiController.render) {
+            window.WikiController.render();
+        }
+
+        return { success: true, message: `Code "${cleaned}" generated successfully!`, code: cleaned };
+    },
+
     redeemPromoCode(codeStr) {
         if (!codeStr) return { success: false, message: "Please enter a code!" };
         const cleaned = codeStr.trim().toUpperCase();
-        const codeData = this.PROMO_CODES[cleaned];
+        const allCodes = this.getAllPromoCodes();
+        const codeData = allCodes[cleaned];
 
         if (!codeData) {
             return { success: false, message: "Invalid promo code!" };
@@ -893,13 +951,22 @@ const SaveService = {
                 this.addItem("starFruits", sfId, qty);
             }
         }
+        if (codeData.materials) {
+            for (const [mId, qty] of Object.entries(codeData.materials)) {
+                this.addItem("materials", mId, qty);
+            }
+        }
+        if (codeData.luckPotions) {
+            this.state.luckPotions = (this.state.luckPotions || 0) + codeData.luckPotions;
+        }
 
+        if (!this.state.redeemedCodes) this.state.redeemedCodes = {};
         this.state.redeemedCodes[cleaned] = new Date().toISOString();
         this.save();
 
         return {
             success: true,
-            message: `Code redeemed successfully! ${codeData.description}`
+            message: `Code redeemed successfully! ${codeData.description || ''}`
         };
     },
 

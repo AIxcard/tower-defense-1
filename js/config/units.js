@@ -17,7 +17,7 @@ const UNIT_CONFIG = {
         element: "Nature",
         role: "Damage",
         baseCost: 250,
-        baseDamage: 110,
+        baseDamage: 45,
         baseSpa: 5.2,
         baseRange: 160,
         attackType: "Single",
@@ -27,10 +27,10 @@ const UNIT_CONFIG = {
         description: "Quick-drawing gunslinger firing rapid precision shots at single targets.",
         passives: [],
         upgrades: [
-            { cost: 100, damage: 140, spa: 5.2, range: 170, abilityName: "Upgrade 1" },
-            { cost: 200, damage: 180, spa: 5.4, range: 180, abilityName: "Upgrade 2" },
-            { cost: 350, damage: 220, spa: 5.5, range: 190, abilityName: "Upgrade 3" },
-            { cost: 500, damage: 260, spa: 5.6, range: 200, abilityName: "Upgrade 4" }
+            { cost: 100, damage: 59, spa: 5.2, range: 170, abilityName: "Upgrade 1" },
+            { cost: 200, damage: 72, spa: 5.4, range: 180, abilityName: "Upgrade 2" },
+            { cost: 350, damage: 86, spa: 5.5, range: 190, abilityName: "Upgrade 3" },
+            { cost: 500, damage: 100, spa: 5.6, range: 200, abilityName: "Upgrade 4" }
         ]
     },
 
@@ -44,7 +44,7 @@ const UNIT_CONFIG = {
         element: "Fire",
         role: "Damage",
         baseCost: 300,
-        baseDamage: 130,
+        baseDamage: 50,
         baseSpa: 6.0,
         baseRange: 150,
         attackType: "Splash",
@@ -55,10 +55,10 @@ const UNIT_CONFIG = {
         description: "Novice pyromancer casting small fiery explosions.",
         passives: [],
         upgrades: [
-            { cost: 120, damage: 165, spa: 6.0, range: 160, splashRadius: 48, abilityName: "Upgrade 1" },
-            { cost: 220, damage: 210, spa: 6.2, range: 170, splashRadius: 50, abilityName: "Upgrade 2" },
-            { cost: 380, damage: 260, spa: 6.4, range: 180, splashRadius: 54, abilityName: "Upgrade 3" },
-            { cost: 550, damage: 310, spa: 6.5, range: 190, splashRadius: 58, abilityName: "Upgrade 4" }
+            { cost: 120, damage: 67, spa: 6.0, range: 160, splashRadius: 48, abilityName: "Upgrade 1" },
+            { cost: 220, damage: 84, spa: 6.2, range: 170, splashRadius: 50, abilityName: "Upgrade 2" },
+            { cost: 380, damage: 100, spa: 6.4, range: 180, splashRadius: 54, abilityName: "Upgrade 3" },
+            { cost: 550, damage: 117, spa: 6.5, range: 190, splashRadius: 58, abilityName: "Upgrade 4" }
         ]
     },
 
@@ -72,7 +72,7 @@ const UNIT_CONFIG = {
         element: "Nature",
         role: "Damage",
         baseCost: 280,
-        baseDamage: 100,
+        baseDamage: 40,
         baseSpa: 4.5,
         baseRange: 190,
         attackType: "Single",
@@ -82,10 +82,10 @@ const UNIT_CONFIG = {
         description: "Sharp-eyed ranger firing swift precision arrows from elevated hills.",
         passives: [],
         upgrades: [
-            { cost: 110, damage: 130, spa: 4.5, range: 200, abilityName: "Upgrade 1" },
-            { cost: 210, damage: 165, spa: 4.6, range: 210, abilityName: "Upgrade 2" },
-            { cost: 360, damage: 205, spa: 4.7, range: 220, abilityName: "Upgrade 3" },
-            { cost: 520, damage: 245, spa: 4.8, range: 230, abilityName: "Upgrade 4" }
+            { cost: 110, damage: 52, spa: 4.5, range: 200, abilityName: "Upgrade 1" },
+            { cost: 210, damage: 65, spa: 4.6, range: 210, abilityName: "Upgrade 2" },
+            { cost: 360, damage: 78, spa: 4.7, range: 220, abilityName: "Upgrade 3" },
+            { cost: 520, damage: 90, spa: 4.8, range: 230, abilityName: "Upgrade 4" }
         ]
     },
 
@@ -102,7 +102,7 @@ const UNIT_CONFIG = {
         element: "Fire",
         role: "Damage",
         baseCost: 450,
-        baseDamage: 240,
+        baseDamage: 90,
         baseSpa: 5.5,
         baseRange: 210,
         attackType: "Single",
@@ -112,10 +112,10 @@ const UNIT_CONFIG = {
         description: "Sharp shooter firing flaming arrows from hill cliffs.",
         passives: [],
         upgrades: [
-            { cost: 250, damage: 320, spa: 5.5, range: 220, abilityName: "Upgrade 1" },
-            { cost: 450, damage: 420, spa: 5.6, range: 230, abilityName: "Upgrade 2" },
-            { cost: 700, damage: 540, spa: 5.8, range: 240, abilityName: "Upgrade 3" },
-            { cost: 1000, damage: 680, spa: 6.0, range: 250, abilityName: "Upgrade 4" }
+            { cost: 250, damage: 132, spa: 5.5, range: 220, abilityName: "Upgrade 1" },
+            { cost: 450, damage: 174, spa: 5.6, range: 230, abilityName: "Upgrade 2" },
+            { cost: 700, damage: 216, spa: 5.8, range: 240, abilityName: "Upgrade 3" },
+            { cost: 1000, damage: 258, spa: 6.0, range: 250, abilityName: "Upgrade 4" }
         ]
     },
 
@@ -129,7 +129,7 @@ const UNIT_CONFIG = {
         element: "Aqua",
         role: "CrowdControl",
         baseCost: 500,
-        baseDamage: 180,
+        baseDamage: 85,
         baseSpa: 5.0,
         baseRange: 175,
         attackType: "Splash",
@@ -149,10 +149,10 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 280, damage: 240, spa: 5.0, range: 185, splashRadius: 65, abilityName: "Upgrade 1" },
-            { cost: 500, damage: 320, spa: 5.2, range: 195, splashRadius: 70, abilityName: "Upgrade 2" },
-            { cost: 800, damage: 420, spa: 5.4, range: 205, splashRadius: 75, abilityName: "Upgrade 3" },
-            { cost: 1200, damage: 530, spa: 5.5, range: 215, splashRadius: 80, abilityName: "Upgrade 4" }
+            { cost: 280, damage: 120, spa: 5.0, range: 185, splashRadius: 65, abilityName: "Upgrade 1" },
+            { cost: 500, damage: 156, spa: 5.2, range: 195, splashRadius: 70, abilityName: "Upgrade 2" },
+            { cost: 800, damage: 191, spa: 5.4, range: 205, splashRadius: 75, abilityName: "Upgrade 3" },
+            { cost: 1200, damage: 226, spa: 5.5, range: 215, splashRadius: 80, abilityName: "Upgrade 4" }
         ]
     },
 
@@ -166,7 +166,7 @@ const UNIT_CONFIG = {
         element: "Nature",
         role: "Damage",
         baseCost: 400,
-        baseDamage: 220,
+        baseDamage: 90,
         baseSpa: 4.8,
         baseRange: 130,
         attackType: "Splash",
@@ -177,10 +177,10 @@ const UNIT_CONFIG = {
         description: "Balanced ground blademaster cleaving nearby enemies.",
         passives: [],
         upgrades: [
-            { cost: 220, damage: 290, spa: 4.8, range: 135, splashRadius: 52, abilityName: "Upgrade 1" },
-            { cost: 420, damage: 380, spa: 5.0, range: 140, splashRadius: 55, abilityName: "Upgrade 2" },
-            { cost: 680, damage: 490, spa: 5.2, range: 145, splashRadius: 58, abilityName: "Upgrade 3" },
-            { cost: 950, damage: 610, spa: 5.4, range: 150, splashRadius: 60, abilityName: "Upgrade 4" }
+            { cost: 220, damage: 127, spa: 4.8, range: 135, splashRadius: 52, abilityName: "Upgrade 1" },
+            { cost: 420, damage: 164, spa: 5.0, range: 140, splashRadius: 55, abilityName: "Upgrade 2" },
+            { cost: 680, damage: 201, spa: 5.2, range: 145, splashRadius: 58, abilityName: "Upgrade 3" },
+            { cost: 950, damage: 238, spa: 5.4, range: 150, splashRadius: 60, abilityName: "Upgrade 4" }
         ]
     },
 
@@ -234,7 +234,7 @@ const UNIT_CONFIG = {
         element: "Nature",
         role: "AntiAir",
         baseCost: 750,
-        baseDamage: 650,
+        baseDamage: 240,
         baseSpa: 5.8,
         baseRange: 280,
         attackType: "Single",
@@ -250,11 +250,11 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 500, damage: 950, spa: 5.8, range: 300, abilityName: "Upgrade 1" },
-            { cost: 950, damage: 1350, spa: 6.0, range: 320, abilityName: "Upgrade 2" },
-            { cost: 1600, damage: 1900, spa: 6.2, range: 340, abilityName: "Upgrade 3" },
-            { cost: 2400, damage: 2600, spa: 6.5, range: 360, abilityName: "Upgrade 4" },
-            { cost: 3500, damage: 3450, spa: 6.8, range: 380, abilityName: "Upgrade 5" }
+            { cost: 500, damage: 385, spa: 5.8, range: 300, abilityName: "Upgrade 1" },
+            { cost: 950, damage: 530, spa: 6.0, range: 320, abilityName: "Upgrade 2" },
+            { cost: 1600, damage: 675, spa: 6.2, range: 340, abilityName: "Upgrade 3" },
+            { cost: 2400, damage: 820, spa: 6.5, range: 360, abilityName: "Upgrade 4" },
+            { cost: 3500, damage: 965, spa: 6.8, range: 380, abilityName: "Upgrade 5" }
         ]
     },
 
@@ -286,11 +286,11 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 550, damage: 320, spa: 6.2, range: 170, abilityName: "Upgrade 1" },
-            { cost: 1000, damage: 450, spa: 6.4, range: 180, abilityName: "Upgrade 2" },
-            { cost: 1700, damage: 620, spa: 6.6, range: 190, abilityName: "Upgrade 3" },
-            { cost: 2600, damage: 820, spa: 6.8, range: 200, abilityName: "Upgrade 4" },
-            { cost: 3800, damage: 1050, spa: 7.0, range: 210, abilityName: "Upgrade 5" }
+            { cost: 550, damage: 364, spa: 6.2, range: 170, abilityName: "Upgrade 1" },
+            { cost: 1000, damage: 508, spa: 6.4, range: 180, abilityName: "Upgrade 2" },
+            { cost: 1700, damage: 653, spa: 6.6, range: 190, abilityName: "Upgrade 3" },
+            { cost: 2600, damage: 797, spa: 6.8, range: 200, abilityName: "Upgrade 4" },
+            { cost: 3800, damage: 941, spa: 7.0, range: 210, abilityName: "Upgrade 5" }
         ]
     },
 
@@ -307,7 +307,7 @@ const UNIT_CONFIG = {
         bufferType: "Magical",
         buffAmount: 0.10,
         baseCost: 750,
-        baseDamage: 220,
+        baseDamage: 180,
         baseSpa: 5.5,
         baseRange: 190,
         attackType: "Splash",
@@ -324,15 +324,15 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 400, damage: 300, spa: 5.5, range: 200, buffAmount: 0.20, abilityName: "Upgrade 1" },
-            { cost: 700, damage: 400, spa: 5.5, range: 210, buffAmount: 0.30, abilityName: "Upgrade 2" },
-            { cost: 1100, damage: 520, spa: 5.6, range: 220, buffAmount: 0.40, abilityName: "Upgrade 3" },
-            { cost: 1600, damage: 650, spa: 5.6, range: 230, buffAmount: 0.50, abilityName: "Upgrade 4" },
-            { cost: 2200, damage: 800, spa: 5.8, range: 240, buffAmount: 0.60, abilityName: "Upgrade 5" },
-            { cost: 2900, damage: 980, spa: 5.8, range: 250, buffAmount: 0.70, abilityName: "Upgrade 6" },
-            { cost: 3700, damage: 1180, spa: 6.0, range: 260, buffAmount: 0.80, abilityName: "Upgrade 7" },
-            { cost: 4600, damage: 1400, spa: 6.0, range: 270, buffAmount: 0.90, abilityName: "Upgrade 8" },
-            { cost: 5800, damage: 1650, spa: 6.2, range: 280, buffAmount: 1.00, abilityName: "Upgrade 9" }
+            { cost: 400, damage: 247, spa: 5.5, range: 200, buffAmount: 0.20, abilityName: "Upgrade 1" },
+            { cost: 700, damage: 315, spa: 5.5, range: 210, buffAmount: 0.30, abilityName: "Upgrade 2" },
+            { cost: 1100, damage: 382, spa: 5.6, range: 220, buffAmount: 0.40, abilityName: "Upgrade 3" },
+            { cost: 1600, damage: 450, spa: 5.6, range: 230, buffAmount: 0.50, abilityName: "Upgrade 4" },
+            { cost: 2200, damage: 517, spa: 5.8, range: 240, buffAmount: 0.60, abilityName: "Upgrade 5" },
+            { cost: 2900, damage: 585, spa: 5.8, range: 250, buffAmount: 0.70, abilityName: "Upgrade 6" },
+            { cost: 3700, damage: 652, spa: 6.0, range: 260, buffAmount: 0.80, abilityName: "Upgrade 7" },
+            { cost: 4600, damage: 720, spa: 6.0, range: 270, buffAmount: 0.90, abilityName: "Upgrade 8" },
+            { cost: 5800, damage: 787, spa: 6.2, range: 280, buffAmount: 1.00, abilityName: "Upgrade 9" }
         ]
     },
 
@@ -349,7 +349,7 @@ const UNIT_CONFIG = {
         bufferType: "Physical",
         buffAmount: 0.10,
         baseCost: 750,
-        baseDamage: 250,
+        baseDamage: 190,
         baseSpa: 5.8,
         baseRange: 190,
         attackType: "Single",
@@ -370,15 +370,15 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 400, damage: 340, spa: 5.8, range: 200, buffAmount: 0.20, abilityName: "Upgrade 1" },
-            { cost: 700, damage: 450, spa: 5.8, range: 210, buffAmount: 0.30, abilityName: "Upgrade 2" },
-            { cost: 1100, damage: 580, spa: 6.0, range: 220, buffAmount: 0.40, abilityName: "Upgrade 3" },
-            { cost: 1600, damage: 720, spa: 6.0, range: 230, buffAmount: 0.50, abilityName: "Upgrade 4" },
-            { cost: 2200, damage: 880, spa: 6.2, range: 240, buffAmount: 0.60, abilityName: "Upgrade 5" },
-            { cost: 2900, damage: 1060, spa: 6.2, range: 250, buffAmount: 0.70, abilityName: "Upgrade 6" },
-            { cost: 3700, damage: 1260, spa: 6.4, range: 260, buffAmount: 0.80, abilityName: "Upgrade 7" },
-            { cost: 4600, damage: 1480, spa: 6.4, range: 270, buffAmount: 0.90, abilityName: "Upgrade 8" },
-            { cost: 5800, damage: 1720, spa: 6.6, range: 280, buffAmount: 1.00, abilityName: "Upgrade 9" }
+            { cost: 400, damage: 265, spa: 5.8, range: 200, buffAmount: 0.20, abilityName: "Upgrade 1" },
+            { cost: 700, damage: 340, spa: 5.8, range: 210, buffAmount: 0.30, abilityName: "Upgrade 2" },
+            { cost: 1100, damage: 414, spa: 6.0, range: 220, buffAmount: 0.40, abilityName: "Upgrade 3" },
+            { cost: 1600, damage: 489, spa: 6.0, range: 230, buffAmount: 0.50, abilityName: "Upgrade 4" },
+            { cost: 2200, damage: 564, spa: 6.2, range: 240, buffAmount: 0.60, abilityName: "Upgrade 5" },
+            { cost: 2900, damage: 639, spa: 6.2, range: 250, buffAmount: 0.70, abilityName: "Upgrade 6" },
+            { cost: 3700, damage: 713, spa: 6.4, range: 260, buffAmount: 0.80, abilityName: "Upgrade 7" },
+            { cost: 4600, damage: 788, spa: 6.4, range: 270, buffAmount: 0.90, abilityName: "Upgrade 8" },
+            { cost: 5800, damage: 863, spa: 6.6, range: 280, buffAmount: 1.00, abilityName: "Upgrade 9" }
         ]
     },
 
@@ -434,7 +434,7 @@ const UNIT_CONFIG = {
         element: "Fire",
         role: "Damage",
         baseCost: 1200,
-        baseDamage: 350,
+        baseDamage: 380,
         baseSpa: 6.8,
         baseRange: 220,
         attackType: "Splash",
@@ -456,10 +456,10 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 800, damage: 850, spa: 6.8, range: 235, splashRadius: 80, abilityName: "Upgrade 1" },
-            { cost: 1600, damage: 1600, spa: 6.8, range: 250, splashRadius: 85, abilityName: "Upgrade 2" },
-            { cost: 2800, damage: 2600, spa: 7.0, range: 265, splashRadius: 90, abilityName: "Upgrade 3" },
-            { cost: 4500, damage: 3800, spa: 7.2, range: 280, splashRadius: 95, abilityName: "Upgrade 4" }
+            { cost: 800, damage: 648, spa: 6.8, range: 235, splashRadius: 80, abilityName: "Upgrade 1" },
+            { cost: 1600, damage: 916, spa: 6.8, range: 250, splashRadius: 85, abilityName: "Upgrade 2" },
+            { cost: 2800, damage: 1184, spa: 7.0, range: 265, splashRadius: 90, abilityName: "Upgrade 3" },
+            { cost: 4500, damage: 1452, spa: 7.2, range: 280, splashRadius: 95, abilityName: "Upgrade 4" }
         ]
     },
 
@@ -506,14 +506,14 @@ const UNIT_CONFIG = {
             description: "Target an area on the battlefield. After 5 seconds, a massive celestial meteor crashes down dealing 350% unit damage across a 160px AoE."
         },
         upgrades: [
-            { cost: 800, damage: 1250, spa: 6.8, range: 270, splashRadius: 105, abilityName: "Upgrade 1" },
-            { cost: 1400, damage: 1850, spa: 6.8, range: 280, splashRadius: 105, abilityName: "Upgrade 2" },
-            { cost: 2200, damage: 2550, spa: 6.8, range: 290, splashRadius: 110, abilityName: "Upgrade 3" },
-            { cost: 3200, damage: 3400, spa: 6.9, range: 300, splashRadius: 115, abilityName: "Upgrade 4" },
-            { cost: 4500, damage: 4400, spa: 6.9, range: 310, splashRadius: 115, abilityName: "Upgrade 5" },
-            { cost: 6000, damage: 5500, spa: 7.0, range: 320, splashRadius: 120, abilityName: "Upgrade 6" },
-            { cost: 7800, damage: 6750, spa: 7.1, range: 330, splashRadius: 125, abilityName: "Upgrade 7" },
-            { cost: 9800, damage: 8100, spa: 7.2, range: 345, splashRadius: 130, abilityName: "Upgrade 8" }
+            { cost: 800, damage: 1043, spa: 6.8, range: 270, splashRadius: 105, abilityName: "Upgrade 1" },
+            { cost: 1400, damage: 1336, spa: 6.8, range: 280, splashRadius: 105, abilityName: "Upgrade 2" },
+            { cost: 2200, damage: 1628, spa: 6.8, range: 290, splashRadius: 110, abilityName: "Upgrade 3" },
+            { cost: 3200, damage: 1921, spa: 6.9, range: 300, splashRadius: 115, abilityName: "Upgrade 4" },
+            { cost: 4500, damage: 2214, spa: 6.9, range: 310, splashRadius: 115, abilityName: "Upgrade 5" },
+            { cost: 6000, damage: 2506, spa: 7.0, range: 320, splashRadius: 120, abilityName: "Upgrade 6" },
+            { cost: 7800, damage: 2799, spa: 7.1, range: 330, splashRadius: 125, abilityName: "Upgrade 7" },
+            { cost: 9800, damage: 3092, spa: 7.2, range: 345, splashRadius: 130, abilityName: "Upgrade 8" }
         ]
     },
 
@@ -527,7 +527,7 @@ const UNIT_CONFIG = {
         element: "Storm",
         role: "Damage",
         baseCost: 1300,
-        baseDamage: 380,
+        baseDamage: 400,
         baseSpa: 7.5,
         baseRange: 220,
         attackType: "Chain",
@@ -550,10 +550,10 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 900, damage: 900, spa: 7.5, range: 235, chainTargets: 3, abilityName: "Upgrade 1" },
-            { cost: 1800, damage: 1700, spa: 7.5, range: 250, chainTargets: 3, abilityName: "Upgrade 2" },
-            { cost: 3000, damage: 2700, spa: 7.8, range: 265, chainTargets: 3, abilityName: "Upgrade 3" },
-            { cost: 4800, damage: 3900, spa: 8.0, range: 280, chainTargets: 3, abilityName: "Upgrade 4" }
+            { cost: 900, damage: 688, spa: 7.5, range: 235, chainTargets: 3, abilityName: "Upgrade 1" },
+            { cost: 1800, damage: 976, spa: 7.5, range: 250, chainTargets: 3, abilityName: "Upgrade 2" },
+            { cost: 3000, damage: 1265, spa: 7.8, range: 265, chainTargets: 3, abilityName: "Upgrade 3" },
+            { cost: 4800, damage: 1553, spa: 8.0, range: 280, chainTargets: 3, abilityName: "Upgrade 4" }
         ]
     },
 
@@ -569,7 +569,7 @@ const UNIT_CONFIG = {
         element: "Storm",
         role: "Damage",
         baseCost: 1300,
-        baseDamage: 780,
+        baseDamage: 820,
         baseSpa: 7.5,
         baseRange: 260,
         attackType: "Chain",
@@ -597,15 +597,15 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 900, damage: 1300, spa: 7.5, range: 270, chainTargets: 4, abilityName: "Upgrade 1" },
-            { cost: 1500, damage: 1900, spa: 7.5, range: 280, chainTargets: 4, abilityName: "Upgrade 2" },
-            { cost: 2300, damage: 2650, spa: 7.5, range: 290, chainTargets: 4, abilityName: "Upgrade 3" },
-            { cost: 3300, damage: 3500, spa: 7.6, range: 300, chainTargets: 4, abilityName: "Upgrade 4" },
-            { cost: 4600, damage: 4500, spa: 7.6, range: 310, chainTargets: 4, abilityName: "Upgrade 5" },
-            { cost: 6100, damage: 5600, spa: 7.7, range: 320, chainTargets: 4, abilityName: "Upgrade 6" },
-            { cost: 7900, damage: 6850, spa: 7.8, range: 330, chainTargets: 4, abilityName: "Upgrade 7" },
-            { cost: 9900, damage: 8200, spa: 7.9, range: 340, chainTargets: 4, abilityName: "Upgrade 8" },
-            { cost: 12200, damage: 9600, spa: 8.0, range: 350, chainTargets: 4, abilityName: "Upgrade 9" }
+            { cost: 900, damage: 1127, spa: 7.5, range: 270, chainTargets: 4, abilityName: "Upgrade 1" },
+            { cost: 1500, damage: 1434, spa: 7.5, range: 280, chainTargets: 4, abilityName: "Upgrade 2" },
+            { cost: 2300, damage: 1742, spa: 7.5, range: 290, chainTargets: 4, abilityName: "Upgrade 3" },
+            { cost: 3300, damage: 2049, spa: 7.6, range: 300, chainTargets: 4, abilityName: "Upgrade 4" },
+            { cost: 4600, damage: 2356, spa: 7.6, range: 310, chainTargets: 4, abilityName: "Upgrade 5" },
+            { cost: 6100, damage: 2663, spa: 7.7, range: 320, chainTargets: 4, abilityName: "Upgrade 6" },
+            { cost: 7900, damage: 2971, spa: 7.8, range: 330, chainTargets: 4, abilityName: "Upgrade 7" },
+            { cost: 9900, damage: 3278, spa: 7.9, range: 340, chainTargets: 4, abilityName: "Upgrade 8" },
+            { cost: 12200, damage: 3585, spa: 8.0, range: 350, chainTargets: 4, abilityName: "Upgrade 9" }
         ]
     },
 
@@ -619,7 +619,7 @@ const UNIT_CONFIG = {
         element: "Dark",
         role: "Damage",
         baseCost: 1100,
-        baseDamage: 400,
+        baseDamage: 350,
         baseSpa: 5.8,
         baseRange: 180,
         attackType: "Single",
@@ -640,10 +640,10 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 750, damage: 920, spa: 5.8, range: 190, abilityName: "Upgrade 1" },
-            { cost: 1500, damage: 1750, spa: 5.8, range: 200, abilityName: "Upgrade 2" },
-            { cost: 2600, damage: 2800, spa: 6.0, range: 210, abilityName: "Upgrade 3" },
-            { cost: 4200, damage: 4100, spa: 6.2, range: 220, abilityName: "Upgrade 4" }
+            { cost: 750, damage: 586, spa: 5.8, range: 190, abilityName: "Upgrade 1" },
+            { cost: 1500, damage: 823, spa: 5.8, range: 200, abilityName: "Upgrade 2" },
+            { cost: 2600, damage: 1060, spa: 6.0, range: 210, abilityName: "Upgrade 3" },
+            { cost: 4200, damage: 1296, spa: 6.2, range: 220, abilityName: "Upgrade 4" }
         ]
     },
 
@@ -659,7 +659,7 @@ const UNIT_CONFIG = {
         element: "Dark",
         role: "Damage",
         baseCost: 1100,
-        baseDamage: 780,
+        baseDamage: 720,
         baseSpa: 5.8,
         baseRange: 210,
         attackType: "Splash",
@@ -686,14 +686,14 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 750, damage: 1200, spa: 5.8, range: 218, splashRadius: 75, abilityName: "Upgrade 1" },
-            { cost: 1350, damage: 1800, spa: 5.8, range: 225, splashRadius: 78, abilityName: "Upgrade 2" },
-            { cost: 2100, damage: 2500, spa: 5.9, range: 232, splashRadius: 82, abilityName: "Upgrade 3" },
-            { cost: 3050, damage: 3350, spa: 5.9, range: 240, splashRadius: 85, abilityName: "Upgrade 4" },
-            { cost: 4250, damage: 4350, spa: 6.0, range: 248, splashRadius: 88, abilityName: "Upgrade 5" },
-            { cost: 5700, damage: 5500, spa: 6.1, range: 255, splashRadius: 92, abilityName: "Upgrade 6" },
-            { cost: 7400, damage: 6800, spa: 6.2, range: 262, splashRadius: 95, abilityName: "Upgrade 7" },
-            { cost: 9400, damage: 8250, spa: 6.3, range: 270, splashRadius: 100, abilityName: "Upgrade 8" }
+            { cost: 750, damage: 1012, spa: 5.8, range: 218, splashRadius: 75, abilityName: "Upgrade 1" },
+            { cost: 1350, damage: 1304, spa: 5.8, range: 225, splashRadius: 78, abilityName: "Upgrade 2" },
+            { cost: 2100, damage: 1597, spa: 5.9, range: 232, splashRadius: 82, abilityName: "Upgrade 3" },
+            { cost: 3050, damage: 1889, spa: 5.9, range: 240, splashRadius: 85, abilityName: "Upgrade 4" },
+            { cost: 4250, damage: 2181, spa: 6.0, range: 248, splashRadius: 88, abilityName: "Upgrade 5" },
+            { cost: 5700, damage: 2474, spa: 6.1, range: 255, splashRadius: 92, abilityName: "Upgrade 6" },
+            { cost: 7400, damage: 2766, spa: 6.2, range: 262, splashRadius: 95, abilityName: "Upgrade 7" },
+            { cost: 9400, damage: 3058, spa: 6.3, range: 270, splashRadius: 100, abilityName: "Upgrade 8" }
         ]
     },
 
@@ -707,7 +707,7 @@ const UNIT_CONFIG = {
         element: "Fire",
         role: "Damage",
         baseCost: 1250,
-        baseDamage: 420,
+        baseDamage: 410,
         baseSpa: 7.2,
         baseRange: 190,
         attackType: "Splash",
@@ -729,10 +729,10 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 850, damage: 980, spa: 7.2, range: 200, splashRadius: 75, abilityName: "Upgrade 1" },
-            { cost: 1700, damage: 1850, spa: 7.2, range: 210, splashRadius: 80, abilityName: "Upgrade 2" },
-            { cost: 2900, damage: 2950, spa: 7.5, range: 220, splashRadius: 85, abilityName: "Upgrade 3" },
-            { cost: 4600, damage: 4300, spa: 7.8, range: 230, splashRadius: 90, abilityName: "Upgrade 4" }
+            { cost: 850, damage: 701, spa: 7.2, range: 200, splashRadius: 75, abilityName: "Upgrade 1" },
+            { cost: 1700, damage: 992, spa: 7.2, range: 210, splashRadius: 80, abilityName: "Upgrade 2" },
+            { cost: 2900, damage: 1282, spa: 7.5, range: 220, splashRadius: 85, abilityName: "Upgrade 3" },
+            { cost: 4600, damage: 1573, spa: 7.8, range: 230, splashRadius: 90, abilityName: "Upgrade 4" }
         ]
     },
 
@@ -748,7 +748,7 @@ const UNIT_CONFIG = {
         element: "Fire",
         role: "Damage",
         baseCost: 1250,
-        baseDamage: 820,
+        baseDamage: 800,
         baseSpa: 7.2,
         baseRange: 220,
         attackType: "Splash",
@@ -775,14 +775,14 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 850, damage: 1350, spa: 7.2, range: 230, splashRadius: 98, abilityName: "Upgrade 1" },
-            { cost: 1500, damage: 2000, spa: 7.2, range: 240, splashRadius: 102, abilityName: "Upgrade 2" },
-            { cost: 2350, damage: 2800, spa: 7.3, range: 250, splashRadius: 106, abilityName: "Upgrade 3" },
-            { cost: 3400, damage: 3750, spa: 7.3, range: 260, splashRadius: 110, abilityName: "Upgrade 4" },
-            { cost: 4700, damage: 4850, spa: 7.4, range: 270, splashRadius: 114, abilityName: "Upgrade 5" },
-            { cost: 6300, damage: 6100, spa: 7.5, range: 280, splashRadius: 118, abilityName: "Upgrade 6" },
-            { cost: 8200, damage: 7500, spa: 7.6, range: 290, splashRadius: 122, abilityName: "Upgrade 7" },
-            { cost: 10400, damage: 9050, spa: 7.7, range: 305, splashRadius: 128, abilityName: "Upgrade 8" }
+            { cost: 850, damage: 1124, spa: 7.2, range: 230, splashRadius: 98, abilityName: "Upgrade 1" },
+            { cost: 1500, damage: 1448, spa: 7.2, range: 240, splashRadius: 102, abilityName: "Upgrade 2" },
+            { cost: 2350, damage: 1772, spa: 7.3, range: 250, splashRadius: 106, abilityName: "Upgrade 3" },
+            { cost: 3400, damage: 2096, spa: 7.3, range: 260, splashRadius: 110, abilityName: "Upgrade 4" },
+            { cost: 4700, damage: 2421, spa: 7.4, range: 270, splashRadius: 114, abilityName: "Upgrade 5" },
+            { cost: 6300, damage: 2745, spa: 7.5, range: 280, splashRadius: 118, abilityName: "Upgrade 6" },
+            { cost: 8200, damage: 3069, spa: 7.6, range: 290, splashRadius: 122, abilityName: "Upgrade 7" },
+            { cost: 10400, damage: 3393, spa: 7.7, range: 305, splashRadius: 128, abilityName: "Upgrade 8" }
         ]
     },
 
@@ -796,7 +796,7 @@ const UNIT_CONFIG = {
         element: "Light",
         role: "Damage",
         baseCost: 1150,
-        baseDamage: 380,
+        baseDamage: 370,
         baseSpa: 6.5,
         baseRange: 170,
         attackType: "Splash",
@@ -818,10 +818,10 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 750, damage: 880, spa: 6.5, range: 180, splashRadius: 70, abilityName: "Upgrade 1" },
-            { cost: 1550, damage: 1650, spa: 6.5, range: 190, splashRadius: 75, abilityName: "Upgrade 2" },
-            { cost: 2700, damage: 2650, spa: 6.8, range: 200, splashRadius: 80, abilityName: "Upgrade 3" },
-            { cost: 4300, damage: 3850, spa: 7.0, range: 210, splashRadius: 85, abilityName: "Upgrade 4" }
+            { cost: 750, damage: 617, spa: 6.5, range: 180, splashRadius: 70, abilityName: "Upgrade 1" },
+            { cost: 1550, damage: 864, spa: 6.5, range: 190, splashRadius: 75, abilityName: "Upgrade 2" },
+            { cost: 2700, damage: 1112, spa: 6.8, range: 200, splashRadius: 80, abilityName: "Upgrade 3" },
+            { cost: 4300, damage: 1359, spa: 7.0, range: 210, splashRadius: 85, abilityName: "Upgrade 4" }
         ]
     },
 
@@ -837,7 +837,7 @@ const UNIT_CONFIG = {
         element: "Light",
         role: "Damage",
         baseCost: 1150,
-        baseDamage: 760,
+        baseDamage: 710,
         baseSpa: 6.5,
         baseRange: 200,
         attackType: "Splash",
@@ -864,13 +864,13 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 800, damage: 1300, spa: 6.5, range: 210, splashRadius: 90, abilityName: "Upgrade 1" },
-            { cost: 1450, damage: 1950, spa: 6.5, range: 220, splashRadius: 95, abilityName: "Upgrade 2" },
-            { cost: 2300, damage: 2750, spa: 6.6, range: 230, splashRadius: 100, abilityName: "Upgrade 3" },
-            { cost: 3400, damage: 3700, spa: 6.6, range: 240, splashRadius: 105, abilityName: "Upgrade 4" },
-            { cost: 4800, damage: 4850, spa: 6.7, range: 250, splashRadius: 110, abilityName: "Upgrade 5" },
-            { cost: 6600, damage: 6200, spa: 6.8, range: 260, splashRadius: 115, abilityName: "Upgrade 6" },
-            { cost: 8800, damage: 7800, spa: 6.9, range: 272, splashRadius: 120, abilityName: "Upgrade 7" }
+            { cost: 800, damage: 1028, spa: 6.5, range: 210, splashRadius: 90, abilityName: "Upgrade 1" },
+            { cost: 1450, damage: 1346, spa: 6.5, range: 220, splashRadius: 95, abilityName: "Upgrade 2" },
+            { cost: 2300, damage: 1664, spa: 6.6, range: 230, splashRadius: 100, abilityName: "Upgrade 3" },
+            { cost: 3400, damage: 1983, spa: 6.6, range: 240, splashRadius: 105, abilityName: "Upgrade 4" },
+            { cost: 4800, damage: 2301, spa: 6.7, range: 250, splashRadius: 110, abilityName: "Upgrade 5" },
+            { cost: 6600, damage: 2619, spa: 6.8, range: 260, splashRadius: 115, abilityName: "Upgrade 6" },
+            { cost: 8800, damage: 2937, spa: 6.9, range: 272, splashRadius: 120, abilityName: "Upgrade 7" }
         ]
     },
 
@@ -906,10 +906,10 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 800, damage: 820, spa: 6.2, range: 255, splashRadius: 65, abilityName: "Upgrade 1" },
-            { cost: 1600, damage: 1550, spa: 6.2, range: 270, splashRadius: 70, abilityName: "Upgrade 2" },
-            { cost: 2800, damage: 2500, spa: 6.4, range: 285, splashRadius: 75, abilityName: "Upgrade 3" },
-            { cost: 4400, damage: 3650, spa: 6.6, range: 300, splashRadius: 80, abilityName: "Upgrade 4" }
+            { cost: 800, damage: 596, spa: 6.2, range: 255, splashRadius: 65, abilityName: "Upgrade 1" },
+            { cost: 1600, damage: 833, spa: 6.2, range: 270, splashRadius: 70, abilityName: "Upgrade 2" },
+            { cost: 2800, damage: 1070, spa: 6.4, range: 285, splashRadius: 75, abilityName: "Upgrade 3" },
+            { cost: 4400, damage: 1306, spa: 6.6, range: 300, splashRadius: 80, abilityName: "Upgrade 4" }
         ]
     },
 
@@ -925,7 +925,7 @@ const UNIT_CONFIG = {
         element: "Nature",
         role: "Damage",
         baseCost: 1200,
-        baseDamage: 710,
+        baseDamage: 740,
         baseSpa: 6.2,
         baseRange: 280,
         attackType: "Splash",
@@ -952,14 +952,14 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 800, damage: 1220, spa: 6.2, range: 292, splashRadius: 90, abilityName: "Upgrade 1" },
-            { cost: 1400, damage: 1850, spa: 6.2, range: 304, splashRadius: 94, abilityName: "Upgrade 2" },
-            { cost: 2200, damage: 2600, spa: 6.3, range: 316, splashRadius: 98, abilityName: "Upgrade 3" },
-            { cost: 3200, damage: 3500, spa: 6.3, range: 328, splashRadius: 102, abilityName: "Upgrade 4" },
-            { cost: 4500, damage: 4550, spa: 6.4, range: 340, splashRadius: 106, abilityName: "Upgrade 5" },
-            { cost: 6050, damage: 5750, spa: 6.5, range: 352, splashRadius: 110, abilityName: "Upgrade 6" },
-            { cost: 7900, damage: 7100, spa: 6.6, range: 364, splashRadius: 114, abilityName: "Upgrade 7" },
-            { cost: 10100, damage: 8600, spa: 6.7, range: 380, splashRadius: 120, abilityName: "Upgrade 8" }
+            { cost: 800, damage: 1038, spa: 6.2, range: 292, splashRadius: 90, abilityName: "Upgrade 1" },
+            { cost: 1400, damage: 1337, spa: 6.2, range: 304, splashRadius: 94, abilityName: "Upgrade 2" },
+            { cost: 2200, damage: 1635, spa: 6.3, range: 316, splashRadius: 98, abilityName: "Upgrade 3" },
+            { cost: 3200, damage: 1934, spa: 6.3, range: 328, splashRadius: 102, abilityName: "Upgrade 4" },
+            { cost: 4500, damage: 2232, spa: 6.4, range: 340, splashRadius: 106, abilityName: "Upgrade 5" },
+            { cost: 6050, damage: 2530, spa: 6.5, range: 352, splashRadius: 110, abilityName: "Upgrade 6" },
+            { cost: 7900, damage: 2829, spa: 6.6, range: 364, splashRadius: 114, abilityName: "Upgrade 7" },
+            { cost: 10100, damage: 3127, spa: 6.7, range: 380, splashRadius: 120, abilityName: "Upgrade 8" }
         ]
     },
 
@@ -976,7 +976,7 @@ const UNIT_CONFIG = {
         element: "Light",
         role: "Damage",
         baseCost: 1800,
-        baseDamage: 550,
+        baseDamage: 520,
         baseSpa: 7.0,
         baseRange: 220,
         attackType: "Splash",
@@ -998,10 +998,10 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 1200, damage: 1300, spa: 7.0, range: 235, splashRadius: 85, abilityName: "Upgrade 1" },
-            { cost: 2400, damage: 2400, spa: 7.0, range: 250, splashRadius: 90, abilityName: "Upgrade 2" },
-            { cost: 4200, damage: 3800, spa: 7.2, range: 265, splashRadius: 95, abilityName: "Upgrade 3" },
-            { cost: 6800, damage: 5600, spa: 7.4, range: 280, splashRadius: 100, abilityName: "Upgrade 4" }
+            { cost: 1200, damage: 908, spa: 7.0, range: 235, splashRadius: 85, abilityName: "Upgrade 1" },
+            { cost: 2400, damage: 1296, spa: 7.0, range: 250, splashRadius: 90, abilityName: "Upgrade 2" },
+            { cost: 4200, damage: 1684, spa: 7.2, range: 265, splashRadius: 95, abilityName: "Upgrade 3" },
+            { cost: 6800, damage: 2072, spa: 7.4, range: 280, splashRadius: 100, abilityName: "Upgrade 4" }
         ]
     },
 
@@ -1017,7 +1017,7 @@ const UNIT_CONFIG = {
         element: "Light",
         role: "Damage",
         baseCost: 1800,
-        baseDamage: 1150,
+        baseDamage: 1100,
         baseSpa: 7.5,
         baseRange: 280,
         attackType: "FullAoE",
@@ -1044,16 +1044,16 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 1200, damage: 1900, spa: 7.5, range: 290, splashRadius: 200, abilityName: "Upgrade 1" },
-            { cost: 2100, damage: 2800, spa: 7.5, range: 300, splashRadius: 200, abilityName: "Upgrade 2" },
-            { cost: 3200, damage: 3900, spa: 7.6, range: 310, splashRadius: 200, abilityName: "Upgrade 3" },
-            { cost: 4600, damage: 5150, spa: 7.6, range: 320, splashRadius: 200, abilityName: "Upgrade 4" },
-            { cost: 6300, damage: 6600, spa: 7.7, range: 330, splashRadius: 200, abilityName: "Upgrade 5" },
-            { cost: 8300, damage: 8250, spa: 7.7, range: 340, splashRadius: 200, abilityName: "Upgrade 6" },
-            { cost: 10700, damage: 10100, spa: 7.8, range: 350, splashRadius: 200, abilityName: "Upgrade 7" },
-            { cost: 13500, damage: 12200, spa: 7.9, range: 360, splashRadius: 200, abilityName: "Upgrade 8" },
-            { cost: 16800, damage: 14500, spa: 8.0, range: 370, splashRadius: 200, abilityName: "Upgrade 9" },
-            { cost: 20500, damage: 17000, spa: 8.1, range: 385, splashRadius: 200, abilityName: "Upgrade 10" }
+            { cost: 1200, damage: 1519, spa: 7.5, range: 290, splashRadius: 200, abilityName: "Upgrade 1" },
+            { cost: 2100, damage: 1939, spa: 7.5, range: 300, splashRadius: 200, abilityName: "Upgrade 2" },
+            { cost: 3200, damage: 2358, spa: 7.6, range: 310, splashRadius: 200, abilityName: "Upgrade 3" },
+            { cost: 4600, damage: 2777, spa: 7.6, range: 320, splashRadius: 200, abilityName: "Upgrade 4" },
+            { cost: 6300, damage: 3196, spa: 7.7, range: 330, splashRadius: 200, abilityName: "Upgrade 5" },
+            { cost: 8300, damage: 3616, spa: 7.7, range: 340, splashRadius: 200, abilityName: "Upgrade 6" },
+            { cost: 10700, damage: 4035, spa: 7.8, range: 350, splashRadius: 200, abilityName: "Upgrade 7" },
+            { cost: 13500, damage: 4454, spa: 7.9, range: 360, splashRadius: 200, abilityName: "Upgrade 8" },
+            { cost: 16800, damage: 4874, spa: 8.0, range: 370, splashRadius: 200, abilityName: "Upgrade 9" },
+            { cost: 20500, damage: 5293, spa: 8.1, range: 385, splashRadius: 200, abilityName: "Upgrade 10" }
         ]
     },
 
@@ -1067,7 +1067,7 @@ const UNIT_CONFIG = {
         element: "Dark",
         role: "Damage",
         baseCost: 2750,
-        baseDamage: 1250,
+        baseDamage: 1050,
         baseSpa: 7.8,
         baseRange: 210,
         attackType: "Splash",
@@ -1094,11 +1094,11 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 2200, damage: 2700, spa: 7.8, range: 225, splashRadius: 115, abilityName: "Upgrade 1" },
-            { cost: 4500, damage: 4700, spa: 7.8, range: 240, splashRadius: 120, abilityName: "Upgrade 2" },
-            { cost: 7800, damage: 7200, spa: 8.0, range: 255, splashRadius: 125, abilityName: "Upgrade 3" },
-            { cost: 12000, damage: 10200, spa: 8.2, range: 270, splashRadius: 130, abilityName: "Upgrade 4" },
-            { cost: 18000, damage: 13800, spa: 8.5, range: 290, splashRadius: 140, abilityName: "Upgrade 5" }
+            { cost: 2200, damage: 1856, spa: 7.8, range: 225, splashRadius: 115, abilityName: "Upgrade 1" },
+            { cost: 4500, damage: 2661, spa: 7.8, range: 240, splashRadius: 120, abilityName: "Upgrade 2" },
+            { cost: 7800, damage: 3467, spa: 8.0, range: 255, splashRadius: 125, abilityName: "Upgrade 3" },
+            { cost: 12000, damage: 4272, spa: 8.2, range: 270, splashRadius: 130, abilityName: "Upgrade 4" },
+            { cost: 18000, damage: 5078, spa: 8.5, range: 290, splashRadius: 140, abilityName: "Upgrade 5" }
         ]
     }
 };

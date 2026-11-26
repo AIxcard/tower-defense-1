@@ -63,6 +63,9 @@ const WikiController = {
             case "dps_calc":
                 this.renderDPSCalcWiki(container);
                 break;
+            case "codes":
+                this.renderCodesWiki(container);
+                break;
             default:
                 this.renderUnitsWiki(container);
         }
@@ -1056,8 +1059,7 @@ const WikiController = {
             }
         } else if (u.id === "thunder_god_awakened") {
             if (passivesOn["Divine Chain Lightning"]) {
-                realDpsMult *= 2.73; // 4 targets 25% falloff
-                notes.push("⚡ Divine Chain Lightning: 4 targets (25% falloff per jump, ~2.73x total area output)");
+                notes.push("⚡ Divine Chain Lightning: Jumps to 4 targets (25% falloff per jump)");
             }
             if (passivesOn["Thunderous Overload"]) {
                 realDpsMult += 0.15;
@@ -1065,8 +1067,7 @@ const WikiController = {
             }
         } else if (u.id === "thunder_god") {
             if (passivesOn["Shocking Discharge"]) {
-                realDpsMult *= 2.30; // 3 targets 25% falloff
-                notes.push("⚡ Chain Lightning: 3 targets (25% falloff per jump, ~2.3x total output)");
+                notes.push("⚡ Chain Lightning: Jumps to 3 targets (25% falloff per jump)");
             }
         } else if (u.id === "vampire_king") {
             if (passivesOn["Blood Curse"]) {
@@ -1149,6 +1150,62 @@ const WikiController = {
                     ` : `
                         <p style="color:#64748b;font-size:12px;margin:0;font-style:italic;">No active conditional passive bonuses toggled.</p>
                     `}
+                </div>
+            </div>
+        `;
+    },
+
+    renderCodesWiki(container) {
+        const allCodes = window.SaveService ? window.SaveService.getAllPromoCodes() : {};
+        const entries = Object.entries(allCodes);
+
+        let cardsHtml = "";
+        for (const [code, data] of entries) {
+            const rewardBadges = [];
+            if (data.gems) rewardBadges.push(`<span style="background:rgba(56,189,248,0.15);color:#38bdf8;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:4px;">💎 ${data.gems.toLocaleString()} Gems</span>`);
+            if (data.gold) rewardBadges.push(`<span style="background:rgba(234,179,8,0.15);color:#facc15;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:4px;">🪙 ${data.gold.toLocaleString()} Gold</span>`);
+            if (data.traitRerolls) rewardBadges.push(`<span style="background:rgba(168,85,247,0.15);color:#c084fc;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:4px;">🔮 ${data.traitRerolls} Trait RR</span>`);
+            if (data.food) {
+                for (const [fId, qty] of Object.entries(data.food)) {
+                    rewardBadges.push(`<span style="background:rgba(34,197,94,0.15);color:#4ade80;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;">🍙 ${qty}x ${fId.replace(/_/g, ' ')}</span>`);
+                }
+            }
+            if (data.starFruits) {
+                for (const [sfId, qty] of Object.entries(data.starFruits)) {
+                    rewardBadges.push(`<span style="background:rgba(244,63,94,0.15);color:#fb7185;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;">⭐ ${qty}x ${sfId.replace(/_/g, ' ')}</span>`);
+                }
+            }
+            if (data.materials) {
+                for (const [mId, qty] of Object.entries(data.materials)) {
+                    rewardBadges.push(`<span style="background:rgba(148,163,184,0.15);color:#cbd5e1;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;">📦 ${qty}x ${mId.replace(/_/g, ' ')}</span>`);
+                }
+            }
+
+            cardsHtml += `
+                <div style="background:#0b1324;border:1px solid #334155;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-family:'Lilita One',cursive;font-size:20px;letter-spacing:1px;color:#38bdf8;">${code}</span>
+                        <span style="background:#1e293b;color:#22c55e;font-size:11px;font-weight:800;padding:2px 8px;border-radius:4px;border:1px solid #22c55e;">ACTIVE</span>
+                    </div>
+                    <p style="color:#94a3b8;font-size:12px;margin:0;">${data.description || 'Active official promo code.'}</p>
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+                        ${rewardBadges.join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        container.innerHTML = `
+            <div style="max-width:800px;margin:0 auto;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <div>
+                        <h3 style="color:#f8fafc;margin:0;font-size:20px;">📜 Active Promo Codes Encyclopedia</h3>
+                        <p style="color:#94a3b8;font-size:13px;margin:4px 0 0 0;">All working codes and their exact redemption rewards. Enter them in the Codes tab to claim!</p>
+                    </div>
+                    <button class="tactile-blue-btn" onclick="UIController.switchTab('codes')" style="padding:8px 16px;font-size:13px;">🎁 Go to Codes Tab</button>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:14px;">
+                    ${cardsHtml}
                 </div>
             </div>
         `;

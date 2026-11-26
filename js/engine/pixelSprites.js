@@ -1361,6 +1361,10 @@ const PixelSprites = {
     // ----------------------------------------------------
     // STAR FRUITS (Classic 5-Pointed Golden Star Fruit Design)
     // ----------------------------------------------------
+    getStarFruitIcon(type, size = 48) {
+        return this.getStarFruit(type, size);
+    },
+
     getStarFruit(type, size = 48) {
         const key = `sf_${type}_${size}`;
         if (this.cache[key]) return this.cache[key];
@@ -1807,7 +1811,7 @@ const PixelSprites = {
             <svg class="trait-symbol-svg" width="${size}" height="${size}" viewBox="0 0 32 32" style="display:inline-block;vertical-align:middle;">
                 ${symbolPaths}
             </svg>
-        `;
+        `.replace(/[\r\n]+/g, ' ').trim();
     },
 
     getLuckPotionIcon(size = 48) {

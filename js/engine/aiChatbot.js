@@ -1,32 +1,17 @@
-// Pixel Tower Defense — Advanced In-Game AI Chatbot Assistant Engine
-// Accurate, zero-false-positive game guide with live game database lookups,
-// strict keyword and token matching, and comprehensive guides.
+// TD — In-Game Intelligent Game Guide (No Emojis, Exact Math, Dynamic Lookup)
 
 const AIChatbot = {
+    history: [],
     pendingQuery: null,
-    history: [
-        {
-            role: "assistant",
-            text: "Hey! I am your AI game guide. Ask me anything about unit stats, evolutions, star fruits, traits, food leveling, promo codes, farm towers, secret drops, or stage strategies and I will give you the exact details!",
-            links: [
-                { label: "⚔️ Play Challenges", tab: "challenges" },
-                { label: "🧬 Evolution Altar", tab: "evolution" },
-                { label: "🎁 Redeem Codes", tab: "codes" },
-                { label: "📚 Open Wiki", tab: "wiki" }
-            ]
-        }
-    ],
 
-    // Exact word boundary matcher: \bword\b
+    // Token check helper
     hasWord(text, word) {
-        if (!text || !word) return false;
         const regex = new RegExp(`\\b${word}\\b`, "i");
         return regex.test(text);
     },
 
-    // Checks if any phrase or word in list is contained in text
+    // Fuzzy phrase check helper
     hasAny(text, list) {
-        if (!text || !list || !list.length) return false;
         const lower = text.toLowerCase();
         for (const item of list) {
             if (item.includes(" ")) {
@@ -117,14 +102,27 @@ const AIChatbot = {
         // ----------------------------------------------------
         // 1. PROMO CODES
         // ----------------------------------------------------
-        if (this.hasAny(clean, ["code", "codes", "promo", "promos", "redeem", "free gems", "gift code", "active code", "active codes", "sorryforbugs", "td2026", "ptd2026"])) {
+        if (this.hasAny(clean, ["code", "codes", "promo", "promos", "redeem", "free gems", "gift code", "active code", "active codes", "sorryforbugs", "td2026", "ptd2026", "release"])) {
             const reply = this.getPromoCodesResponse();
             this.history.push(reply);
             return reply;
         }
 
         // ----------------------------------------------------
-        // 2. STAR FRUITS
+        // 2. STORY STAGES & ACT DROPS (e.g. "what do i get from storyy act 1??")
+        // ----------------------------------------------------
+        if (
+            this.hasAny(clean, ["story", "storyy", "stroy", "stori", "plains", "stage drop", "stage drops", "story drop", "story drops"]) ||
+            (clean.includes("act") && (clean.includes("get") || clean.includes("drop") || clean.includes("reward") || clean.includes("give") || clean.includes("from"))) ||
+            (clean.includes("what") && clean.includes("get") && (clean.includes("act") || clean.includes("stage") || clean.includes("story") || clean.includes("from")))
+        ) {
+            const reply = this.getStoryDropResponse(clean);
+            this.history.push(reply);
+            return reply;
+        }
+
+        // ----------------------------------------------------
+        // 3. STAR FRUITS (Only types and obtainment, no unit uses)
         // ----------------------------------------------------
         if (this.hasAny(clean, [
             "star fruit", "star fruits", "starfruit", "starfruits", "fruit", "fruits",
@@ -132,18 +130,13 @@ const AIChatbot = {
             "yellow star", "yellow fruit", "green star", "green fruit",
             "blue star", "blue fruit", "red star", "red fruit"
         ])) {
-            // If they are specifically asking about evolution recipe for a unit using star fruits, let evolution handler take it
-            if (this.hasAny(clean, ["evolve", "evolution", "recipe"]) && (clean.includes("thunder") || clean.includes("wind") || clean.includes("shadow") || clean.includes("mage") || clean.includes("shinobi"))) {
-                // fall through to evolution handler
-            } else {
-                const reply = this.getStarFruitResponse();
-                this.history.push(reply);
-                return reply;
-            }
+            const reply = this.getStarFruitResponse();
+            this.history.push(reply);
+            return reply;
         }
 
         // ----------------------------------------------------
-        // 3. FOOD & UNIT LEVELING (EXP)
+        // 4. FOOD & UNIT LEVELING (EXP)
         // ----------------------------------------------------
         if (this.hasAny(clean, [
             "food", "foods", "feed", "feeding", "level up", "leveling", "level units",
@@ -155,7 +148,7 @@ const AIChatbot = {
         }
 
         // ----------------------------------------------------
-        // 4. EVOLUTION RECIPES & ALTAR
+        // 5. EVOLUTION RECIPES & ALTAR (General explanation)
         // ----------------------------------------------------
         if (this.hasAny(clean, ["evolve", "evolution", "evolutions", "awaken", "awakening", "recipe", "recipes", "altar"])) {
             const reply = this.getEvolutionResponse(clean);
@@ -164,7 +157,7 @@ const AIChatbot = {
         }
 
         // ----------------------------------------------------
-        // 5. DROPS & LEGEND STAGES (Daggers, Scrolls, Blazes, Light Energy)
+        // 6. DROPS & LEGEND STAGES (Daggers, Scrolls, Blazes, Light Energy)
         // ----------------------------------------------------
         if (this.hasAny(clean, [
             "dagger", "daggers", "scroll", "scrolls", "blaze", "blazes", "light energy",
@@ -176,7 +169,7 @@ const AIChatbot = {
         }
 
         // ----------------------------------------------------
-        // 6. CRAFTING WORKSHOP & RELICS
+        // 7. CRAFTING WORKSHOP & RELICS
         // ----------------------------------------------------
         if (this.hasAny(clean, ["craft", "crafting", "workshop", "relic", "relics", "shadow dagger", "star staff"])) {
             const reply = this.getCraftingResponse();
@@ -185,7 +178,7 @@ const AIChatbot = {
         }
 
         // ----------------------------------------------------
-        // 7. FARM UNITS (ECONOMY)
+        // 8. FARM UNITS (ECONOMY)
         // ----------------------------------------------------
         if (this.hasAny(clean, ["banker", "alchemist", "silver banker", "gold alchemist", "farm", "farming", "yen", "cash", "money", "speedwagon", "bulma", "economy"])) {
             const reply = this.getFarmResponse();
@@ -194,7 +187,7 @@ const AIChatbot = {
         }
 
         // ----------------------------------------------------
-        // 8. TRAITS & TRAIT ALTAR
+        // 9. TRAITS & TRAIT ALTAR (Using custom SVG designs, NO emojis)
         // ----------------------------------------------------
         if (this.hasAny(clean, [
             "trait", "traits", "reroll", "rerolls", "trait rr", "unique", "celestial",
@@ -206,7 +199,7 @@ const AIChatbot = {
         }
 
         // ----------------------------------------------------
-        // 9. GEMS & FARMING GEMS
+        // 10. GEMS & FARMING GEMS
         // ----------------------------------------------------
         if (this.hasWord(clean, "gem") || this.hasWord(clean, "gems")) {
             const reply = this.getGemResponse();
@@ -215,7 +208,7 @@ const AIChatbot = {
         }
 
         // ----------------------------------------------------
-        // 10. HARDEST STAGE / EVENT
+        // 11. HARDEST STAGE / EVENT
         // ----------------------------------------------------
         if (this.hasAny(clean, ["hardest", "hard stage", "toughest", "most difficult", "boss stage", "demon lord", "malakor"])) {
             const reply = this.getHardestStageResponse();
@@ -224,7 +217,7 @@ const AIChatbot = {
         }
 
         // ----------------------------------------------------
-        // 11. TIER LIST / BEST UNITS / META
+        // 12. TIER LIST / BEST UNITS / META
         // ----------------------------------------------------
         if (this.hasAny(clean, [
             "tier", "tier list", "tierlist", "ranking", "rankings", "rank",
@@ -237,7 +230,7 @@ const AIChatbot = {
         }
 
         // ----------------------------------------------------
-        // 12. SPECIFIC UNIT LOOKUP
+        // 13. SPECIFIC UNIT LOOKUP
         // ----------------------------------------------------
         const unit = this.findUnitByName(clean);
         if (unit) {
@@ -247,15 +240,16 @@ const AIChatbot = {
         }
 
         // ----------------------------------------------------
-        // 13. FALLBACK WITH ACCURATE TIPS
+        // 14. FALLBACK WITH ACCURATE TIPS
         // ----------------------------------------------------
         const reply = {
             role: "assistant",
             text: `I am your TD game guide! I can look up live game stats, evolutions, star fruits, traits, food leveling, promo codes, farm units, or story drops.
 
 Try asking me:
-• "What are star fruits used for?"
-• "How do I evolve Shinobi or Shadow Assassin?"
+• "What are star fruits and where do I get them?"
+• "How does unit evolution work?"
+• "What do I get from story act 1?"
 • "What are the active promo codes?"
 • "How does food work to level up units?"
 • "Where do Daggers drop?"
@@ -265,10 +259,10 @@ Try asking me:
 
 ${this.getRandomCloser()}`,
             links: [
-                { label: "📚 Open Wiki", tab: "wiki" },
-                { label: "🧬 Evolution Altar", tab: "evolution" },
-                { label: "🎁 Redeem Codes", tab: "codes" },
-                { label: "⚔️ Play Battle", tab: "battle" }
+                { label: "Open Wiki", tab: "wiki" },
+                { label: "Evolution Altar", tab: "evolution" },
+                { label: "Redeem Codes", tab: "codes" },
+                { label: "Play Battle", tab: "battle" }
             ]
         };
         this.history.push(reply);
@@ -279,58 +273,117 @@ ${this.getRandomCloser()}`,
     // PROMO CODES
     // ----------------------------------------------------
     getPromoCodesResponse() {
+        let customList = "";
+        if (typeof window !== "undefined" && window.SaveService && window.SaveService.getCustomPromoCodes) {
+            const customCodes = window.SaveService.getCustomPromoCodes();
+            for (const [code, data] of Object.entries(customCodes)) {
+                const parts = [];
+                if (data.gems) parts.push(`<b>${data.gems.toLocaleString()} Gems</b>`);
+                if (data.gold) parts.push(`<b>${data.gold.toLocaleString()} Gold</b>`);
+                if (data.traitRerolls) parts.push(`<b>${data.traitRerolls} Trait RR</b>`);
+                if (data.starFruits) {
+                    for (const [fId, qty] of Object.entries(data.starFruits)) {
+                        parts.push(`<b>${qty}x ${fId.replace(/_/g, ' ')}</b>`);
+                    }
+                }
+                if (data.materials) {
+                    for (const [mId, qty] of Object.entries(data.materials)) {
+                        parts.push(`<b>${qty}x ${mId.replace(/_/g, ' ')}</b>`);
+                    }
+                }
+                customList += `\n• <b>${code}</b> : ${parts.join(" + ")}`;
+            }
+        }
+
         return {
             role: "assistant",
             text: `${this.getRandomGreeting("active promo codes")}
 
 Here are all active working codes right now:
-• **SORRYFORBUGS** : **2,500 Gems** + **25 Trait RR** tokens!
-• **TD2026** : **1,000 Gems** + **10 Trait RR** tokens!
-• **RELEASE** : **500 Gems** + **1,000 Gold** + **5 Trait RR** tokens + 10 Normal Star Fruits + 5 Rice Balls!
-• **EVOLUTION** : **10,000 Gold** + **1 Rainbow Star Fruit** + **3 Blue Star Fruits** + **3 Pink Star Fruits**!
+• <b>SORRYFORBUGS</b> : <b>2,500 Gems</b> + <b>25 Trait RR</b> tokens!
+• <b>TD2026</b> : <b>1,000 Gems</b> + <b>10 Trait RR</b> tokens!
+• <b>RELEASE</b> : <b>500 Gems</b> + <b>5 Trait RR</b> tokens!
+• <b>EVOLUTION</b> : <b>10,000 Gold</b> + <b>1 Rainbow Star Fruit</b> + <b>3 Blue Star Fruits</b> + <b>3 Pink Star Fruits</b>!${customList}
 
 Head over to the Codes tab in the top bar to claim your rewards! Note that each code can be redeemed once per account.
 
 ${this.getRandomCloser()}`,
-            links: [{ label: "🎁 Open Codes Tab", tab: "codes" }]
+            links: [{ label: "Open Codes Tab", tab: "codes" }]
         };
     },
 
     // ----------------------------------------------------
-    // STAR FRUITS
+    // STORY STAGE DROPS & ACT REWARDS
+    // ----------------------------------------------------
+    getStoryDropResponse(clean) {
+        return {
+            role: "assistant",
+            text: `${this.getRandomGreeting("Story stage drops and rewards")}
+
+Here is the exact breakdown of what you receive from clearing Story stages (such as Plains Acts 1 to 6):
+
+<b>Guaranteed Drops & Clear Rewards:</b>
+• <b>Guaranteed Food Drops</b>: Every cleared Story stage drops <b>1 to 8 random Food items</b> (Rice Balls, Dorayaki, King's Feast Bento, or Dragon Ramen) to feed and level up your units!
+• <b>First-Clear Gems</b>:
+  - <b>Normal Mode</b>: Grants <b>50 to 90 Gems</b> on your first stage clear!
+  - <b>Hard Mode</b>: Grants <b>100 to 180 Gems</b> on your first stage clear!
+• <b>Repeat Clear Gems</b>: Subsequent clears award <b>10 to 25 Gems</b> per victory!
+• <b>Account Player EXP</b>: Grants <b>+80 EXP</b> (Normal) or <b>+150 EXP</b> (Hard) towards your Commander level!
+• <b>Unit Battle EXP</b>: All units equipped in your team earn battle EXP directly from fighting!
+• <b>In-Match Bounty Yen</b>: Defeating enemies earns Yen to purchase tower upgrades during battle!
+
+If you are looking for Evolution Materials (Light Energy, Blazes, Daggers, and Element Scrolls), those drop exclusively from <b>Legend Stages</b> in Hills and Mountains!
+
+${this.getRandomCloser()}`,
+            links: [
+                { label: "Play Story Mode", tab: "battle" },
+                { label: "View Quests", tab: "quests" },
+                { label: "Open Units", tab: "units" }
+            ]
+        };
+    },
+
+    // ----------------------------------------------------
+    // STAR FRUITS (Types & Obtainment Only)
     // ----------------------------------------------------
     getStarFruitResponse() {
+        const getFruitIcon = (id) => {
+            if (typeof window !== "undefined" && window.PixelSprites) {
+                const src = window.PixelSprites.getStarFruit ? window.PixelSprites.getStarFruit(id, 20) : (window.PixelSprites.getStarFruitIcon ? window.PixelSprites.getStarFruitIcon(id, 20) : "");
+                if (src && src.startsWith("data:")) {
+                    return `<img src="${src}" style="width:20px;height:20px;vertical-align:middle;display:inline-block;object-fit:contain;">`;
+                }
+                return src;
+            }
+            return "";
+        };
+
         return {
             role: "assistant",
             text: `${this.getRandomGreeting("Star Fruits")}
 
-**Star Fruits** are key evolution and crafting materials required to awaken Mythic units and forge legendary weapons:
+<b>Star Fruits</b> are essential awakening and evolution materials in Tower Defense:
 
-**Star Fruit Types & Uses:**
-• 🌈 **Rainbow Star Fruit** (Supreme Evolution Material):
-  - Used in nearly every Awakened evolution (Thunder God, Wind Master, Shadow Dagger, Star Staff).
-  - Can be bought in the Gem Shop for 250 Gems or fused in Crafting!
-• 🟡 **Yellow Star Fruit**:
-  - Required for **Thunder God (Awakened)** (10x) and **Star Staff** (5x).
-• 🟢 **Green Star Fruit**:
-  - Required for **Wind Master (Awakened)** (10x).
-• 🌸 **Pink Star Fruit**:
-  - Required for **Shadow Dagger** (3x) and **Star Staff** (5x).
-• 🔵 **Blue Star Fruit**:
-  - Required for **Shadow Dagger** (3x) and **Star Staff** (5x).
-• 🔴 **Red Star Fruit**:
-  - Used as an elemental catalyst in Rainbow Star Fruit fusion.
+<b>Star Fruit Types:</b>
+• ${getFruitIcon("rainbow_star_fruit")} <b>Rainbow Star Fruit</b> (Supreme Evolution Material)
+• ${getFruitIcon("red_star_fruit")} <b>Red Star Fruit</b> (Evolution Material)
+• ${getFruitIcon("blue_star_fruit")} <b>Blue Star Fruit</b> (Evolution Material)
+• ${getFruitIcon("green_star_fruit")} <b>Green Star Fruit</b> (Evolution Material)
+• ${getFruitIcon("yellow_star_fruit")} <b>Yellow Star Fruit</b> (Evolution Material)
+• ${getFruitIcon("purple_star_fruit")} <b>Purple Star Fruit</b> (Evolution Material)
+• ${getFruitIcon("pink_star_fruit")} <b>Pink Star Fruit</b> (Evolution Material)
 
-**Where to Get Star Fruits:**
-1. 💎 **Gem Shop Daily Rotation**: Colored Star Fruits cost **50 Gems** each (max 3/day per color). Rainbow costs **250 Gems** (max 1/day). Stock rotates every 24 hours at 7:00 AM Bangkok time.
-2. 🔨 **Crafting Workshop (Fruit Alchemy)**: Fuse 1 of each color (Pink, Red, Green, Blue, Yellow) to create **1 Rainbow Star Fruit**!
-3. 🏆 **Daily & Half Hourly Challenges**: Victory awards guaranteed star fruit packs!
+<b>Where to Obtain Star Fruits:</b>
+1. <b>Gem Shop Daily Rotation</b>: Colored Star Fruits cost <b>50 Gems</b> each (max 3 per color daily). Rainbow Star Fruit costs <b>350 Gems</b> (max 1 daily). Stock resets daily!
+2. <b>Crafting Workshop (Fruit Alchemy)</b>: Fuse 1 of each colored Star Fruit (Pink, Red, Green, Blue, Yellow) into <b>1 Rainbow Star Fruit</b>!
+3. <b>Daily & Half-Hourly Challenges</b>: Guaranteed Star Fruit packs on stage victory!
+4. <b>Infinite Mode</b>: Random Star Fruit drops upon reaching high waves!
 
 ${this.getRandomCloser()}`,
             links: [
-                { label: "💎 Gem Shop", tab: "gemshop" },
-                { label: "🔨 Crafting Workshop", tab: "crafting" },
-                { label: "🧬 Evolution Altar", tab: "evolution" }
+                { label: "Gem Shop", tab: "gemshop" },
+                { label: "Crafting Workshop", tab: "crafting" },
+                { label: "Evolution Altar", tab: "evolution" }
             ]
         };
     },
@@ -343,195 +396,54 @@ ${this.getRandomCloser()}`,
             role: "assistant",
             text: `${this.getRandomGreeting("food and unit leveling")}
 
-Units level up from Level 1 to 100, gaining **+1% compounded damage per level** (+100% total base damage at max level)!
+Units level up from Level 1 to 100, gaining compounded damage as they level up!
 
-**Food Items in the Gold Shop:**
-• 🍙 **Rice Ball**: 🪙150 Gold ➔ **+50 Unit EXP**
-• 🥞 **Dorayaki**: 🪙500 Gold ➔ **+200 Unit EXP**
-• 🍱 **King's Feast (Bento)**: 🪙1,800 Gold ➔ **+800 Unit EXP**
-• 🍜 **Dragon Ramen**: 🪙6,000 Gold ➔ **+3,000 Unit EXP**
+<b>Food Items in the Gold Shop:</b>
+• <b>Rice Ball</b>: 150 Gold ➔ <b>+50 Unit EXP</b>
+• <b>Dorayaki</b>: 500 Gold ➔ <b>+200 Unit EXP</b>
+• <b>King's Feast (Bento)</b>: 1,800 Gold ➔ <b>+800 Unit EXP</b>
+• <b>Dragon Ramen</b>: 6,000 Gold ➔ <b>+3,000 Unit EXP</b>
 
-**How to Earn EXP:**
-1. 🍙 **Feeding Food**: Open Inventory / Units tab, select a unit, and click Feed!
-2. ⚔️ **Playing Story Stages**: Clearing Story Acts automatically grants EXP to all units equipped in your loadout!
-3. 🌊 **Infinite Mode**: Enemies drop food items every wave!
-4. 🔮 **Adept Trait**: Units rolled with the Adept trait gain **+50% more EXP** from both battles and food!
+<b>How to Earn EXP:</b>
+1. <b>Feeding Food</b>: Open Inventory / Units tab, select a unit, and click Feed!
+2. <b>Playing Story Stages</b>: Clearing Story Acts automatically grants EXP to all units equipped in your loadout!
+3. <b>Infinite Mode</b>: Enemies drop food items every wave!
+4. <b>Adept Trait</b>: Units rolled with the Adept trait gain <b>+50% more EXP</b> from both battles and food!
 
 ${this.getRandomCloser()}`,
             links: [
-                { label: "🛒 Open Gold Shop", tab: "shop" },
-                { label: "🎒 Open Units Inventory", tab: "units" }
+                { label: "Open Gold Shop", tab: "shop" },
+                { label: "Open Units Inventory", tab: "units" }
             ]
         };
     },
 
     // ----------------------------------------------------
-    // EVOLUTIONS (General & Specific)
+    // EVOLUTIONS (General Explanation)
     // ----------------------------------------------------
     getEvolutionResponse(clean) {
-        if (clean.includes("shinobi")) {
-            return {
-                role: "assistant",
-                text: `${this.getRandomGreeting("Shinobi evolution")}
-
-**Shinobi ➔ Shinobi (Awakened)**:
-• **Gold Cost**: 10,000 Gold
-• **Required Items**:
-  - 25 Fire Scrolls (Mountain Legend Act 1)
-  - 25 Water Scrolls (Mountain Legend Act 2)
-  - 25 Nature Scrolls (Mountain Legend Act 3)
-• **Evolution Gains**: Unlocks massive Black Flames Burn dealing 100% of unit damage, Susanoo shield bypass, and 350% burst Heavenly Meteor ability!
-
-${this.getRandomCloser()}`,
-                links: [{ label: "🧬 Evolution Altar", tab: "evolution" }]
-            };
-        }
-
-        if (clean.includes("shadow") || clean.includes("assassin")) {
-            return {
-                role: "assistant",
-                text: `${this.getRandomGreeting("Shadow Assassin evolution")}
-
-**Shadow Assassin ➔ Shadow Assassin (Awakened)**:
-• **Gold Cost**: 10,000 Gold
-• **Required Items**:
-  - 1 Shadow Dagger (Forged in Crafting Workshop)
-• **Shadow Dagger Recipe in Crafting**:
-  - 12 Daggers (Guaranteed drops from Hills Legend Act 3)
-  - 1 Rainbow Star Fruit
-  - 3 Pink Star Fruits
-  - 3 Blue Star Fruits
-• **Evolution Gains**: Unlocks Endless Hunt (+30% permanent stack damage) and Phantom Rhythm (+50% bonus on every 10th strike)!
-
-${this.getRandomCloser()}`,
-                links: [
-                    { label: "🔨 Open Crafting", tab: "crafting" },
-                    { label: "🧬 Evolution Altar", tab: "evolution" }
-                ]
-            };
-        }
-
-        if (clean.includes("thunder") || clean.includes("lightning")) {
-            return {
-                role: "assistant",
-                text: `${this.getRandomGreeting("Thunder God evolution")}
-
-**Thunder God ➔ Thunder God (Awakened)**:
-• **Gold Cost**: 12,000 Gold
-• **Required Items**:
-  - 10 Yellow Star Fruits
-  - 2 Rainbow Star Fruits
-• **Evolution Gains**: Divine Chain Lightning hitting 4 targets with 25% falloff per jump, plus Thunderous Overload (+15% damage to shocked targets)!
-
-${this.getRandomCloser()}`,
-                links: [
-                    { label: "💎 Buy Star Fruits", tab: "gemshop" },
-                    { label: "🧬 Evolution Altar", tab: "evolution" }
-                ]
-            };
-        }
-
-        if (clean.includes("flame") || clean.includes("emperor")) {
-            return {
-                role: "assistant",
-                text: `${this.getRandomGreeting("Flame Emperor evolution")}
-
-**Flame Emperor ➔ Flame Emperor (Awakened)**:
-• **Gold Cost**: 11,000 Gold
-• **Required Items**:
-  - 12 Blazes (Guaranteed drops from Hills Legend Act 2)
-• **Evolution Gains**: Infernal Blaze burn damage plus Scorched Earth (+20% bonus damage to burning targets)!
-
-${this.getRandomCloser()}`,
-                links: [{ label: "🧬 Evolution Altar", tab: "evolution" }]
-            };
-        }
-
-        if (clean.includes("holy") || clean.includes("knight")) {
-            return {
-                role: "assistant",
-                text: `${this.getRandomGreeting("Holy Knight evolution")}
-
-**Holy Knight ➔ Holy Knight (Awakened)**:
-• **Gold Cost**: 10,000 Gold
-• **Required Items**:
-  - 12 Light Energy (Guaranteed drops from Hills Legend Act 1)
-• **Evolution Gains**: Radiant AoE holy smite with huge base damage scaling!
-
-${this.getRandomCloser()}`,
-                links: [{ label: "🧬 Evolution Altar", tab: "evolution" }]
-            };
-        }
-
-        if (clean.includes("wind") || clean.includes("master")) {
-            return {
-                role: "assistant",
-                text: `${this.getRandomGreeting("Wind Master evolution")}
-
-**Wind Master ➔ Wind Master (Awakened)**:
-• **Gold Cost**: 10,000 Gold
-• **Required Items**:
-  - 10 Green Star Fruits
-  - 2 Rainbow Star Fruits
-• **Evolution Gains**: Tempestuous vortex currents pulling and slowing enemy groups!
-
-${this.getRandomCloser()}`,
-                links: [{ label: "🧬 Evolution Altar", tab: "evolution" }]
-            };
-        }
-
-        if (clean.includes("star") || clean.includes("mage")) {
-            return {
-                role: "assistant",
-                text: `${this.getRandomGreeting("Star Mage evolution")}
-
-**Star Mage ➔ Star Mage (Explosion)**:
-• **Gold Cost**: 15,000 Gold
-• **Required Items**:
-  - 1 Star Staff (Forged in Crafting Workshop)
-• **Star Staff Recipe in Crafting**:
-  - 2 Rainbow Star Fruits
-  - 5 Pink Star Fruits
-  - 5 Blue Star Fruits
-  - 5 Yellow Star Fruits
-• **Evolution Gains**: Supernova full AoE light damage, Stellar Blast Zone (+30% bonus), and Cosmic Execution (+25% vs Bosses)!
-
-${this.getRandomCloser()}`,
-                links: [
-                    { label: "🔨 Open Crafting", tab: "crafting" },
-                    { label: "🧬 Evolution Altar", tab: "evolution" }
-                ]
-            };
-        }
-
-        // General evolution guide listing ALL 7
         return {
             role: "assistant",
-            text: `${this.getRandomGreeting("all unit evolutions")}
+            text: `${this.getRandomGreeting("unit evolution")}
 
-Here is the complete guide to all 7 unit evolutions in Pixel Tower Defense:
+<b>Unit Evolution</b> permanently ascends your heroes into their ultimate Awakened forms:
 
-1. ⚡ **Thunder God (Awakened)**:
-   • 🪙 12,000 Gold + 🟡 10 Yellow Star Fruits + 🌈 2 Rainbow Star Fruits.
-2. 🗡️ **Shadow Assassin (Awakened)**:
-   • 🪙 10,000 Gold + 🟣 1 Shadow Dagger (Crafted from 12 Daggers from Hills Legend Act 3 + Star Fruits).
-3. 🔥 **Shinobi (Awakened)**:
-   • 🪙 10,000 Gold + 📜 25 Fire, 25 Water, 25 Nature Scrolls (from Mountain Legend Acts 1-3).
-4. 🌋 **Flame Emperor (Awakened)**:
-   • 🪙 11,000 Gold + 🔥 12 Blazes (from Hills Legend Act 2).
-5. 🛡️ **Holy Knight (Awakened)**:
-   • 🪙 10,000 Gold + ✨ 12 Light Energy (from Hills Legend Act 1).
-6. 🌪️ **Wind Master (Awakened)**:
-   • 🪙 10,000 Gold + 🟢 10 Green Star Fruits + 🌈 2 Rainbow Star Fruits.
-7. 🌟 **Star Mage (Explosion)**:
-   • 🪙 15,000 Gold + ⭐ 1 Star Staff (Crafted from 2 Rainbow, 5 Pink, 5 Blue, 5 Yellow Star Fruits).
+<b>What Evolution Does:</b>
+• <b>Massive Stat Increases</b>: Significantly boosts base damage, attack range, and lowers SPA so units strike faster!
+• <b>Unlocks Extra Passives & Skills</b>: Grants game-changing new passives, elemental burns, shields, or destructive active abilities!
+• <b>Awakened Appearance</b>: Upgrades your unit with vibrant awakened visual models, animated elemental auras, and custom particle VFX!
+• <b>High-Tier Scaling</b>: Allows units to reach their maximum combat potential to conquer Legend and Infinite stages!
 
-You can evolve units at the Evolution Altar once you have collected the required materials and reached Level 100 on the base unit!
+<b>How to Evolve:</b>
+1. Level up your unit through battle or feeding food items.
+2. Collect the required Star Fruits (always requires 1 Rainbow Star Fruit plus specific colored Star Fruits) and Gold or evolution materials.
+3. Open the <b>Evolution Altar</b> in the top navigation bar, select your eligible unit, and awaken them!
 
 ${this.getRandomCloser()}`,
             links: [
-                { label: "🧬 Evolution Altar", tab: "evolution" },
-                { label: "🔨 Crafting Workshop", tab: "crafting" }
+                { label: "Evolution Altar", tab: "evolution" },
+                { label: "Crafting Workshop", tab: "crafting" },
+                { label: "Gem Shop", tab: "gemshop" }
             ]
         };
     },
@@ -540,46 +452,28 @@ ${this.getRandomCloser()}`,
     // DROPS & LEGEND STAGES
     // ----------------------------------------------------
     getLegendResponse(clean) {
-        if (clean && (clean.includes("dagger") || clean.includes("daggers"))) {
-            return {
-                role: "assistant",
-                text: `${this.getRandomGreeting("Daggers drop location")}
-
-🗡️ **Daggers** drop exclusively in **World 2 (Hills) Legend Act 3**!
-• **Drop Rate**: 100% guaranteed to drop **1 to 3 Daggers** on every victory!
-• **Bonus Drop**: 10% chance to also drop a rare **Relic Shard** 💠!
-• **Purpose**: You need **12 Daggers** to forge the **Shadow Dagger** in Crafting, which is required to evolve Shadow Assassin into Shadow Assassin (Awakened)!
-
-${this.getRandomCloser()}`,
-                links: [
-                    { label: "⚔️ Play Hills Legend Act 3", tab: "battle" },
-                    { label: "🔨 Open Crafting Workshop", tab: "crafting" }
-                ]
-            };
-        }
-
         return {
             role: "assistant",
-            text: `${this.getRandomGreeting("Legend stages and material drops")}
+            text: `${this.getRandomGreeting("item drops and Legend Stages")}
 
-Legend Stages are high-difficulty trial maps with 100% guaranteed material drops on victory:
+Here is where all evolution materials and crafting catalysts drop:
 
-**World 2 (Hills) Legend Stages:**
-• **Hills Act 1**: 100% drops 1 to 3 **Light Energy** ✨ (Evolves Holy Knight)
-• **Hills Act 2**: 100% drops 1 to 3 **Blazes** 🔥 (Evolves Flame Emperor)
-• **Hills Act 3**: 100% drops 1 to 3 **Daggers** 🗡️ (Need 12 for Shadow Dagger) + 10% chance for a **Relic Shard** 💠!
+<b>Hills Legend Stages (World 2):</b>
+• <b>Light Energy</b>: Guaranteed drop from <b>Hills Legend Act 1</b> (1-3 per run). Evolves Holy Knight!
+• <b>Blaze</b>: Guaranteed drop from <b>Hills Legend Act 2</b> (1-3 per run). Evolves Flame Emperor!
+• <b>Dagger</b>: Guaranteed drop from <b>Hills Legend Act 3</b> (1-3 per run). Required to forge the Shadow Dagger!
+• <b>Relic Shard</b>: 10% bonus drop chance from <b>Hills Legend Act 3</b>! Used in Crafting for permanent relics.
 
-**World 3 (Mountains) Legend Stages:**
-• **Mountain Act 1**: 100% drops 5 to 10 **Fire Scrolls** 📜 (Evolves Shinobi)
-• **Mountain Act 2**: 100% drops 5 to 10 **Water Scrolls** 📜 (Evolves Shinobi)
-• **Mountain Act 3**: 100% drops 5 to 10 **Nature Scrolls** 📜 (Evolves Shinobi)
-
-*(Note: You must clear the corresponding Story Act to unlock each Legend Stage!)*
+<b>Mountains Legend Stages (World 3):</b>
+• <b>Fire Scroll</b>: Guaranteed 5 to 10 scrolls from <b>Mountain Legend Act 1</b>!
+• <b>Water Scroll</b>: Guaranteed 5 to 10 scrolls from <b>Mountain Legend Act 2</b>!
+• <b>Nature Scroll</b>: Guaranteed 5 to 10 scrolls from <b>Mountain Legend Act 3</b>!
+*(All 3 scroll types are required to awaken Shinobi into Shinobi (God)!)*
 
 ${this.getRandomCloser()}`,
             links: [
-                { label: "⚔️ Play Legend Stages", tab: "battle" },
-                { label: "🔨 Open Crafting", tab: "crafting" }
+                { label: "Play Legend Stages", tab: "battle" },
+                { label: "Open Crafting", tab: "crafting" }
             ]
         };
     },
@@ -592,27 +486,27 @@ ${this.getRandomCloser()}`,
             role: "assistant",
             text: `${this.getRandomGreeting("Crafting Workshop")}
 
-The **Crafting Workshop** allows you to forge evolution catalysts, fuse star fruits, and build permanent team relics:
+The <b>Crafting Workshop</b> allows you to forge evolution catalysts, fuse star fruits, and build permanent team relics:
 
-• 🟣 **Shadow Dagger** (Evolves Shadow Assassin):
+• <b>Shadow Dagger</b> (Evolves Shadow Assassin):
   - 12 Daggers (from Hills Legend Act 3)
   - 1 Rainbow Star Fruit
   - 3 Pink Star Fruits
   - 3 Blue Star Fruits
-• ⭐ **Star Staff** (Evolves Star Mage):
+• <b>Star Staff</b> (Evolves Star Mage):
   - 2 Rainbow Star Fruits
   - 5 Pink Star Fruits
   - 5 Blue Star Fruits
   - 5 Yellow Star Fruits
-• 🌈 **Star Fruit Alchemy (Fusion)**:
-  - Combine 1 of each color (Pink, Red, Green, Blue, Yellow) into **1 Rainbow Star Fruit**!
-• 💠 **Permanent Relics**:
+• <b>Star Fruit Alchemy (Fusion)</b>:
+  - Combine 1 of each color (Pink, Red, Green, Blue, Yellow) into <b>1 Rainbow Star Fruit</b>!
+• <b>Permanent Relics</b>:
   - Forge powerful relics using Relic Shards dropped from Hills Legend Act 3 to buff your entire team!
 
 ${this.getRandomCloser()}`,
             links: [
-                { label: "🔨 Open Crafting Workshop", tab: "crafting" },
-                { label: "🧬 Evolution Altar", tab: "evolution" }
+                { label: "Open Crafting Workshop", tab: "crafting" },
+                { label: "Evolution Altar", tab: "evolution" }
             ]
         };
     },
@@ -627,86 +521,94 @@ ${this.getRandomCloser()}`,
 
 Here is how our two economy farm units work in combat:
 
-1. **Silver Banker** [Epic]:
-• **Placement Limit**: Max 3 on the field.
-• **Base Payout**: 200 ¥/wave (Base Cost: 400 ¥)
-• **Upgrade Payouts**:
-  - Up 1: 350 ¥/wave (Cost: 650 ¥)
-  - Up 2: 550 ¥/wave (Cost: 1,100 ¥)
-  - Up 3: 850 ¥/wave (Cost: 1,800 ¥)
-  - Up 4: 1,300 ¥/wave (Cost: 2,800 ¥)
-  - Up 5: 1,850 ¥/wave (Cost: 4,200 ¥)
-  - Up 6 (Max): **2,500 ¥/wave** (Cost: 6,000 ¥)
-*(With 3 placed at max upgrade, you get a massive 7,500 ¥ every wave!)*
+1. <b>Silver Banker</b> [Epic]:
+• <b>Placement Limit</b>: Max 3 on the field.
+• <b>Base Payout</b>: 200 Yen/wave (Base Cost: 400 Yen)
+• <b>Upgrade Payouts</b>:
+  - Up 1: 350 Yen/wave (Cost: 650 Yen)
+  - Up 2: 550 Yen/wave (Cost: 1,100 Yen)
+  - Up 3: 850 Yen/wave (Cost: 1,800 Yen)
+  - Up 4: 1,300 Yen/wave (Cost: 2,800 Yen)
+  - Up 5: 1,850 Yen/wave (Cost: 4,200 Yen)
+  - Up 6 (Max): <b>2,500 Yen/wave</b> (Cost: 6,000 Yen)
+*(With 3 placed at max upgrade, you get a massive 7,500 Yen every wave!)*
 
-2. **Gold Alchemist** [Legendary]:
-• **Placement Limit**: Strictly 1 on the field.
-• **Base Payout**: 250 ¥/wave (Base Cost: 800 ¥)
-• **Max Upgrade Payout**: **10,000 ¥/wave** across 8 upgrades!
+2. <b>Gold Alchemist</b> [Legendary]:
+• <b>Placement Limit</b>: Strictly 1 on the field.
+• <b>Base Payout</b>: 250 Yen/wave (Base Cost: 800 Yen)
+• <b>Max Upgrade Payout</b>: <b>10,000 Yen/wave</b> across 8 upgrades!
 *(Ideal for funding expensive high-damage Mythic upgrades!)*
 
 ${this.getRandomCloser()}`,
             links: [
-                { label: "🎒 View Units", tab: "units" },
-                { label: "📚 Open Wiki", tab: "wiki" }
+                { label: "View Units", tab: "units" },
+                { label: "Open Wiki", tab: "wiki" }
             ]
         };
     },
 
     // ----------------------------------------------------
-    // TRAITS & TRAIT ALTAR
+    // TRAITS & TRAIT ALTAR (Using custom SVG designs, NO emojis)
     // ----------------------------------------------------
     getTraitResponse() {
+        const getIcon = (name) => {
+            if (typeof window !== "undefined" && window.PixelSprites && window.PixelSprites.getTraitIcon) {
+                return window.PixelSprites.getTraitIcon(name, 18);
+            }
+            return "";
+        };
+
         return {
             role: "assistant",
             text: `${this.getRandomGreeting("traits and the Trait Altar")}
 
 Traits grant permanent stat bonuses to your units. Rerolling consumes 1 Trait RR token:
 
-**Complete Trait Breakdown & Exact Probabilities:**
-• 👑 **Unique** (0.10%): **+300% Damage**, -10% SPA, +10% Range (Max 1 unit placement)
-• 🌌 **Eternal** (0.25%): **+50% Damage**, -10% SPA, +20% Range
-• ⚡ **Divine** (0.50%): **+20% Damage**, -10% SPA, +20% Range
-• ✨ **Celestial** (1.00%): **+10% Damage**, +10% Range
-• ☠️ **Reaper** (2.00%): **+15% Damage**, **+25% vs Bosses**
-• 💨 **Godspeed** (2.00%): **-20% SPA** (Attacks 20% faster!)
-• ⚔️ **Superior III** (4.00%): +15% Damage | **Superior II** (8.50%): +10% Damage | **Superior I** (12.50%): +5% Damage
-• 👟 **Nimble III** (4.00%): -15% SPA | **Nimble II** (8.50%): -10% SPA | **Nimble I** (12.50%): -5% SPA
-• 🎯 **Range III** (4.00%): +15% Range | **Range II** (8.50%): +10% Range | **Range I** (12.50%): +5% Range
-• 🩸 **Culling** (5.00%): +20% Damage against enemies under 30% HP
-• 📚 **Adept** (7.39%): **+50% Unit EXP gained**
-• 🪙 **Fortune** (7.50%): **+20% Income for farm units**
+<b>Complete Trait Breakdown & Exact Probabilities:</b>
+• ${getIcon("Unique")} <b>Unique</b> (0.10%): <b>+300% Damage</b>, -10% SPA, +10% Range (Max 1 unit placement)
+• ${getIcon("Eternal")} <b>Eternal</b> (0.25%): <b>+50% Damage</b>, -10% SPA, +20% Range
+• ${getIcon("Divine")} <b>Divine</b> (0.50%): <b>+20% Damage</b>, -10% SPA, +20% Range
+• ${getIcon("Celestial")} <b>Celestial</b> (1.00%): <b>+10% Damage</b>, +10% Range
+• ${getIcon("Reaper")} <b>Reaper</b> (2.00%): <b>+15% Damage</b>, <b>+25% vs Bosses</b>
+• ${getIcon("Godspeed")} <b>Godspeed</b> (2.00%): <b>-20% SPA</b> (Attacks 20% faster!)
+• ${getIcon("Superior III")} <b>Superior III</b> (4.00%): +15% Damage | ${getIcon("Superior II")} <b>Superior II</b> (8.50%): +10% Damage | ${getIcon("Superior I")} <b>Superior I</b> (12.50%): +5% Damage
+• ${getIcon("Nimble III")} <b>Nimble III</b> (4.00%): -15% SPA | ${getIcon("Nimble II")} <b>Nimble II</b> (8.50%): -10% SPA | ${getIcon("Nimble I")} <b>Nimble I</b> (12.50%): -5% SPA
+• ${getIcon("Range III")} <b>Range III</b> (4.00%): +15% Range | ${getIcon("Range II")} <b>Range II</b> (8.50%): +10% Range | ${getIcon("Range I")} <b>Range I</b> (12.50%): +5% Range
+• ${getIcon("Culling")} <b>Culling</b> (5.00%): +20% Damage against enemies under 30% HP
+• ${getIcon("Adept")} <b>Adept</b> (7.39%): <b>+50% Unit EXP gained</b>
+• ${getIcon("Fortune")} <b>Fortune</b> (7.50%): <b>+20% Income for farm units</b>
 
 You can earn Trait RR tokens from Daily Challenges (25 RRs), Half-Hourly Challenges (3 RRs), and promo codes!
 
 ${this.getRandomCloser()}`,
             links: [
-                { label: "🔮 Trait Altar", tab: "traits" },
-                { label: "🏆 Play Challenges", tab: "challenges" }
+                { label: "Open Trait Altar", tab: "traits" },
+                { label: "Open Wiki Traits", tab: "wiki" }
             ]
         };
     },
 
     // ----------------------------------------------------
-    // GEMS & FARMING GEMS
+    // GEMS
     // ----------------------------------------------------
     getGemResponse() {
         return {
             role: "assistant",
-            text: `${this.getRandomGreeting("farming Gems")}
+            text: `${this.getRandomGreeting("farming gems")}
 
-Here are the best ways to get Gems fast in Pixel Tower Defense:
-1. 🌊 **Infinite Mode**: Milestone gem rewards every 5 waves (up to 800 Gems per milestone) plus food drops on every wave!
-2. 🏆 **Daily Challenge**: Awards a huge **3,000 Gems** plus 25 Trait Rerolls on every victory!
-3. ⏱️ **Half Hourly Challenge**: Awards **500 Gems** plus 3 Trait Rerolls every 30 minutes!
-4. 🎁 **Promo Codes**: Redeem codes like **SORRYFORBUGS** (2,500 Gems) and **TD2026** (1,000 Gems)!
-5. 📖 **Story Acts & Index**: First-time story clears and index enemy discoveries grant bonus gems.
+Here are the best ways to earn Gems fast:
+1. <b>Story Stage First Clears</b>: 50-90 Gems (Normal) and 100-180 Gems (Hard)!
+2. <b>Daily Challenges</b>: 100-300 Gems on full completion!
+3. <b>Half-Hourly Challenges</b>: 40-75 Gems every 30 minutes!
+4. <b>Promo Codes</b>: Redeem active codes like <b>SORRYFORBUGS</b> (2,500 Gems), <b>TD2026</b> (1,000 Gems), and <b>RELEASE</b> (500 Gems)!
+5. <b>Infinite Mode</b>: Tier rewards every 5 waves (+35 to +800 Gems)!
+6. <b>Unit & Enemy Index</b>: Claim 30 Gems for every registered unit and enemy!
 
 ${this.getRandomCloser()}`,
             links: [
-                { label: "🏆 Play Challenges", tab: "challenges" },
-                { label: "🎁 Redeem Codes", tab: "codes" },
-                { label: "⚔️ Infinite Mode", tab: "battle" }
+                { label: "Play Battle", tab: "battle" },
+                { label: "Redeem Codes", tab: "codes" },
+                { label: "Open Quests", tab: "quests" }
             ]
         };
     },
@@ -717,146 +619,95 @@ ${this.getRandomCloser()}`,
     getHardestStageResponse() {
         return {
             role: "assistant",
-            text: `${this.getRandomGreeting("the hardest stage")}
+            text: `${this.getRandomGreeting("the hardest stages")}
 
-The **Release Event** is currently the single toughest challenge in the game!
-• It features **20 relentless waves** of elite, boosted enemies.
-• Includes Abyssal Colossus mini-bosses and the ultimate World Boss **Demon Lord Malakor**.
-• Winning awards **500 Gems every match** and a **0.75% drop chance** for the Secret unit Star Mage!
+The current toughest challenges in the game are:
+1. <b>Infinite Mode (Wave 50+)</b>: Colossus bosses with escalating HP and flying enemy swarms!
+2. <b>Mountain Legend Act 3</b>: High wave density requiring strong AoE damage to survive.
+3. <b>Daily Challenge (Hard)</b>: 30 waves of boosted speed enemies!
 
-${this.getRandomCloser()}`,
-            links: [{ label: "⚔️ Play Release Event", tab: "battle" }]
-        };
-    },
-
-    // ----------------------------------------------------
-    // TIER LIST
-    // ----------------------------------------------------
-    getTierListResponse() {
-        return {
-            role: "assistant",
-            text: `${this.getRandomGreeting("the meta tier list")}
-
-Here are the top absolute best units in the game right now:
-
-1. 👑 **Shinobi (Awakened)** : Massive fire burn damage (100% of unit damage), Susanoo shield bypass, and 350% burst Heavenly Meteor strike.
-2. ⚡ **Thunder God (Awakened)** : Divine chain lightning hitting 4 targets with a 25% dropoff per jump and shock stuns.
-3. 🌟 **Star Mage (Explosion)** : Massive Full AoE blasts, Stellar Blast Zone (+30%), and Cosmic Execution (+25% vs bosses).
-4. 🩸 **Vampire King** : Secret unit with 8s bleed ticks, +15% direct bleed damage boost, and raises fallen enemies as base minions.
-
-**Top Role Specialists:**
-• **Best Hill Anti-Air**: Hunter (Sniper targeting flying enemies with +35% bonus)
-• **Best Ground Multi-Hit**: Robot (Continuous laser beam)
-• **Best Support Summoner**: Commander (Buffs physical towers and spawns cavalry horses)
-• **Best Farms**: Silver Banker (up to 2,500 ¥/wave x3) and Gold Alchemist (up to 10,000 ¥/wave)
+Recommended units to beat them: Shinobi (God) for burn and meteor burst, Thunder God for chain shock crowd control, and Vampire King for single-target boss DPS!
 
 ${this.getRandomCloser()}`,
             links: [
-                { label: "🏆 View Wiki", tab: "wiki" },
-                { label: "🎒 Open Inventory", tab: "units" }
+                { label: "Play Battle", tab: "battle" },
+                { label: "Open Wiki Tier List", tab: "wiki" }
             ]
         };
     },
 
     // ----------------------------------------------------
-    // SPECIFIC UNIT FINDER
+    // TIER LIST & BEST UNITS
+    // ----------------------------------------------------
+    getTierListResponse() {
+        return {
+            role: "assistant",
+            text: `${this.getRandomGreeting("the meta Tier List")}
+
+Here is the current official meta ranking:
+
+<b>SS+ Tier (Absolute Meta):</b>
+• <b>Shinobi (God)</b>: Top all-around Mythic. Black Flames Burn (100% of damage over 3s) + 350% burst Heavenly Meteor active strike!
+• <b>Vampire King</b>: Premier Secret boss killer. High single-target DPS + summons allied minions!
+
+<b>S Tier (Top Tier Powerhouses):</b>
+• <b>Thunder God (Awakened)</b>: Divine Chain Lightning hitting up to 4 targets with 25% falloff per jump!
+• <b>Star Mage (Explosion)</b>: Massive Circle AoE with Cosmic Beam and stellar execution!
+• <b>Shadow Assassin (Awakened)</b>: Extremely fast 1.0s SPA with Endless Hunt kill stacks!
+
+<b>A Tier (Strong High-Impact):</b>
+• <b>Flame Emperor (Awakened)</b>: Full map burn tick damage and Scorched Earth!
+• <b>Wind Master (Awakened)</b>: Tempest vortex currents that slow and pull enemy mobs!
+• <b>Holy Knight (Awakened)</b>: High burst holy smite!
+
+<b>Economy Tier (Essential Support):</b>
+• <b>Gold Alchemist</b>: Max 10,000 Yen/wave.
+• <b>Silver Banker</b>: 2,500 Yen/wave (x3 max = 7,500 Yen/wave).
+
+${this.getRandomCloser()}`,
+            links: [
+                { label: "Open Wiki Tier List", tab: "wiki" },
+                { label: "DPS Calculator", tab: "wiki" }
+            ]
+        };
+    },
+
+    // ----------------------------------------------------
+    // SPECIFIC UNIT DYNAMIC LOOKUP
     // ----------------------------------------------------
     findUnitByName(clean) {
         if (!window.UNIT_CONFIG) return null;
-
-        const aliases = [
-            { keys: ["shinobi god", "shinobi (god)"], id: "shinobi_god" },
-            { keys: ["shinobi"], id: "shinobi" },
-            { keys: ["thunder god awakened", "thunder god (awakened)"], id: "thunder_god_awakened" },
-            { keys: ["thunder god", "thunder"], id: "thunder_god" },
-            { keys: ["star mage explosion", "star mage (explosion)"], id: "star_mage_explosion" },
-            { keys: ["star mage"], id: "star_mage" },
-            { keys: ["vampire king", "vampire"], id: "vampire_king" },
-            { keys: ["shadow assassin awakened", "shadow assassin (awakened)"], id: "shadow_assassin_awakened" },
-            { keys: ["shadow assassin", "assassin"], id: "shadow_assassin" },
-            { keys: ["hunter"], id: "hunter" },
-            { keys: ["robot"], id: "robot" },
-            { keys: ["silver banker", "banker"], id: "silver_banker" },
-            { keys: ["gold alchemist", "alchemist"], id: "gold_alchemist" },
-            { keys: ["frost weaver", "frost"], id: "frost_weaver" },
-            { keys: ["swordsman"], id: "swordsman" },
-            { keys: ["flame emperor awakened", "flame emperor (awakened)"], id: "flame_emperor_awakened" },
-            { keys: ["flame emperor"], id: "flame_emperor" },
-            { keys: ["holy knight awakened", "holy knight (awakened)"], id: "holy_knight_awakened" },
-            { keys: ["holy knight"], id: "holy_knight" },
-            { keys: ["wind master awakened", "wind master (awakened)"], id: "wind_master_awakened" },
-            { keys: ["wind master"], id: "wind_master" },
-            { keys: ["commander"], id: "commander" },
-            { keys: ["magic girl"], id: "magic_girl" }
-        ];
-
-        for (const item of aliases) {
-            for (const k of item.keys) {
-                if (clean.includes(k) || this.hasWord(clean, k)) {
-                    return window.UNIT_CONFIG[item.id] || null;
-                }
-            }
-        }
-
         for (const [id, u] of Object.entries(window.UNIT_CONFIG)) {
-            const nameLower = (u.name || "").toLowerCase();
-            if (clean.includes(nameLower) || this.hasWord(clean, nameLower)) {
-                return u;
-            }
+            const uName = u.name.toLowerCase();
+            if (clean.includes(uName)) return u;
+            if (clean.includes(id.toLowerCase())) return u;
         }
-
         return null;
     },
 
-    // Dynamic Unit Stat response
     getDynamicUnitResponse(unit) {
-        const rawDps = Math.round(unit.baseDamage / unit.baseSpa);
-        const maxUpgrades = (unit.upgrades || []).length;
-        let lastDmg = unit.baseDamage;
-        let lastSpa = unit.baseSpa;
-        let lastRange = unit.baseRange;
-
-        if (maxUpgrades > 0) {
-            const lastUp = unit.upgrades[maxUpgrades - 1];
-            lastDmg = lastUp.damage || lastDmg;
-            lastSpa = lastUp.spa || lastSpa;
-            lastRange = lastUp.range || lastRange;
-        }
-        const maxDps = Math.round(lastDmg / lastSpa);
-
-        const passivesList = (unit.passives || []).map(p => `• **${p.name}**: ${p.desc || p.description || ''}`).join("\n");
-
-        if (unit.isFarm) {
-            return {
-                role: "assistant",
-                text: `${this.getRandomGreeting(unit.name)}
-
-**${unit.name}** (${unit.rarity.toUpperCase()} • Economy Farm Unit)
-• **Placement Cap**: Max ${unit.maxPlacements || 1} on the field
-• **Base Payout**: ${unit.incomePerWave} ¥/wave (Base Cost: ${unit.baseCost} ¥)
-• **Max Upgrade Payout**: ${(unit.upgrades && unit.upgrades[maxUpgrades - 1] ? (unit.upgrades[maxUpgrades - 1].incomePerWave || unit.upgrades[maxUpgrades - 1].income) : unit.incomePerWave)} ¥/wave (${maxUpgrades} total upgrades)
-
-${this.getRandomCloser()}`,
-                links: [
-                    { label: "🎒 View Units", tab: "units" },
-                    { label: "📚 Open Wiki", tab: "wiki" }
-                ]
-            };
-        }
+        const upgs = unit.upgrades || [];
+        const maxUpg = upgs.length > 0 ? upgs[upgs.length - 1] : { damage: unit.baseDamage, spa: unit.baseSpa, range: unit.baseRange };
+        const rawDps = maxUpg.spa > 0 ? (maxUpg.damage / maxUpg.spa).toFixed(1) : "N/A";
 
         return {
             role: "assistant",
             text: `${this.getRandomGreeting(unit.name)}
 
-**${unit.name}** (${unit.rarity.toUpperCase()} • ${unit.element || "No Element"} • ${unit.placement || unit.type})
-• **Placement Cap**: Max ${unit.maxPlacements || 3} on the field
-• **Base Stats**: ${unit.baseDamage} DMG | ${unit.baseSpa}s SPA | ${unit.baseRange} Range (~${rawDps} DPS)
-• **Max Upgrade Stats**: ${lastDmg} DMG | ${lastSpa}s SPA | ${lastRange} Range (~${maxDps} DPS across ${maxUpgrades} upgrades)
+<b>${unit.name}</b> [${unit.rarity}]:
+• <b>Placement</b>: ${unit.placement || "Ground"} ${unit.hasSoaring ? "(Soaring Capable)" : ""}
+• <b>Element / Damage</b>: ${unit.element || "None"} / ${unit.damageType || "Physical"}
+• <b>Base Cost</b>: ${unit.baseCost || 400} Yen
+• <b>Attack Shape</b>: ${unit.attackShape || unit.attackType || "Single Target"}
+• <b>Max Upgrades</b>: ${upgs.length} Upgrades
+• <b>Max Upgrade Stats</b>: ${maxUpg.damage} Damage, ${maxUpg.spa}s SPA, ${maxUpg.range} Range (~${rawDps} Raw DPS at Lv.1)
 
-${passivesList ? "**Passives:**\n" + passivesList + "\n\n" : ""}${this.getRandomCloser()}`,
+${unit.passives && unit.passives.length > 0 ? `<b>Passives:</b>\n` + unit.passives.map(p => `• <b>${p.name}</b>: ${p.desc || p.description}`).join("\n") : `<i>No special passives (Standard unit).</i>`}
+
+${this.getRandomCloser()}`,
             links: [
-                { label: "🎒 View Units", tab: "units" },
-                { label: "📚 Open Wiki", tab: "wiki" }
+                { label: `Inspect in Wiki`, tab: "wiki" },
+                { label: "DPS Calculator", tab: "wiki" }
             ]
         };
     }

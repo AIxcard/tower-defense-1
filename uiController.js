@@ -4157,13 +4157,260 @@ const UIController = {
     },
 
     // ----------------------------------------------------
-    // PROMO CODES VIEW
+    // PROMO CODES VIEW & CREATOR CODE STUDIO
     // ----------------------------------------------------
     renderCodes() {
         const input = document.getElementById("promo-code-input");
         const msg = document.getElementById("promo-code-msg");
         if (input) input.value = "";
         if (msg) msg.style.display = "none";
+
+        // Render Active Codes List
+        const listEl = document.getElementById("active-codes-list");
+        if (listEl && window.SaveService) {
+            const allCodes = window.SaveService.getAllPromoCodes ? window.SaveService.getAllPromoCodes() : window.SaveService.PROMO_CODES;
+            let html = "";
+            for (const [code, data] of Object.entries(allCodes)) {
+                const parts = [];
+                if (data.gems) parts.push(`<span style="color:#38bdf8;">${data.gems.toLocaleString()} Gems</span>`);
+                if (data.gold) parts.push(`<span style="color:#facc15;">${data.gold.toLocaleString()} Gold</span>`);
+                if (data.traitRerolls) parts.push(`<span style="color:#c084fc;">${data.traitRerolls} Trait RR</span>`);
+                if (data.food) {
+                    for (const [fId, qty] of Object.entries(data.food)) {
+                        parts.push(`<span style="color:#4ade80;">${qty}x ${fId.replace(/_/g, ' ')}</span>`);
+                    }
+                }
+                if (data.starFruits) {
+                    for (const [sfId, qty] of Object.entries(data.starFruits)) {
+                        parts.push(`<span style="color:#fb7185;">${qty}x ${sfId.replace(/_/g, ' ')}</span>`);
+                    }
+                }
+                if (data.materials) {
+                    for (const [mId, qty] of Object.entries(data.materials)) {
+                        parts.push(`<span style="color:#94a3b8;">${qty}x ${mId.replace(/_/g, ' ')}</span>`);
+                    }
+                }
+                html += `<div>• <b style="color:#fff;">${code}</b>: ${parts.join(', ')}</div>`;
+            }
+            listEl.innerHTML = html;
+        }
+
+        // Render Creator Code Studio (Only for thabpanaphat.p2031@icsn.ac.th)
+        const studioEl = document.getElementById("creator-code-studio-area");
+        if (studioEl) {
+            const isCreator = window.SaveService && window.SaveService.isCreatorAccount && window.SaveService.isCreatorAccount();
+            if (!isCreator) {
+                studioEl.innerHTML = "";
+                return;
+            }
+
+            const items = [
+                // Currencies
+                { id: "gems", name: "Gems", category: "Currency", type: "gems" },
+                { id: "gold", name: "Gold", category: "Currency", type: "gold" },
+                { id: "traitRerolls", name: "Trait Reroll Crystals", category: "Currency", type: "trait_rr" },
+                
+                // Star Fruits
+                { id: "rainbow_star_fruit", name: "Rainbow Star Fruit", category: "Star Fruits", subGroup: "starFruits" },
+                { id: "red_star_fruit", name: "Red Star Fruit", category: "Star Fruits", subGroup: "starFruits" },
+                { id: "blue_star_fruit", name: "Blue Star Fruit", category: "Star Fruits", subGroup: "starFruits" },
+                { id: "green_star_fruit", name: "Green Star Fruit", category: "Star Fruits", subGroup: "starFruits" },
+                { id: "yellow_star_fruit", name: "Yellow Star Fruit", category: "Star Fruits", subGroup: "starFruits" },
+                { id: "purple_star_fruit", name: "Purple Star Fruit", category: "Star Fruits", subGroup: "starFruits" },
+                { id: "pink_star_fruit", name: "Pink Star Fruit", category: "Star Fruits", subGroup: "starFruits" },
+
+                // Food
+                { id: "rice_ball", name: "Rice Ball (+50 EXP)", category: "Food Items", subGroup: "food" },
+                { id: "dorayaki", name: "Dorayaki (+200 EXP)", category: "Food Items", subGroup: "food" },
+                { id: "bento", name: "King's Feast Bento (+800 EXP)", category: "Food Items", subGroup: "food" },
+                { id: "ramen", name: "Dragon Ramen (+3,000 EXP)", category: "Food Items", subGroup: "food" },
+
+                // Materials
+                { id: "dagger", name: "Normal Dagger", category: "Materials", subGroup: "materials" },
+                { id: "shadow_dagger", name: "Shadow Dagger", category: "Materials", subGroup: "materials" },
+                { id: "relic_shard", name: "Relic Shard", category: "Materials", subGroup: "materials" },
+                { id: "light_energy", name: "Light Energy", category: "Materials", subGroup: "materials" },
+                { id: "blaze", name: "Blaze", category: "Materials", subGroup: "materials" },
+                { id: "fire_scroll", name: "Fire Scroll", category: "Materials", subGroup: "materials" },
+                { id: "water_scroll", name: "Water Scroll", category: "Materials", subGroup: "materials" },
+                { id: "nature_scroll", name: "Nature Scroll", category: "Materials", subGroup: "materials" },
+                { id: "star_staff", name: "Star Staff", category: "Materials", subGroup: "materials" },
+                { id: "thunder_essence", name: "Thunder Essence", category: "Materials", subGroup: "materials" },
+                { id: "nature_essence", name: "Nature Essence", category: "Materials", subGroup: "materials" },
+                { id: "luck_potion", name: "Luck Potion (+100% Luck)", category: "Consumables", subGroup: "potions" }
+            ];
+
+            const categories = ["Currency", "Star Fruits", "Food Items", "Materials", "Consumables"];
+
+            let sectionsHtml = "";
+            for (const cat of categories) {
+                const catItems = items.filter(it => it.category === cat);
+                let itemsGrid = "";
+                for (const item of catItems) {
+                    let iconSvg = "";
+                    if (window.PixelSprites) {
+                        if (item.category === "Star Fruits") {
+                            iconSvg = window.PixelSprites.getStarFruit ? window.PixelSprites.getStarFruit(item.id, 28) : (window.PixelSprites.getStarFruitIcon ? window.PixelSprites.getStarFruitIcon(item.id, 28) : "");
+                        } else if (item.category === "Food Items") {
+                            iconSvg = window.PixelSprites.getFoodIcon ? window.PixelSprites.getFoodIcon(item.id, 28) : (window.PixelSprites.getFood ? window.PixelSprites.getFood(item.id, 28) : "");
+                        } else if (item.id === "luck_potion") {
+                            iconSvg = window.PixelSprites.getLuckPotionIcon ? window.PixelSprites.getLuckPotionIcon(28) : "";
+                        } else {
+                            iconSvg = window.PixelSprites.getMaterialIcon ? window.PixelSprites.getMaterialIcon(item.type || item.id, 28) : "";
+                        }
+                    }
+
+                    let iconEl = "";
+                    if (iconSvg) {
+                        if (iconSvg.startsWith("data:")) {
+                            iconEl = `<img src="${iconSvg}" style="width:28px;height:28px;object-fit:contain;">`;
+                        } else {
+                            iconEl = iconSvg;
+                        }
+                    }
+
+                    itemsGrid += `
+                        <div style="background:#090d16;border:1px solid #334155;border-radius:8px;padding:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                            <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+                                <div style="width:28px;height:28px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">${iconEl}</div>
+                                <span style="font-size:12px;color:#f1f5f9;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</span>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+                                <input type="number" id="creator-qty-${item.id}" data-item-id="${item.id}" data-category="${item.category}" data-subgroup="${item.subGroup || ''}" min="0" value="0" style="width:65px;padding:4px 6px;background:#1e293b;border:1px solid #475569;border-radius:4px;color:#fff;font-weight:700;font-size:12px;text-align:center;">
+                                <button type="button" onclick="UIController.adjustCreatorQty('${item.id}', 1)" style="background:#334155;color:#fff;border:none;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:10px;font-weight:700;">+1</button>
+                                <button type="button" onclick="UIController.adjustCreatorQty('${item.id}', 10)" style="background:#334155;color:#fff;border:none;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:10px;font-weight:700;">+10</button>
+                                <button type="button" onclick="UIController.adjustCreatorQty('${item.id}', 100)" style="background:#334155;color:#fff;border:none;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:10px;font-weight:700;">+100</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                sectionsHtml += `
+                    <div style="margin-bottom:14px;">
+                        <h5 style="color:#38bdf8;margin:0 0 8px 0;font-size:13px;letter-spacing:0.5px;text-transform:uppercase;">${cat}</h5>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:8px;">
+                            ${itemsGrid}
+                        </div>
+                    </div>
+                `;
+            }
+
+            studioEl.innerHTML = `
+                <div style="background:#0b1324;border:2px solid #eab308;border-radius:14px;padding:20px;box-shadow:0 0 30px rgba(234,179,8,0.25);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid #1e293b;padding-bottom:12px;flex-wrap:wrap;gap:8px;">
+                        <div>
+                            <h3 style="margin:0;color:#facc15;font-family:'Lilita One',cursive;font-size:22px;letter-spacing:1px;display:flex;align-items:center;gap:8px;">
+                                <span>👑</span> CREATOR CODE STUDIO
+                            </h3>
+                            <p style="margin:4px 0 0 0;color:#94a3b8;font-size:12px;">Exclusive code generator for <b>thabpanaphat.p2031@icsn.ac.th</b>. Build custom codes with any item rewards.</p>
+                        </div>
+                        <span style="background:rgba(234,179,8,0.2);color:#facc15;border:1px solid #eab308;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:800;">CREATOR ACTIVE</span>
+                    </div>
+
+                    <!-- Code Details -->
+                    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+                        <div style="flex:1;min-width:200px;">
+                            <label style="display:block;font-size:11px;color:#94a3b8;font-weight:700;margin-bottom:4px;">CODE NAME (e.g. VIP2026):</label>
+                            <input type="text" id="creator-code-name" placeholder="TYPE NEW CODE..." style="width:100%;box-sizing:border-box;padding:10px 12px;background:#090d16;color:#fff;border:2px solid #eab308;border-radius:8px;font-size:15px;text-transform:uppercase;font-weight:800;">
+                        </div>
+                        <div style="flex:1;min-width:200px;">
+                            <label style="display:block;font-size:11px;color:#94a3b8;font-weight:700;margin-bottom:4px;">DESCRIPTION / NOTE:</label>
+                            <input type="text" id="creator-code-desc" placeholder="Special gift pack note..." style="width:100%;box-sizing:border-box;padding:10px 12px;background:#090d16;color:#fff;border:1px solid #334155;border-radius:8px;font-size:14px;">
+                        </div>
+                    </div>
+
+                    <!-- Items Menu -->
+                    <div style="max-height:360px;overflow-y:auto;background:#060a12;border:1px solid #1e293b;border-radius:8px;padding:14px;margin-bottom:16px;">
+                        ${sectionsHtml}
+                    </div>
+
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                        <button type="button" onclick="UIController.clearCreatorQuantities()" style="background:#1e293b;color:#94a3b8;border:1px solid #334155;border-radius:8px;padding:10px 18px;font-weight:700;cursor:pointer;font-size:13px;">Reset Quantities</button>
+                        <button type="button" onclick="UIController.generateCreatorCode()" class="tactile-green-btn" style="padding:12px 28px;font-size:15px;font-weight:900;letter-spacing:0.5px;">⚡ Generate & Publish Code</button>
+                    </div>
+                </div>
+            `;
+        }
+    },
+
+    adjustCreatorQty(itemId, amount) {
+        const input = document.getElementById(`creator-qty-${itemId}`);
+        if (!input) return;
+        const cur = parseInt(input.value, 10) || 0;
+        input.value = Math.max(0, cur + amount);
+    },
+
+    clearCreatorQuantities() {
+        document.querySelectorAll("input[id^='creator-qty-']").forEach(inp => inp.value = 0);
+        const nameInp = document.getElementById("creator-code-name");
+        if (nameInp) nameInp.value = "";
+        const descInp = document.getElementById("creator-code-desc");
+        if (descInp) descInp.value = "";
+    },
+
+    generateCreatorCode() {
+        if (!window.SaveService || !window.SaveService.isCreatorAccount()) {
+            this.showToast("Unauthorized. Creator account required.", "warning");
+            return;
+        }
+
+        const nameInp = document.getElementById("creator-code-name");
+        const descInp = document.getElementById("creator-code-desc");
+        const codeName = (nameInp ? nameInp.value : "").trim().toUpperCase();
+
+        if (!codeName || codeName.length < 3) {
+            this.showToast("Please enter a code name with at least 3 characters!", "warning");
+            return;
+        }
+
+        const rewards = {};
+        let totalItems = 0;
+
+        document.querySelectorAll("input[id^='creator-qty-']").forEach(inp => {
+            const qty = parseInt(inp.value, 10) || 0;
+            if (qty > 0) {
+                const itemId = inp.dataset.itemId;
+                const cat = inp.dataset.category;
+                const subGroup = inp.dataset.subgroup;
+
+                if (cat === "Currency") {
+                    if (itemId === "gems") rewards.gems = qty;
+                    else if (itemId === "gold") rewards.gold = qty;
+                    else if (itemId === "traitRerolls") rewards.traitRerolls = qty;
+                } else if (subGroup === "starFruits") {
+                    if (!rewards.starFruits) rewards.starFruits = {};
+                    rewards.starFruits[itemId] = qty;
+                } else if (subGroup === "food") {
+                    if (!rewards.food) rewards.food = {};
+                    rewards.food[itemId] = qty;
+                } else if (subGroup === "materials") {
+                    if (!rewards.materials) rewards.materials = {};
+                    rewards.materials[itemId] = qty;
+                } else if (subGroup === "potions") {
+                    rewards.luckPotions = (rewards.luckPotions || 0) + qty;
+                }
+                totalItems += qty;
+            }
+        });
+
+        if (totalItems <= 0) {
+            this.showToast("Please select at least 1 item reward for this code!", "warning");
+            return;
+        }
+
+        if (descInp && descInp.value.trim()) {
+            rewards.description = descInp.value.trim();
+        }
+
+        const res = window.SaveService.createCustomPromoCode(codeName, rewards);
+        if (res.success) {
+            if (window.AudioService) window.AudioService.playVictorySound();
+            this.showToast(`🎉 Code "${codeName}" created and active! Auto-updated in Wiki and AI Bot!`, "success");
+            this.clearCreatorQuantities();
+            this.renderCodes();
+        } else {
+            this.showToast(res.message || "Failed to generate code.", "warning");
+        }
     },
 
     redeemPromoCode() {
@@ -4202,7 +4449,10 @@ const UIController = {
         let html = "";
         window.AIChatbot.history.forEach(msg => {
             const isUser = msg.role === "user";
-            const formatted = (msg.text || "")
+            let rawText = msg.text || "";
+            // Strip any newlines inside <svg>...</svg> to prevent <br> injection breaking SVG DOM
+            rawText = rawText.replace(/<svg[\s\S]*?<\/svg>/gi, m => m.replace(/[\r\n]+/g, ' '));
+            const formatted = rawText
                 .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
                 .replace(/\*(.*?)\*/g, '<i>$1</i>')
                 .replace(/\n/g, '<br>');
