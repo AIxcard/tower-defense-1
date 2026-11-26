@@ -982,6 +982,11 @@ const UIController = {
         // DPS Calculation Breakdown
         const dpsData = this.calculateDPSBreakdown(conf, placedUnit.upgradeLevel, placedUnit.unitInstance.trait, placedUnit.unitInstance.level || 1, placedUnit.isHill);
 
+        const isFarm = !!(conf.isFarm || conf.role === "Farm" || conf.incomePerWave !== undefined);
+        const currentIncome = (stats.income !== undefined && stats.income > 0) ? stats.income : ((placedUnit.upgradeLevel > 0 && conf.upgrades && (conf.upgrades[placedUnit.upgradeLevel - 1].incomePerWave || conf.upgrades[placedUnit.upgradeLevel - 1].income)) || conf.incomePerWave || 0);
+        const nextIncome = nextUpgrade ? (nextUpgrade.incomePerWave || nextUpgrade.income || currentIncome) : currentIncome;
+        const incomeIncrease = nextIncome - currentIncome;
+
         let html = `
             <div class="inspector-header" style="display:flex;align-items:center;justify-content:space-between;">
                 <div>
@@ -1012,9 +1017,20 @@ const UIController = {
                     </div>
                 </div>
                 <hr style="border:0;border-top:1px solid #334155;margin:8px 0;">
-                <div><b>Damage per Attack:</b> <span style="color:#f8fafc;font-weight:700;">${stats.damage}</span></div>
-                <div><b>SPA:</b> <span style="color:#f8fafc;font-weight:700;">${stats.spa}s</span></div>
-                <div><b>Range:</b> <span style="color:#f8fafc;font-weight:700;">${stats.range}</span></div>
+                ${isFarm ? `
+                    <div style="background:rgba(234,179,8,0.12);border:1px solid #eab308;border-radius:8px;padding:8px;margin:8px 0;">
+                        <div style="font-size:11px;font-weight:900;color:#facc15;margin-bottom:2px;display:flex;align-items:center;gap:4px;">
+                            <span>💰</span> CURRENT WAVE INCOME
+                        </div>
+                        <div style="font-size:15px;font-weight:800;color:#4ade80;">
+                            +${currentIncome.toLocaleString()} ¥ <span style="font-size:11px;color:#94a3b8;font-weight:500;">/ wave</span>
+                        </div>
+                    </div>
+                ` : `
+                    <div><b>Damage per Attack:</b> <span style="color:#f8fafc;font-weight:700;">${stats.damage}</span></div>
+                    <div><b>SPA:</b> <span style="color:#f8fafc;font-weight:700;">${stats.spa}s</span></div>
+                    <div><b>Range:</b> <span style="color:#f8fafc;font-weight:700;">${stats.range}</span></div>
+                `}
                 
                 <!-- IN-GAME LIVE DPS CHECKER CARD -->
                 <div style="background:#090d16;border:1px solid #38bdf8;border-radius:8px;padding:8px;margin:8px 0;box-shadow:0 0 10px rgba(56,189,248,0.2);">
@@ -1059,20 +1075,26 @@ const UIController = {
 
                 ${nextUpgrade ? `
                     <div class="inspector-upgrade-box">
-                        <div class="upgrade-preview-title">NEXT UPGRADE: Lv.${nextLvl} (${nextUpgrade.cost} ¥)</div>
-                        ${nextUpgrade.damage !== undefined ? `
+                        <div class="upgrade-preview-title">NEXT UPGRADE: Lv.${nextLvl} (${nextUpgrade.cost.toLocaleString()} ¥)</div>
+                        ${isFarm ? `
+                            <div class="upgrade-diff-row" style="background:rgba(234,179,8,0.14);padding:6px 8px;border-radius:6px;border:1px solid rgba(234,179,8,0.4);margin:4px 0;">
+                                <span style="font-weight:700;color:#facc15;">Income Increase:</span>
+                                <span>${currentIncome.toLocaleString()} ¥ ➔ <b class="upgrade-diff-val" style="color:#4ade80;font-size:13px;">${nextIncome.toLocaleString()} ¥ (+${incomeIncrease.toLocaleString()} ¥/wave)</b></span>
+                            </div>
+                        ` : ''}
+                        ${!isFarm && nextUpgrade.damage !== undefined ? `
                             <div class="upgrade-diff-row">
                                 <span>Damage:</span>
                                 <span>${stats.damage} ➔ <b class="upgrade-diff-val">${nextUpgrade.damage} (+${nextUpgrade.damage - stats.damage})</b></span>
                             </div>
                         ` : ''}
-                        ${nextUpgrade.spa !== undefined ? `
+                        ${!isFarm && nextUpgrade.spa !== undefined ? `
                             <div class="upgrade-diff-row">
                                 <span>SPA:</span>
                                 <span>${stats.spa}s ➔ <b class="upgrade-diff-val">${nextUpgrade.spa}s</b></span>
                             </div>
                         ` : ''}
-                        ${nextUpgrade.range !== undefined ? `
+                        ${!isFarm && nextUpgrade.range !== undefined ? `
                             <div class="upgrade-diff-row">
                                 <span>Range:</span>
                                 <span>${stats.range} ➔ <b class="upgrade-diff-val">${nextUpgrade.range} (+${nextUpgrade.range - stats.range})</b></span>

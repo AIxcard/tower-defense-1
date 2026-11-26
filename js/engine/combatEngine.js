@@ -558,29 +558,34 @@ const CombatEngine = {
                 });
             }
         } else {
-            // Infinite mode or fallback waves
-            const enemyPool = ["grunt", "scout_dasher", "armored_golem", "flying_harpy", "magic_shieldbearer", "berserker_orc", "soaring_sky_serpent", "celestial_soarer"];
-            const count = 8 + this.currentWave * 2;
-            const compoundHp = Math.pow(1.15, this.currentWave);
-            const speedScale = speedMultiplier * Math.min(1.60, 1.0 + this.currentWave * 0.015);
+            // Infinite mode or fallback waves (Smoothed progression, progressive tiers)
+            let enemyPool = ["grunt", "scout_dasher"];
+            if (this.currentWave >= 6) enemyPool.push("armored_golem", "magic_shieldbearer");
+            if (this.currentWave >= 11) enemyPool.push("berserker_orc", "flying_harpy");
+            if (this.currentWave >= 16) enemyPool.push("soaring_sky_serpent");
+            if (this.currentWave >= 21) enemyPool.push("celestial_soarer", "shadow_healer");
+
+            const count = Math.floor(5 + this.currentWave * 1.0);
+            const compoundHp = Math.pow(1.045, this.currentWave) * (1 + this.currentWave * 0.015);
+            const speedScale = speedMultiplier * Math.min(1.40, 0.95 + this.currentWave * 0.01);
 
             for (let i = 0; i < count; i++) {
                 const type = enemyPool[Math.floor(Math.random() * enemyPool.length)];
                 this.spawnQueue.push({
                     type: type,
-                    delay: i * 0.85,
+                    delay: i * 1.10,
                     hpMult: compoundHp * hpMultiplier,
                     speedMult: speedScale
                 });
             }
 
-            // Boss every 10 waves in Infinite
+            // Boss every 10 waves in Infinite (Balanced scaling)
             if (this.stageConfig.isInfinite && this.currentWave % 10 === 0) {
                 this.spawnQueue.push({
                     type: "abyssal_colossus",
-                    delay: count * 1.0 + 2.0,
-                    hpMult: compoundHp * hpMultiplier * 1.5,
-                    speedMult: 0.8
+                    delay: count * 1.10 + 1.5,
+                    hpMult: compoundHp * hpMultiplier * 0.85,
+                    speedMult: 0.75
                 });
             }
         }

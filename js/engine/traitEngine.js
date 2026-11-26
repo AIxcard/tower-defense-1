@@ -60,6 +60,7 @@ const TraitEngine = {
                 if (up.spa !== undefined) spa = up.spa;
                 if (up.range !== undefined) range = up.range;
                 if (up.income !== undefined) income = up.income;
+                if (up.incomePerWave !== undefined) income = up.incomePerWave;
                 if (up.splashRadius !== undefined) splashRadius = up.splashRadius;
                 if (up.chainTargets !== undefined) chainTargets = up.chainTargets;
                 if (up.slowPercent !== undefined) slowPercent = up.slowPercent;

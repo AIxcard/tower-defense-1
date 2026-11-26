@@ -285,7 +285,7 @@ const STAGE_CONFIG = {
         worldId: "world_2",
         actNum: 3,
         name: "Hills Act 3",
-        description: "Elevated ridges where flying harpies dive.",
+        description: "Elevated ridges patrolled by agile scout dashers and armored squads.",
         totalWaves: 15,
                 normal: {
             firstClearGems: 90,
@@ -295,20 +295,20 @@ const STAGE_CONFIG = {
             startCash: 3000,
             waveEnemies: [
                 { wave: 1, enemies: ["grunt"], count: 6, interval: 1.6 },
-                { wave: 2, enemies: ["flying_harpy"], count: 4, interval: 2.0 },
-                { wave: 3, enemies: ["grunt", "flying_harpy"], count: 7, interval: 1.5 },
+                { wave: 2, enemies: ["scout_dasher"], count: 4, interval: 2.0 },
+                { wave: 3, enemies: ["grunt", "scout_dasher"], count: 7, interval: 1.5 },
                 { wave: 4, enemies: ["scout_dasher"], count: 8, interval: 1.3 },
-                { wave: 5, enemies: ["flying_harpy", "scout_dasher"], count: 8, interval: 1.4 },
-                { wave: 6, enemies: ["armored_golem", "flying_harpy"], count: 8, interval: 1.5 },
-                { wave: 7, enemies: ["flying_harpy"], count: 8, interval: 1.4 },
+                { wave: 5, enemies: ["scout_dasher", "scout_dasher"], count: 8, interval: 1.4 },
+                { wave: 6, enemies: ["armored_golem", "scout_dasher"], count: 8, interval: 1.5 },
+                { wave: 7, enemies: ["scout_dasher"], count: 8, interval: 1.4 },
                 { wave: 8, enemies: ["grunt", "scout_dasher"], count: 11, interval: 1.2 },
-                { wave: 9, enemies: ["flying_harpy", "armored_golem"], count: 9, interval: 1.4 },
-                { wave: 10, enemies: ["flying_harpy"], count: 10, interval: 1.3 },
-                { wave: 11, enemies: ["scout_dasher", "flying_harpy"], count: 12, interval: 1.2 },
-                { wave: 12, enemies: ["armored_golem", "flying_harpy"], count: 10, interval: 1.3 },
-                { wave: 13, enemies: ["flying_harpy", "grunt"], count: 13, interval: 1.2 },
-                { wave: 14, enemies: ["armored_golem", "flying_harpy"], count: 11, interval: 1.3 },
-                { wave: 15, enemies: ["flying_harpy", "armored_golem", "scout_dasher"], count: 14, interval: 1.1 }
+                { wave: 9, enemies: ["scout_dasher", "armored_golem"], count: 9, interval: 1.4 },
+                { wave: 10, enemies: ["scout_dasher"], count: 10, interval: 1.3 },
+                { wave: 11, enemies: ["scout_dasher", "scout_dasher"], count: 12, interval: 1.2 },
+                { wave: 12, enemies: ["armored_golem", "scout_dasher"], count: 10, interval: 1.3 },
+                { wave: 13, enemies: ["scout_dasher", "grunt"], count: 13, interval: 1.2 },
+                { wave: 14, enemies: ["armored_golem", "scout_dasher"], count: 11, interval: 1.3 },
+                { wave: 15, enemies: ["scout_dasher", "armored_golem", "scout_dasher"], count: 14, interval: 1.1 }
             ]
         },
         hard: { firstClearGems: 180, repeatGems: 30, baseMobHpMultiplier: 3.0, mobSpeedMultiplier: 1.25, startCash: 3000, totalWaves: 15 }
@@ -330,18 +330,18 @@ const STAGE_CONFIG = {
                 { wave: 1, enemies: ["grunt"], count: 6, interval: 1.6 },
                 { wave: 2, enemies: ["magic_shieldbearer"], count: 4, interval: 1.8 },
                 { wave: 3, enemies: ["grunt", "magic_shieldbearer"], count: 7, interval: 1.5 },
-                { wave: 4, enemies: ["flying_harpy"], count: 6, interval: 1.6 },
+                { wave: 4, enemies: ["scout_dasher"], count: 6, interval: 1.6 },
                 { wave: 5, enemies: ["magic_shieldbearer", "armored_golem"], count: 7, interval: 1.6 },
                 { wave: 6, enemies: ["scout_dasher", "magic_shieldbearer"], count: 9, interval: 1.3 },
-                { wave: 7, enemies: ["magic_shieldbearer", "flying_harpy"], count: 9, interval: 1.4 },
+                { wave: 7, enemies: ["magic_shieldbearer", "scout_dasher"], count: 9, interval: 1.4 },
                 { wave: 8, enemies: ["grunt", "magic_shieldbearer"], count: 11, interval: 1.3 },
                 { wave: 9, enemies: ["magic_shieldbearer", "armored_golem"], count: 9, interval: 1.4 },
                 { wave: 10, enemies: ["magic_shieldbearer"], count: 10, interval: 1.3 },
-                { wave: 11, enemies: ["flying_harpy", "magic_shieldbearer"], count: 11, interval: 1.3 },
+                { wave: 11, enemies: ["scout_dasher", "magic_shieldbearer"], count: 11, interval: 1.3 },
                 { wave: 12, enemies: ["magic_shieldbearer", "scout_dasher"], count: 12, interval: 1.2 },
                 { wave: 13, enemies: ["armored_golem", "magic_shieldbearer"], count: 11, interval: 1.3 },
-                { wave: 14, enemies: ["magic_shieldbearer", "soaring_sky_serpent"], count: 8, interval: 1.5 },
-                { wave: 15, enemies: ["magic_shieldbearer", "armored_golem", "flying_harpy"], count: 14, interval: 1.1 }
+                { wave: 14, enemies: ["magic_shieldbearer", "magic_shieldbearer"], count: 8, interval: 1.5 },
+                { wave: 15, enemies: ["magic_shieldbearer", "armored_golem", "scout_dasher"], count: 14, interval: 1.1 }
             ]
         },
         hard: { firstClearGems: 200, repeatGems: 35, baseMobHpMultiplier: 3.4, mobSpeedMultiplier: 1.25, startCash: 3000, totalWaves: 15 }
@@ -363,18 +363,18 @@ const STAGE_CONFIG = {
                 { wave: 1, enemies: ["grunt", "scout_dasher"], count: 7, interval: 1.5 },
                 { wave: 2, enemies: ["berserker_orc"], count: 4, interval: 2.0 },
                 { wave: 3, enemies: ["grunt", "berserker_orc"], count: 8, interval: 1.5 },
-                { wave: 4, enemies: ["flying_harpy"], count: 7, interval: 1.5 },
+                { wave: 4, enemies: ["scout_dasher"], count: 7, interval: 1.5 },
                 { wave: 5, enemies: ["berserker_orc", "armored_golem"], count: 8, interval: 1.6 },
                 { wave: 6, enemies: ["scout_dasher", "berserker_orc"], count: 9, interval: 1.3 },
-                { wave: 7, enemies: ["berserker_orc", "soaring_sky_serpent"], count: 8, interval: 1.5 },
+                { wave: 7, enemies: ["berserker_orc", "magic_shieldbearer"], count: 8, interval: 1.5 },
                 { wave: 8, enemies: ["magic_shieldbearer", "berserker_orc"], count: 10, interval: 1.3 },
                 { wave: 9, enemies: ["berserker_orc"], count: 10, interval: 1.4 },
                 { wave: 10, enemies: ["berserker_orc", "scout_dasher"], count: 11, interval: 1.3 },
                 { wave: 11, enemies: ["armored_golem", "berserker_orc"], count: 11, interval: 1.3 },
-                { wave: 12, enemies: ["soaring_sky_serpent", "berserker_orc"], count: 10, interval: 1.4 },
+                { wave: 12, enemies: ["magic_shieldbearer", "berserker_orc"], count: 10, interval: 1.4 },
                 { wave: 13, enemies: ["magic_shieldbearer", "berserker_orc"], count: 12, interval: 1.2 },
                 { wave: 14, enemies: ["berserker_orc", "scout_dasher"], count: 13, interval: 1.2 },
-                { wave: 15, enemies: ["berserker_orc", "armored_golem", "flying_harpy"], count: 15, interval: 1.1 }
+                { wave: 15, enemies: ["berserker_orc", "armored_golem", "scout_dasher"], count: 15, interval: 1.1 }
             ]
         },
         hard: { firstClearGems: 250, repeatGems: 45, baseMobHpMultiplier: 3.8, mobSpeedMultiplier: 1.30, startCash: 3000, totalWaves: 15 }
@@ -397,17 +397,17 @@ const STAGE_CONFIG = {
             waveEnemies: [
                 { wave: 1, enemies: ["grunt", "scout_dasher"], count: 7, interval: 1.5 },
                 { wave: 2, enemies: ["armored_golem"], count: 5, interval: 1.8 },
-                { wave: 3, enemies: ["flying_harpy"], count: 6, interval: 1.6 },
+                { wave: 3, enemies: ["scout_dasher"], count: 6, interval: 1.6 },
                 { wave: 4, enemies: ["magic_shieldbearer"], count: 7, interval: 1.5 },
                 { wave: 5, enemies: ["berserker_orc"], count: 7, interval: 1.6 },
-                { wave: 6, enemies: ["armored_golem", "flying_harpy"], count: 8, interval: 1.4 },
+                { wave: 6, enemies: ["armored_golem", "scout_dasher"], count: 8, interval: 1.4 },
                 { wave: 7, enemies: ["berserker_orc", "scout_dasher"], count: 10, interval: 1.3 },
                 { wave: 8, enemies: ["magic_shieldbearer", "grunt"], count: 10, interval: 1.3 },
-                { wave: 9, enemies: ["soaring_sky_serpent", "berserker_orc"], count: 9, interval: 1.5 },
+                { wave: 9, enemies: ["magic_shieldbearer", "berserker_orc"], count: 9, interval: 1.5 },
                 { wave: 10, enemies: ["armored_golem", "berserker_orc"], count: 10, interval: 1.3 },
-                { wave: 11, enemies: ["magic_shieldbearer", "soaring_sky_serpent"], count: 10, interval: 1.4 },
+                { wave: 11, enemies: ["magic_shieldbearer", "magic_shieldbearer"], count: 10, interval: 1.4 },
                 { wave: 12, enemies: ["berserker_orc", "armored_golem"], count: 11, interval: 1.2 },
-                { wave: 13, enemies: ["grunt", "scout_dasher", "flying_harpy"], count: 13, interval: 1.1 },
+                { wave: 13, enemies: ["grunt", "scout_dasher", "scout_dasher"], count: 13, interval: 1.1 },
                 { wave: 14, enemies: ["berserker_orc", "magic_shieldbearer", "armored_golem"], count: 12, interval: 1.2 },
                 { wave: 15, enemies: ["berserker_orc", "armored_golem"], count: 8, interval: 1.5 }
             ]
@@ -418,14 +418,38 @@ const STAGE_CONFIG = {
     // ----------------------------------------------------
     // STORY WORLD 3: MOUNTAINS (Acts 1 to 6)
     // ----------------------------------------------------
-    "world3_act1": {
+        "world3_act1": {
         id: "world3_act1",
         worldId: "world_3",
         actNum: 1,
         name: "Mountains Act 1",
-        description: "Rocky mountain base with jagged boulders and creeping ogres.",
+        description: "Rocky mountain base with alpine winds where flying harpies descend from above.",
         totalWaves: 15,
-        normal: { firstClearGems: 80, repeatGems: 15, baseMobHpMultiplier: 2.0, mobSpeedMultiplier: 1.10, startCash: 3000 },
+        previewEnemies: ["flying_harpy", "scout_dasher", "armored_golem"],
+        normal: {
+            firstClearGems: 80,
+            repeatGems: 15,
+            baseMobHpMultiplier: 2.0,
+            mobSpeedMultiplier: 1.10,
+            startCash: 3000,
+            waveEnemies: [
+                { wave: 1, enemies: ["grunt"], count: 7, interval: 1.5 },
+                { wave: 2, enemies: ["scout_dasher"], count: 8, interval: 1.4 },
+                { wave: 3, enemies: ["grunt", "scout_dasher"], count: 9, interval: 1.3 },
+                { wave: 4, enemies: ["flying_harpy"], count: 6, interval: 1.6 },
+                { wave: 5, enemies: ["flying_harpy", "scout_dasher"], count: 8, interval: 1.4 },
+                { wave: 6, enemies: ["armored_golem", "flying_harpy"], count: 9, interval: 1.3 },
+                { wave: 7, enemies: ["magic_shieldbearer", "scout_dasher"], count: 10, interval: 1.3 },
+                { wave: 8, enemies: ["flying_harpy", "armored_golem"], count: 10, interval: 1.2 },
+                { wave: 9, enemies: ["berserker_orc", "scout_dasher"], count: 11, interval: 1.2 },
+                { wave: 10, enemies: ["flying_harpy"], count: 12, interval: 1.1 },
+                { wave: 11, enemies: ["armored_golem", "flying_harpy"], count: 12, interval: 1.1 },
+                { wave: 12, enemies: ["magic_shieldbearer", "berserker_orc"], count: 12, interval: 1.1 },
+                { wave: 13, enemies: ["flying_harpy", "scout_dasher"], count: 14, interval: 1.0 },
+                { wave: 14, enemies: ["berserker_orc", "armored_golem"], count: 13, interval: 1.0 },
+                { wave: 15, enemies: ["flying_harpy", "berserker_orc", "armored_golem"], count: 16, interval: 0.95 }
+            ]
+        },
         hard: { firstClearGems: 160, repeatGems: 30, baseMobHpMultiplier: 3.8, mobSpeedMultiplier: 1.25, startCash: 3000, totalWaves: 15 }
     },
     "world3_act2": {
@@ -433,9 +457,33 @@ const STAGE_CONFIG = {
         worldId: "world_3",
         actNum: 2,
         name: "Mountains Act 2",
-        description: "Snowy passes where fierce frost winds slow defenses.",
+        description: "Snowy passes where high-altitude soaring sky serpents glide above the blizzard.",
         totalWaves: 15,
-        normal: { firstClearGems: 95, repeatGems: 18, baseMobHpMultiplier: 2.2, mobSpeedMultiplier: 1.12, startCash: 3000 },
+        previewEnemies: ["soaring_sky_serpent", "flying_harpy", "berserker_orc"],
+        normal: {
+            firstClearGems: 95,
+            repeatGems: 18,
+            baseMobHpMultiplier: 2.2,
+            mobSpeedMultiplier: 1.12,
+            startCash: 3000,
+            waveEnemies: [
+                { wave: 1, enemies: ["scout_dasher"], count: 8, interval: 1.4 },
+                { wave: 2, enemies: ["flying_harpy"], count: 7, interval: 1.4 },
+                { wave: 3, enemies: ["armored_golem", "flying_harpy"], count: 8, interval: 1.3 },
+                { wave: 4, enemies: ["soaring_sky_serpent"], count: 6, interval: 1.6 },
+                { wave: 5, enemies: ["soaring_sky_serpent", "scout_dasher"], count: 9, interval: 1.3 },
+                { wave: 6, enemies: ["flying_harpy", "armored_golem"], count: 10, interval: 1.2 },
+                { wave: 7, enemies: ["berserker_orc", "soaring_sky_serpent"], count: 10, interval: 1.2 },
+                { wave: 8, enemies: ["flying_harpy", "magic_shieldbearer"], count: 11, interval: 1.2 },
+                { wave: 9, enemies: ["soaring_sky_serpent", "armored_golem"], count: 11, interval: 1.1 },
+                { wave: 10, enemies: ["berserker_orc", "flying_harpy"], count: 12, interval: 1.1 },
+                { wave: 11, enemies: ["soaring_sky_serpent", "scout_dasher"], count: 13, interval: 1.0 },
+                { wave: 12, enemies: ["magic_shieldbearer", "berserker_orc"], count: 13, interval: 1.0 },
+                { wave: 13, enemies: ["soaring_sky_serpent", "flying_harpy"], count: 14, interval: 0.95 },
+                { wave: 14, enemies: ["armored_golem", "berserker_orc"], count: 14, interval: 0.95 },
+                { wave: 15, enemies: ["soaring_sky_serpent", "flying_harpy", "berserker_orc"], count: 16, interval: 0.9 }
+            ]
+        },
         hard: { firstClearGems: 190, repeatGems: 36, baseMobHpMultiplier: 4.0, mobSpeedMultiplier: 1.28, startCash: 3000, totalWaves: 15 }
     },
     "world3_act3": {
@@ -443,9 +491,33 @@ const STAGE_CONFIG = {
         worldId: "world_3",
         actNum: 3,
         name: "Mountains Act 3",
-        description: "Precipitous cliff edges where flying wyverns attack.",
+        description: "Precipitous cliff edges where armored flying wyverns and soaring serpents attack.",
         totalWaves: 15,
-        normal: { firstClearGems: 110, repeatGems: 20, baseMobHpMultiplier: 2.5, mobSpeedMultiplier: 1.15, startCash: 3000 },
+        previewEnemies: ["flying_wyvern", "soaring_sky_serpent", "flying_harpy"],
+        normal: {
+            firstClearGems: 110,
+            repeatGems: 20,
+            baseMobHpMultiplier: 2.5,
+            mobSpeedMultiplier: 1.15,
+            startCash: 3000,
+            waveEnemies: [
+                { wave: 1, enemies: ["flying_harpy"], count: 8, interval: 1.3 },
+                { wave: 2, enemies: ["scout_dasher", "armored_golem"], count: 9, interval: 1.3 },
+                { wave: 3, enemies: ["soaring_sky_serpent"], count: 7, interval: 1.5 },
+                { wave: 4, enemies: ["flying_wyvern"], count: 4, interval: 2.0 },
+                { wave: 5, enemies: ["flying_wyvern", "flying_harpy"], count: 7, interval: 1.5 },
+                { wave: 6, enemies: ["soaring_sky_serpent", "berserker_orc"], count: 9, interval: 1.3 },
+                { wave: 7, enemies: ["flying_harpy", "magic_shieldbearer"], count: 11, interval: 1.2 },
+                { wave: 8, enemies: ["flying_wyvern", "soaring_sky_serpent"], count: 8, interval: 1.4 },
+                { wave: 9, enemies: ["berserker_orc", "armored_golem"], count: 12, interval: 1.1 },
+                { wave: 10, enemies: ["flying_wyvern", "flying_harpy"], count: 10, interval: 1.2 },
+                { wave: 11, enemies: ["soaring_sky_serpent", "berserker_orc"], count: 12, interval: 1.1 },
+                { wave: 12, enemies: ["magic_shieldbearer", "flying_wyvern"], count: 10, interval: 1.2 },
+                { wave: 13, enemies: ["flying_harpy", "soaring_sky_serpent"], count: 14, interval: 1.0 },
+                { wave: 14, enemies: ["flying_wyvern", "armored_golem", "berserker_orc"], count: 12, interval: 1.1 },
+                { wave: 15, enemies: ["flying_wyvern", "soaring_sky_serpent", "celestial_soarer"], count: 10, interval: 1.2 }
+            ]
+        },
         hard: { firstClearGems: 220, repeatGems: 42, baseMobHpMultiplier: 4.4, mobSpeedMultiplier: 1.30, startCash: 3000, totalWaves: 15 }
     },
     "world3_act4": {
@@ -453,9 +525,33 @@ const STAGE_CONFIG = {
         worldId: "world_3",
         actNum: 4,
         name: "Mountains Act 4",
-        description: "Mountain crystal cavern humming with raw elemental power.",
+        description: "Mountain crystal cavern humming with raw elemental power and celestial soarers.",
         totalWaves: 15,
-        normal: { firstClearGems: 130, repeatGems: 24, baseMobHpMultiplier: 2.8, mobSpeedMultiplier: 1.18, startCash: 3000 },
+        previewEnemies: ["celestial_soarer", "soaring_sky_serpent", "flying_wyvern"],
+        normal: {
+            firstClearGems: 130,
+            repeatGems: 24,
+            baseMobHpMultiplier: 2.8,
+            mobSpeedMultiplier: 1.18,
+            startCash: 3000,
+            waveEnemies: [
+                { wave: 1, enemies: ["flying_harpy", "scout_dasher"], count: 9, interval: 1.2 },
+                { wave: 2, enemies: ["soaring_sky_serpent"], count: 8, interval: 1.4 },
+                { wave: 3, enemies: ["flying_wyvern", "armored_golem"], count: 8, interval: 1.3 },
+                { wave: 4, enemies: ["celestial_soarer"], count: 4, interval: 2.2 },
+                { wave: 5, enemies: ["soaring_sky_serpent", "flying_harpy"], count: 10, interval: 1.2 },
+                { wave: 6, enemies: ["celestial_soarer", "berserker_orc"], count: 7, interval: 1.5 },
+                { wave: 7, enemies: ["flying_wyvern", "magic_shieldbearer"], count: 9, interval: 1.3 },
+                { wave: 8, enemies: ["soaring_sky_serpent", "celestial_soarer"], count: 8, interval: 1.4 },
+                { wave: 9, enemies: ["berserker_orc", "shadow_healer"], count: 12, interval: 1.1 },
+                { wave: 10, enemies: ["flying_wyvern", "celestial_soarer"], count: 9, interval: 1.3 },
+                { wave: 11, enemies: ["soaring_sky_serpent", "flying_harpy"], count: 13, interval: 1.0 },
+                { wave: 12, enemies: ["celestial_soarer", "berserker_orc"], count: 10, interval: 1.2 },
+                { wave: 13, enemies: ["flying_wyvern", "soaring_sky_serpent"], count: 12, interval: 1.1 },
+                { wave: 14, enemies: ["celestial_soarer", "shadow_healer", "armored_golem"], count: 11, interval: 1.2 },
+                { wave: 15, enemies: ["celestial_soarer", "flying_wyvern", "soaring_sky_serpent"], count: 14, interval: 1.0 }
+            ]
+        },
         hard: { firstClearGems: 260, repeatGems: 50, baseMobHpMultiplier: 4.8, mobSpeedMultiplier: 1.32, startCash: 3000, totalWaves: 15 }
     },
     "world3_act5": {
@@ -463,9 +559,33 @@ const STAGE_CONFIG = {
         worldId: "world_3",
         actNum: 5,
         name: "Mountains Act 5",
-        description: "Volcanic crest smoking with molten rock and lava golems.",
+        description: "Volcanic crest smoking with molten rock, soaring beasts, and elder dragons.",
         totalWaves: 15,
-        normal: { firstClearGems: 150, repeatGems: 28, baseMobHpMultiplier: 3.1, mobSpeedMultiplier: 1.20, startCash: 3000 },
+        previewEnemies: ["celestial_soarer", "flying_wyvern", "soaring_sky_serpent"],
+        normal: {
+            firstClearGems: 150,
+            repeatGems: 28,
+            baseMobHpMultiplier: 3.1,
+            mobSpeedMultiplier: 1.20,
+            startCash: 3000,
+            waveEnemies: [
+                { wave: 1, enemies: ["soaring_sky_serpent"], count: 8, interval: 1.3 },
+                { wave: 2, enemies: ["flying_wyvern"], count: 6, interval: 1.6 },
+                { wave: 3, enemies: ["celestial_soarer"], count: 5, interval: 1.9 },
+                { wave: 4, enemies: ["berserker_orc", "shadow_healer"], count: 11, interval: 1.1 },
+                { wave: 5, enemies: ["flying_wyvern", "soaring_sky_serpent"], count: 9, interval: 1.3 },
+                { wave: 6, enemies: ["celestial_soarer", "flying_harpy"], count: 8, interval: 1.4 },
+                { wave: 7, enemies: ["magic_shieldbearer", "berserker_orc"], count: 13, interval: 1.0 },
+                { wave: 8, enemies: ["celestial_soarer", "soaring_sky_serpent"], count: 10, interval: 1.2 },
+                { wave: 9, enemies: ["flying_wyvern", "armored_golem"], count: 11, interval: 1.2 },
+                { wave: 10, enemies: ["celestial_soarer", "flying_wyvern"], count: 10, interval: 1.2 },
+                { wave: 11, enemies: ["soaring_sky_serpent", "shadow_healer"], count: 12, interval: 1.1 },
+                { wave: 12, enemies: ["celestial_soarer", "berserker_orc"], count: 11, interval: 1.2 },
+                { wave: 13, enemies: ["flying_wyvern", "soaring_sky_serpent"], count: 13, interval: 1.0 },
+                { wave: 14, enemies: ["celestial_soarer", "flying_wyvern", "armored_golem"], count: 13, interval: 1.0 },
+                { wave: 15, enemies: ["celestial_soarer", "flying_wyvern", "soaring_sky_serpent"], count: 15, interval: 0.95 }
+            ]
+        },
         hard: { firstClearGems: 300, repeatGems: 60, baseMobHpMultiplier: 5.2, mobSpeedMultiplier: 1.35, startCash: 3000, totalWaves: 15 }
     },
     "world3_act6": {
@@ -473,15 +593,39 @@ const STAGE_CONFIG = {
         worldId: "world_3",
         actNum: 6,
         name: "Mountains Act 6",
-        description: "Apex of the mountain peak. Summit fortress boss battle!",
+        description: "Apex of the mountain peak. Summit fortress boss battle guarded by soaring titans!",
         totalWaves: 15,
         hasBoss: true,
         bossId: "world_boss_demon",
-        normal: { firstClearGems: 250, repeatGems: 40, baseMobHpMultiplier: 3.5, mobSpeedMultiplier: 1.22, startCash: 3000 },
+        previewEnemies: ["celestial_soarer", "flying_wyvern", "world_boss_demon"],
+        normal: {
+            firstClearGems: 250,
+            repeatGems: 40,
+            baseMobHpMultiplier: 3.5,
+            mobSpeedMultiplier: 1.22,
+            startCash: 3000,
+            waveEnemies: [
+                { wave: 1, enemies: ["flying_harpy", "soaring_sky_serpent"], count: 10, interval: 1.2 },
+                { wave: 2, enemies: ["flying_wyvern"], count: 7, interval: 1.5 },
+                { wave: 3, enemies: ["celestial_soarer"], count: 6, interval: 1.8 },
+                { wave: 4, enemies: ["berserker_orc", "shadow_healer"], count: 12, interval: 1.1 },
+                { wave: 5, enemies: ["flying_wyvern", "soaring_sky_serpent"], count: 10, interval: 1.2 },
+                { wave: 6, enemies: ["celestial_soarer", "magic_shieldbearer"], count: 9, interval: 1.3 },
+                { wave: 7, enemies: ["flying_wyvern", "celestial_soarer"], count: 10, interval: 1.2 },
+                { wave: 8, enemies: ["soaring_sky_serpent", "berserker_orc"], count: 12, interval: 1.1 },
+                { wave: 9, enemies: ["celestial_soarer", "flying_wyvern"], count: 11, interval: 1.1 },
+                { wave: 10, enemies: ["shadow_healer", "armored_golem", "berserker_orc"], count: 14, interval: 1.0 },
+                { wave: 11, enemies: ["celestial_soarer", "soaring_sky_serpent"], count: 12, interval: 1.1 },
+                { wave: 12, enemies: ["flying_wyvern", "celestial_soarer"], count: 12, interval: 1.1 },
+                { wave: 13, enemies: ["celestial_soarer", "soaring_sky_serpent", "flying_wyvern"], count: 14, interval: 1.0 },
+                { wave: 14, enemies: ["celestial_soarer", "berserker_orc", "shadow_healer"], count: 14, interval: 1.0 },
+                { wave: 15, enemies: ["world_boss_demon", "celestial_soarer", "flying_wyvern"], count: 10, interval: 1.5 }
+            ]
+        },
         hard: { firstClearGems: 500, repeatGems: 80, baseMobHpMultiplier: 5.8, mobSpeedMultiplier: 1.40, startCash: 3000, totalWaves: 15 }
     },
 
-    // ----------------------------------------------------
+// ----------------------------------------------------
     // INFINITE MODE
     // ----------------------------------------------------
     "infinite_mode": {

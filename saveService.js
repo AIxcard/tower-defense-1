@@ -434,6 +434,7 @@ const SaveService = {
         // 2. Attempt Supabase Cloud Sync
         try {
             await this.syncWithSupabase();
+            await this.syncCustomPromoCodes();
         } catch (err) {
             console.warn("[SaveService] Supabase initial sync offline, using local cache:", err);
             this.syncStatus = "offline";
@@ -901,27 +902,92 @@ const SaveService = {
         return this.getDeletedCodes().includes(cleaned);
     },
 
-    getCustomPromoCodes() {
-        if (!this.state.customPromoCodes) {
-            try {
-                const raw = localStorage.getItem("ptd_custom_promo_codes");
-                this.state.customPromoCodes = raw ? JSON.parse(raw) : {};
-            } catch (e) {
-                this.state.customPromoCodes = {};
+    async syncCustomPromoCodes() {
+        try {
+            const res = await fetch(`${this.SUPABASE_URL}/rest/v1/ptd_custom_promo_codes?select=*`, {
+                headers: {
+                    "apikey": this.SUPABASE_ANON_KEY,
+                    "Authorization": `Bearer ${this.SUPABASE_ANON_KEY}`
+                }
+            });
+            if (res.ok) {
+                const rows = await res.json();
+                if (Array.isArray(rows) && rows.length > 0) {
+                    let localObj = {};
+                    try {
+                        const raw = localStorage.getItem("ptd_custom_promo_codes");
+                        if (raw) localObj = JSON.parse(raw) || {};
+                    } catch(e) {}
+                    
+                    rows.forEach(r => {
+                        const codeKey = (r.code || "").trim().toUpperCase();
+                        if (codeKey) {
+                            localObj[codeKey] = {
+                                description: r.description || "",
+                                gems: r.gems || 0,
+                                gold: r.gold || 0,
+                                traitRerolls: r.trait_rerolls || 0,
+                                food: r.food || {},
+                                starFruits: r.star_fruits || {},
+                                materials: r.materials || {},
+                                expired: !!r.expired,
+                                deleted: !!r.deleted,
+                                createdAt: r.created_at
+                            };
+                            if (r.deleted) {
+                                const delList = this.getDeletedCodes();
+                                if (!delList.includes(codeKey)) delList.push(codeKey);
+                                this.state.deletedCodes = delList;
+                                try { localStorage.setItem("ptd_deleted_promo_codes", JSON.stringify(delList)); } catch(e){}
+                            }
+                            if (r.expired) {
+                                const expList = this.getExpiredCodes();
+                                if (!expList.includes(codeKey)) expList.push(codeKey);
+                                this.state.expiredCodes = expList;
+                                try { localStorage.setItem("ptd_expired_promo_codes", JSON.stringify(expList)); } catch(e){}
+                            }
+                        }
+                    });
+                    
+                    if (this.state) this.state.customPromoCodes = localObj;
+                    try { localStorage.setItem("ptd_custom_promo_codes", JSON.stringify(localObj)); } catch(e){}
+                    if (window.UIController && window.UIController.renderActiveCodesList) {
+                        window.UIController.renderActiveCodesList();
+                    }
+                }
             }
+        } catch(e) {
+            console.warn("[SaveService] Custom promo codes cloud sync offline, using local cache:", e);
         }
-        const codes = this.state.customPromoCodes || {};
+    },
+
+    getCustomPromoCodes() {
+        let localObj = {};
+        try {
+            const raw = localStorage.getItem("ptd_custom_promo_codes");
+            if (raw) localObj = JSON.parse(raw) || {};
+        } catch (e) {
+            localObj = {};
+        }
+
+        const stateObj = (this.state && this.state.customPromoCodes) ? this.state.customPromoCodes : {};
+        const merged = { ...localObj, ...stateObj };
+        if (this.state) {
+            this.state.customPromoCodes = merged;
+        }
+
         const deleted = this.getDeletedCodes();
-        for (const [k, v] of Object.entries(codes)) {
-            if (deleted.includes(k)) {
-                delete codes[k];
+        const active = {};
+        for (const [k, v] of Object.entries(merged)) {
+            if (deleted.includes(k) || (v && v.deleted)) {
                 continue;
             }
-            if (v && v.description && v.description.toLowerCase().includes("creator generated")) {
-                v.description = "";
+            active[k] = { ...v };
+            if (active[k].description && active[k].description.toLowerCase().includes("creator generated")) {
+                active[k].description = "";
             }
         }
-        return codes;
+        return active;
     },
 
     getAllPromoCodes(includeExpired = true) {
@@ -984,6 +1050,17 @@ const SaveService = {
         }
 
         this.save();
+        try {
+            fetch(`${this.SUPABASE_URL}/rest/v1/ptd_custom_promo_codes?code=eq.${cleaned}`, {
+                method: "PATCH",
+                headers: {
+                    "apikey": this.SUPABASE_ANON_KEY,
+                    "Authorization": `Bearer ${this.SUPABASE_ANON_KEY}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ expired: true })
+            }).catch(e => {});
+        } catch(e) {}
         if (window.WikiController && window.WikiController.renderCodesWiki) {
             const wArea = document.getElementById("wiki-content-area");
             if (wArea && window.WikiController.currentCategory === "codes") {
@@ -1062,6 +1139,17 @@ const SaveService = {
         }
 
         this.save();
+        try {
+            fetch(`${this.SUPABASE_URL}/rest/v1/ptd_custom_promo_codes?code=eq.${cleaned}`, {
+                method: "PATCH",
+                headers: {
+                    "apikey": this.SUPABASE_ANON_KEY,
+                    "Authorization": `Bearer ${this.SUPABASE_ANON_KEY}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ deleted: true })
+            }).catch(e => {});
+        } catch(e) {}
         if (window.WikiController && window.WikiController.renderCodesWiki) {
             const wArea = document.getElementById("wiki-content-area");
             if (wArea && window.WikiController.currentCategory === "codes") {
@@ -1107,6 +1195,33 @@ const SaveService = {
 
         this.save();
 
+        // Push to Supabase Cloud Table so codes are permanent and accessible across all devices
+        try {
+            const payload = {
+                code: cleaned,
+                description: (rewards.description || "").trim(),
+                gems: rewards.gems || 0,
+                gold: rewards.gold || 0,
+                trait_rerolls: rewards.traitRerolls || 0,
+                food: rewards.food || {},
+                star_fruits: rewards.starFruits || {},
+                materials: rewards.materials || {},
+                expired: false,
+                deleted: false,
+                created_by: (this.getGoogleUser() && this.getGoogleUser().email) || "creator"
+            };
+            fetch(`${this.SUPABASE_URL}/rest/v1/ptd_custom_promo_codes`, {
+                method: "POST",
+                headers: {
+                    "apikey": this.SUPABASE_ANON_KEY,
+                    "Authorization": `Bearer ${this.SUPABASE_ANON_KEY}`,
+                    "Content-Type": "application/json",
+                    "Prefer": "resolution=merge-duplicates"
+                },
+                body: JSON.stringify(payload)
+            }).catch(err => console.warn("Cloud promo code insert error:", err));
+        } catch (cloudErr) {}
+
         if (window.WikiController && window.WikiController.renderCodesWiki) {
             const wArea = document.getElementById("wiki-content-area");
             if (wArea && window.WikiController.currentCategory === "codes") {
@@ -1120,8 +1235,18 @@ const SaveService = {
     redeemPromoCode(codeStr) {
         if (!codeStr) return { success: false, message: "Please enter a code!" };
         const cleaned = codeStr.trim().toUpperCase();
-        const allCodes = this.getAllPromoCodes(true);
-        const codeData = allCodes[cleaned];
+        let allCodes = this.getAllPromoCodes(true);
+        let codeData = allCodes[cleaned];
+
+        // Resilient fallback check directly against custom codes and localStorage
+        if (!codeData) {
+            const custom = this.getCustomPromoCodes();
+            if (custom[cleaned]) {
+                codeData = custom[cleaned];
+            } else if (this.PROMO_CODES[cleaned]) {
+                codeData = this.PROMO_CODES[cleaned];
+            }
+        }
 
         if (!codeData || this.isCodeDeleted(cleaned)) {
             return { success: false, message: "Invalid promo code!" };
