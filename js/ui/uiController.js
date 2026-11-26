@@ -4422,9 +4422,6 @@ const UIController = {
             m.style.display = "none";
         });
     }
-            m.style.display = "none";
-        });
-    }
 };
 
 if (typeof window !== 'undefined') {
