@@ -14,7 +14,7 @@ const SaveService = {
     currentGoogleUser: null,
     activeProfileId: null,
 
-    // Google User and Profile Management
+    // Google User and Single Player Profile Management
     getGoogleUser() {
         if (this.currentGoogleUser) return this.currentGoogleUser;
         const raw = localStorage.getItem("ptd_google_user");
@@ -24,23 +24,89 @@ const SaveService = {
         return this.currentGoogleUser;
     },
 
+    getUserProfile() {
+        const user = this.getGoogleUser();
+        const key = "ptd_player_profile_" + (user ? user.id : "guest");
+        let raw = localStorage.getItem(key);
+        if (!raw) {
+            // Check legacy profile key if migrating
+            const legacyKey = "ptd_profiles_" + (user ? user.id : "default");
+            const legacyRaw = localStorage.getItem(legacyKey);
+            let legacyName = "";
+            let legacyChosen = false;
+            if (legacyRaw) {
+                try {
+                    const parsed = JSON.parse(legacyRaw);
+                    if (parsed && parsed.length > 0 && parsed[0].usernameChosen) {
+                        legacyName = parsed[0].name;
+                        legacyChosen = true;
+                    }
+                } catch(e) {}
+            }
+            const profile = {
+                id: "profile_main",
+                name: legacyName || "",
+                usernameChosen: legacyChosen,
+                createdAt: new Date().toISOString()
+            };
+            localStorage.setItem(key, JSON.stringify(profile));
+            return profile;
+        }
+        try {
+            return JSON.parse(raw);
+        } catch(e) {
+            return { id: "profile_main", name: "", usernameChosen: false };
+        }
+    },
+
+    saveUserProfile(profile) {
+        const user = this.getGoogleUser();
+        const key = "ptd_player_profile_" + (user ? user.id : "guest");
+        localStorage.setItem(key, JSON.stringify(profile));
+    },
+
+    getUserProfiles() {
+        // Enforce strictly 1 profile per player account
+        return [this.getUserProfile()];
+    },
+
+    setUsername(name) {
+        const cleanName = (name || "").trim().slice(0, 16);
+        const profile = this.getUserProfile();
+        profile.name = cleanName;
+        profile.usernameChosen = true;
+        this.saveUserProfile(profile);
+
+        if (this.state) {
+            this.state.username = cleanName;
+            this.save();
+        }
+        this.pushToSupabaseAsync();
+        return profile;
+    },
+
     setGoogleUser(user) {
         this.currentGoogleUser = user;
         if (user) {
             localStorage.setItem("ptd_google_user", JSON.stringify(user));
-            // Ensure an active profile exists and is selected automatically
-            const profiles = this.getUserProfiles();
-            const activeId = localStorage.getItem("ptd_active_profile_id");
-            if (!activeId || !profiles.find(p => p.id === activeId)) {
-                if (profiles.length > 0) {
-                    this.selectProfile(profiles[0].id);
-                } else {
-                    const newProf = this.createProfile(user.name || "Player");
-                    this.selectProfile(newProf.id);
+            const profile = this.getUserProfile();
+            this.activeProfileId = profile.id;
+            localStorage.setItem("ptd_active_profile_id", profile.id);
+            this.LOCAL_STORAGE_KEY = `ptd_player_save_${user.id}_${profile.id}`;
+
+            let localData = this.loadLocal();
+            if (!localData || !this.validateState(localData)) {
+                localData = this.createDefaultState();
+                if (profile.name && profile.usernameChosen) {
+                    localData.username = profile.name;
                 }
-            } else {
-                this.selectProfile(activeId);
+                this.saveLocal(localData);
+            } else if (profile.name && profile.usernameChosen) {
+                localData.username = profile.name;
+                this.saveLocal(localData);
             }
+            this.state = localData;
+            this.save();
         } else {
             localStorage.removeItem("ptd_google_user");
             localStorage.removeItem("ptd_active_profile_id");
@@ -48,53 +114,15 @@ const SaveService = {
         }
     },
 
-    getUserProfiles() {
-        const user = this.getGoogleUser();
-        const key = "ptd_profiles_" + (user ? user.id : "default");
-        let raw = localStorage.getItem(key);
-        if (!raw) {
-            const defProfiles = [
-                { id: "profile_1", name: (user && user.name) ? user.name : "Player", level: 1, createdAt: new Date().toISOString() }
-            ];
-            localStorage.setItem(key, JSON.stringify(defProfiles));
-            return defProfiles;
-        }
-        try { return JSON.parse(raw); } catch (e) { return []; }
+    selectProfile(profileId) {
+        // Single profile only
+        const profile = this.getUserProfile();
+        this.activeProfileId = profile.id;
+        localStorage.setItem("ptd_active_profile_id", profile.id);
     },
 
     createProfile(name = "Player") {
-        const user = this.getGoogleUser();
-        const key = "ptd_profiles_" + (user ? user.id : "default");
-        const list = this.getUserProfiles();
-        const newProf = {
-            id: "profile_" + Date.now().toString(36),
-            name: name.trim() || "Player",
-            level: 1,
-            createdAt: new Date().toISOString()
-        };
-        list.push(newProf);
-        localStorage.setItem(key, JSON.stringify(list));
-        this.selectProfile(newProf.id);
-        return newProf;
-    },
-
-    selectProfile(profileId) {
-        const user = this.getGoogleUser();
-        this.activeProfileId = profileId;
-        localStorage.setItem("ptd_active_profile_id", profileId);
-        const userPrefix = user ? user.id : "player";
-        this.LOCAL_STORAGE_KEY = `ptd_player_save_${userPrefix}_${profileId}`;
-        
-        // Load save data for this profile
-        let localData = this.loadLocal();
-        if (!localData || !this.validateState(localData)) {
-            localData = this.createDefaultState();
-            const prof = this.getUserProfiles().find(p => p.id === profileId);
-            if (prof && prof.name) localData.username = prof.name;
-            this.saveLocal(localData);
-        }
-        this.state = localData;
-        this.save();
+        return this.setUsername(name);
     },
 
     hashPassword(str) {
