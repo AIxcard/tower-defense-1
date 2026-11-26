@@ -244,15 +244,15 @@ const WikiController = {
             // Epic
             { id: "trait_reroll_crystal", name: "Trait Reroll Crystal", tier: "Epic", drop: "Daily (+25), Half-Hourly (+3), Quests, Gold Shop", use: "Reroll unit traits in Trait Temple" },
             // Legendary
-            { id: "light_energy", name: "Light Energy", tier: "Legendary", drop: "Hills Legend Act 1 (1-3 guaranteed drop)", use: "12 required to evolve Holy Knight into Holy Knight (Awakened)" },
-            { id: "blaze", name: "Blaze", tier: "Legendary", drop: "Hills Legend Act 2 (1-3 guaranteed drop)", use: "12 required to evolve Flame Emperor into Flame Emperor (Awakened)" },
+            { id: "light_energy", name: "Light Energy", tier: "Legendary", drop: "Hills Legend Act 1 (1-3 guaranteed drop)", use: "12 required to evolve Holy Knight into Holy Knight (Power)" },
+            { id: "blaze", name: "Blaze", tier: "Legendary", drop: "Hills Legend Act 2 (1-3 guaranteed drop)", use: "12 required to evolve Flame Emperor into Flame Emperor (Ruler)" },
             // Mythic
             { id: "rainbow_star_fruit", name: "Rainbow Star Fruit", tier: "Mythic", drop: "Daily Challenge or Gold Shop", use: "Universal requirement for all unit evolutions" },
-            { id: "thunder_essence", name: "Thunder Essence", tier: "Mythic", drop: "Infinite Mode (5% chance each wave)", use: "10 required to evolve Thunder God into Thunder God (Awakened)" },
-            { id: "nature_essence", name: "Nature Essence", tier: "Mythic", drop: "Infinite Mode (5% chance each wave)", use: "10 required to evolve Wind Master into Wind Master (Awakened)" },
+            { id: "thunder_essence", name: "Thunder Essence", tier: "Mythic", drop: "Infinite Mode (5% chance each wave)", use: "10 required to evolve Thunder God into Thunder God (Divine)" },
+            { id: "nature_essence", name: "Nature Essence", tier: "Mythic", drop: "Infinite Mode (5% chance each wave)", use: "10 required to evolve Wind Master into Wind Master (Tornado)" },
             { id: "relic_shard", name: "Relic Shard", tier: "Mythic", drop: "Hills Legend Act 3 (10% chance)", use: "Forge permanent unit relics in the Blacksmith" },
             // Secret
-            { id: "star_staff", name: "Star Staff", tier: "Secret", drop: "Crafting (2 Rainbow, 5 Pink, 5 Blue, 5 Yellow Star Fruits)", use: "Exclusive catalyst to awaken Star Mage into Star Mage (Awakened)" }
+            { id: "star_staff", name: "Star Staff", tier: "Secret", drop: "Crafting (2 Rainbow, 5 Pink, 5 Blue, 5 Yellow Star Fruits)", use: "Exclusive catalyst to awaken Star Mage into Star Mage (Explosion)" }
         ];
 
         let html = `
@@ -320,7 +320,7 @@ const WikiController = {
                             </div>
                             <div>
                                 <div style="font-weight:900;color:#f43f5e;font-size:15px;">Star Staff (Secret Catalyst)</div>
-                                <div style="font-size:11.5px;color:#94a3b8;">Awakens Secret Unit Star Mage into Star Mage (Awakened)!</div>
+                                <div style="font-size:11.5px;color:#94a3b8;">Awakens Secret Unit Star Mage into Star Mage (Explosion)!</div>
                                 <div style="margin-top:6px;font-size:12px;color:#facc15;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                                     <b>Recipe:</b>
                                     <span style="display:inline-flex;align-items:center;gap:3px;"><img src="${window.PixelSprites.getStarFruit('rainbow_star_fruit', 16)}" style="width:16px;height:16px;"> 2 Rainbow</span>

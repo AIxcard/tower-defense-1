@@ -651,14 +651,14 @@ Here is the current official meta ranking:
 • <b>Vampire King</b>: Premier Secret boss killer. High single-target DPS + summons allied minions!
 
 <b>S Tier (Top Tier Powerhouses):</b>
-• <b>Thunder God (Awakened)</b>: Divine Chain Lightning hitting up to 4 targets with 25% falloff per jump!
+• <b>Thunder God (Divine)</b>: Divine Chain Lightning hitting up to 4 targets with 25% falloff per jump!
 • <b>Star Mage (Explosion)</b>: Massive Circle AoE with Cosmic Beam and stellar execution!
 • <b>Shadow Assassin (Awakened)</b>: Extremely fast 1.0s SPA with Endless Hunt kill stacks!
 
 <b>A Tier (Strong High-Impact):</b>
-• <b>Flame Emperor (Awakened)</b>: Full map burn tick damage and Scorched Earth!
-• <b>Wind Master (Awakened)</b>: Tempest vortex currents that slow and pull enemy mobs!
-• <b>Holy Knight (Awakened)</b>: High burst holy smite!
+• <b>Flame Emperor (Ruler)</b>: Full map burn tick damage and Scorched Earth!
+• <b>Wind Master (Tornado)</b>: Tempest vortex currents that slow and pull enemy mobs!
+• <b>Holy Knight (Power)</b>: High burst holy smite!
 
 <b>Economy Tier (Essential Support):</b>
 • <b>Gold Alchemist</b>: Max 10,000 Yen/wave.

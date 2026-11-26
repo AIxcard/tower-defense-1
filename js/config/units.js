@@ -465,7 +465,7 @@ const UNIT_CONFIG = {
 
     "shinobi_god": {
         id: "shinobi_god",
-        name: "Shinobi (Awakened)",
+        name: "Shinobi (God)",
         rarity: "Mythic",
         isEvolved: true,
         evolvesFrom: "shinobi",
@@ -559,7 +559,7 @@ const UNIT_CONFIG = {
 
     "thunder_god_awakened": {
         id: "thunder_god_awakened",
-        name: "Thunder God (Awakened)",
+        name: "Thunder God (Divine)",
         rarity: "Mythic",
         isEvolved: true,
         evolvesFrom: "thunder_god",
@@ -738,7 +738,7 @@ const UNIT_CONFIG = {
 
     "flame_emperor_awakened": {
         id: "flame_emperor_awakened",
-        name: "Flame Emperor (Awakened)",
+        name: "Flame Emperor (Ruler)",
         rarity: "Mythic",
         isEvolved: true,
         evolvesFrom: "flame_emperor",
@@ -827,7 +827,7 @@ const UNIT_CONFIG = {
 
     "holy_knight_awakened": {
         id: "holy_knight_awakened",
-        name: "Holy Knight (Awakened)",
+        name: "Holy Knight (Power)",
         rarity: "Mythic",
         isEvolved: true,
         evolvesFrom: "holy_knight",
@@ -915,7 +915,7 @@ const UNIT_CONFIG = {
 
     "wind_master_awakened": {
         id: "wind_master_awakened",
-        name: "Wind Master (Awakened)",
+        name: "Wind Master (Tornado)",
         rarity: "Mythic",
         isEvolved: true,
         evolvesFrom: "wind_master",
@@ -1007,7 +1007,7 @@ const UNIT_CONFIG = {
 
     "star_mage_explosion": {
         id: "star_mage_explosion",
-        name: "Star Mage (Awakened)",
+        name: "Star Mage (Explosion)",
         rarity: "Secret",
         isEvolved: true,
         evolvesFrom: "star_mage",
