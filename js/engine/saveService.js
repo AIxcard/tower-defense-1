@@ -28,8 +28,23 @@ const SaveService = {
         this.currentGoogleUser = user;
         if (user) {
             localStorage.setItem("ptd_google_user", JSON.stringify(user));
+            // Ensure an active profile exists and is selected automatically
+            const profiles = this.getUserProfiles();
+            const activeId = localStorage.getItem("ptd_active_profile_id");
+            if (!activeId || !profiles.find(p => p.id === activeId)) {
+                if (profiles.length > 0) {
+                    this.selectProfile(profiles[0].id);
+                } else {
+                    const newProf = this.createProfile(user.name || "Player");
+                    this.selectProfile(newProf.id);
+                }
+            } else {
+                this.selectProfile(activeId);
+            }
         } else {
             localStorage.removeItem("ptd_google_user");
+            localStorage.removeItem("ptd_active_profile_id");
+            this.activeProfileId = null;
         }
     },
 
@@ -82,15 +97,81 @@ const SaveService = {
         this.save();
     },
 
-    loginWithGoogle(emailInput = null) {
+    hashPassword(str) {
+        if (!str) return "";
+        let hash = 5381;
+        for (let i = 0; i < str.length; i++) {
+            hash = ((hash << 5) + hash) + str.charCodeAt(i);
+        }
+        return "ptd_pw_" + Math.abs(hash).toString(36);
+    },
+
+    getRegisteredAccounts() {
+        try {
+            const raw = localStorage.getItem("ptd_registered_accounts");
+            return raw ? JSON.parse(raw) : {};
+        } catch(e) {
+            return {};
+        }
+    },
+
+    saveRegisteredAccount(email, password) {
+        const accounts = this.getRegisteredAccounts();
+        const cleanEmail = email.trim().toLowerCase();
+        accounts[cleanEmail] = {
+            email: cleanEmail,
+            passwordHash: this.hashPassword(password),
+            createdAt: new Date().toISOString()
+        };
+        localStorage.setItem("ptd_registered_accounts", JSON.stringify(accounts));
+    },
+
+    loginWithCredentials(emailInput, passwordInput) {
+        if (!emailInput || !emailInput.trim() || !emailInput.includes("@")) {
+            return { success: false, error: "Please enter your Google Account email!" };
+        }
+        if (!passwordInput || !passwordInput.trim()) {
+            return { success: false, error: "Please enter your password!" };
+        }
+
+        const cleanEmail = emailInput.trim().toLowerCase();
+        const accounts = this.getRegisteredAccounts();
+        const existing = accounts[cleanEmail];
+
+        if (existing) {
+            if (existing.passwordHash !== this.hashPassword(passwordInput)) {
+                return { success: false, error: "Incorrect password for this Google account! Please enter the correct password." };
+            }
+        } else {
+            // First time login with this email: register this password
+            this.saveRegisteredAccount(cleanEmail, passwordInput);
+        }
+
+        const userObj = {
+            id: "google_" + btoa(cleanEmail).replace(/=/g, "").slice(0, 16),
+            email: cleanEmail,
+            name: cleanEmail.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, l => l.toUpperCase()),
+            provider: "google",
+            avatar: "https://lh3.googleusercontent.com/a/default-user"
+        };
+        this.setGoogleUser(userObj);
+        this.pushToSupabaseAsync();
+        return { success: true, user: userObj };
+    },
+
+    loginWithGoogle(emailInput = null, passwordInput = null) {
         let email = emailInput;
         if (!email) {
             email = prompt("Enter your Google Account email to sign in:", "player@gmail.com");
         }
-        if (email && email.trim()) {
-            email = email.trim();
+        if (email && email.trim() && email.includes("@")) {
+            email = email.trim().toLowerCase();
+            // If a password was provided with Google login, save it for future password sign-in
+            if (passwordInput && passwordInput.trim()) {
+                this.saveRegisteredAccount(email, passwordInput.trim());
+            }
             const userObj = {
-                id: "google_" + btoa(email.toLowerCase()).replace(/=/g, "").slice(0, 16),
+                id: "google_" + btoa(email).replace(/=/g, "").slice(0, 16),
                 email: email,
                 name: email.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, l => l.toUpperCase()),
                 provider: "google",
