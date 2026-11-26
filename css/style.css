@@ -1745,6 +1745,17 @@ body {
     padding: 16px;
 }
 
+@keyframes modalPop {
+    0% {
+        transform: scale(0.92);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 .modal-overlay.open {
     display: flex;
 }

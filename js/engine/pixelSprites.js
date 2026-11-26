@@ -434,7 +434,7 @@ const PixelSprites = {
 
     getMaterialIcon(id, size = 24) {
         const mLower = (id || "").toLowerCase();
-        if (mLower === "trait_crystal" || mLower === "trait_rr" || mLower === "trait_reroll") return this.getTraitRRIcon(size);
+        if (mLower === "trait_crystal" || mLower === "trait_rr" || mLower === "trait_reroll" || mLower === "trait_reroll_crystal") return this.getTraitRRIcon(size);
         if (mLower === "gem" || mLower === "gems") return this.getGemIcon(size);
         if (mLower === "gold") return this.getGoldCoinIcon ? this.getGoldCoinIcon(size) : '🪙';
         if (mLower === "relic_shard") return this.getRelicShardIcon(size);
@@ -1591,6 +1591,30 @@ const PixelSprites = {
                 <circle cx="16" cy="16" r="2.5" fill="#ffffff"/>
                 <circle cx="11" cy="15" r="1.5" fill="#ec4899"/>
                 <circle cx="21" cy="15" r="1.5" fill="#ec4899"/>
+            `;
+        } else if (type === "soaring_sky_serpent") {
+            // Soaring Sky Serpent: Ethereal stratosphere dragon with azure dragon scales and whirlwind feathers
+            svg = `
+                <!-- Soaring Sky Serpent -->
+                <path d="M2,14 Q8,8 14,14 T26,14 T30,10" fill="none" stroke="#0284c7" stroke-width="4.5" stroke-linecap="round"/>
+                <path d="M2,14 Q8,8 14,14 T26,14 T30,10" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round"/>
+                <path d="M6,10 L10,3 L15,10 Z" fill="#0ea5e9" opacity="0.85"/>
+                <path d="M18,10 L22,3 L27,10 Z" fill="#0ea5e9" opacity="0.85"/>
+                <circle cx="28" cy="11" r="4" fill="#0369a1" stroke="#38bdf8" stroke-width="1.2"/>
+                <circle cx="29" cy="10" r="1.5" fill="#facc15"/>
+                <path d="M25,18 Q20,24 14,21 T6,25" fill="none" stroke="#7dd3fc" stroke-width="1.5" stroke-dasharray="2,2"/>
+            `;
+        } else if (type === "celestial_soarer") {
+            // Celestial Soarer: Radiant solar roc bird with glowing sun wings and starlight tail
+            svg = `
+                <!-- Celestial Soarer -->
+                <path d="M2,18 Q7,4 16,11 Q25,4 30,18 L24,20 Q16,14 8,20 Z" fill="#eab308" stroke="#fef08a" stroke-width="1.5"/>
+                <polygon points="16,8 19,16 13,16" fill="#facc15"/>
+                <circle cx="16" cy="10" r="3" fill="#ffffff" stroke="#f59e0b" stroke-width="1"/>
+                <circle cx="16" cy="10" r="1.2" fill="#ef4444"/>
+                <polygon points="16,16 12,28 16,25 20,28" fill="#ca8a04" stroke="#facc15" stroke-width="1"/>
+                <circle cx="6" cy="11" r="1.5" fill="#fef08a"/>
+                <circle cx="26" cy="11" r="1.5" fill="#fef08a"/>
             `;
         } else {
             // Fallback distinct minion

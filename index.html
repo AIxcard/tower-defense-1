@@ -211,7 +211,7 @@
         <div id="tab-evolution" class="tab-pane">
             <div class="mode-header">
                 <h2>🧬 EVOLUTION ALTAR</h2>
-                <p>Awaken your units into their supreme evolved forms! Requires Star Fruits (always 1 Rainbow Star Fruit) and 10,000 Gold.</p>
+                <p>Awaken your units into their supreme evolved forms! Collect required evolution materials from Legend Stages, Gem Shop, and Crafting.</p>
             </div>
             <div id="evolution-container" style="max-width:800px;margin:0 auto;"></div>
         </div>
@@ -304,8 +304,9 @@
                 <div style="margin-top:24px;border-top:1px solid rgba(255,255,255,0.1);padding-top:16px;">
                     <h4 style="color:#facc15;margin-bottom:8px;">Active Launch Codes:</h4>
                     <div style="font-size:12px;color:#94a3b8;line-height:1.8;">
+                        • <b style="color:#fff;">TD2026</b>: 1,000 Gems, 10 Trait RR<br>
+                        • <b style="color:#fff;">SORRYFORBUGS</b>: 2,500 Gems, 25 Trait RR<br>
                         • <b style="color:#fff;">RELEASE</b>: 500 Gems, 10 Normal Star Fruits, 5 Rice Balls<br>
-                        • <b style="color:#fff;">PTD2026</b>: 1,000 Gems, 10 Trait RR<br>
                         • <b style="color:#fff;">EVOLUTION</b>: 1 Rainbow Star Fruit, 10,000 Gold, 3 Blue Star Fruits, 3 Pink Star Fruits
                     </div>
                 </div>
@@ -382,9 +383,9 @@
             </div>
             <div>🌊 Wave: <span id="battle-wave">1/15</span></div>
             <div style="display:flex;align-items:center;gap:6px;">
-                <button id="battle-pause-btn" onclick="UIController.toggleBattlePause()" style="background:#475569;color:#fff;border:none;padding:5px 12px;border-radius:4px;cursor:pointer;font-weight:800;">⏸️ Pause</button>
-                <button id="battle-speed-btn" onclick="UIController.toggleGameSpeed()" style="background:#1e3a8a;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:800;">1x Speed</button>
-                <button onclick="if(confirm('Surrender and return to lobby?')) UIController.exitBattleToLobby();" style="background:#7f1d1d;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-weight:800;">Surrender</button>
+                <button id="battle-pause-btn" onclick="UIController.toggleBattlePause()" style="background:linear-gradient(180deg,#334155,#1e293b);color:#f8fafc;border:1px solid #475569;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:800;font-size:12.5px;box-shadow:0 2px 4px rgba(0,0,0,0.3);">⏸️ Pause</button>
+                <button id="battle-speed-btn" onclick="UIController.toggleGameSpeed()" style="background:linear-gradient(180deg,#2563eb,#1d4ed8);color:#f8fafc;border:1px solid #60a5fa;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:800;font-size:12.5px;box-shadow:0 2px 8px rgba(37,99,235,0.35);">1x Speed</button>
+                <button id="battle-exit-btn" onclick="UIController.confirmExitBattle()" style="background:linear-gradient(180deg,#dc2626,#991b1b);color:#ffffff;border:1px solid #f87171;padding:6px 16px;border-radius:6px;cursor:pointer;font-weight:900;font-size:12.5px;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 8px rgba(220,38,38,0.45);transition:all 0.1s ease;">🚪 Exit</button>
             </div>
         </div>
 
@@ -618,6 +619,19 @@
         </div>
     </div>
 
+    <!-- UNIVERSAL CUSTOM CONFIRMATION MODAL (NO SLOPPY NATIVE DIALOGS) -->
+    <div id="universal-confirm-modal" class="modal-overlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(2,6,23,0.85);backdrop-filter:blur(8px);z-index:999999;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">
+        <div class="modal-content" style="max-width:440px;width:100%;background:linear-gradient(180deg,#1e293b 0%,#0f172a 100%);border:2px solid #3b82f6;border-radius:18px;padding:28px 24px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,0.8),0 0 35px rgba(59,130,246,0.35);animation:modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);position:relative;">
+            <div id="confirm-modal-icon" style="font-size:46px;margin-bottom:8px;line-height:1;">🚪</div>
+            <h3 id="confirm-modal-title" style="font-family:'Lilita One',cursive;font-size:25px;color:#f8fafc;margin:0 0 10px 0;letter-spacing:0.5px;">Exit Battle?</h3>
+            <p id="confirm-modal-message" style="font-size:14px;color:#94a3b8;line-height:1.6;margin:0 0 24px 0;">Are you sure you want to exit and return to the lobby? Your current match progress will be lost.</p>
+            <div style="display:flex;gap:12px;justify-content:center;">
+                <button id="confirm-modal-cancel-btn" style="flex:1;height:46px;font-size:15px;background:#334155;color:#f8fafc;border:1px solid #475569;border-radius:10px;cursor:pointer;font-weight:700;transition:all 0.15s ease;">Stay in Battle</button>
+                <button id="confirm-modal-ok-btn" style="flex:1;height:46px;font-size:15px;background:linear-gradient(180deg,#ef4444,#dc2626);color:#ffffff;border:1px solid #f87171;border-radius:10px;cursor:pointer;font-weight:900;box-shadow:0 4px 14px rgba(239,68,68,0.45);transition:all 0.15s ease;">Exit Battle</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL: UNIQUE TRAIT AWAKENING -->
     <div id="unique-awakening-modal" class="modal-overlay" style="display:none;background:rgba(2,6,23,0.96);z-index:99999;">
         <div class="modal-content unique-awakening-box" style="max-width:520px;background:radial-gradient(circle at center, #3b0764 0%, #0f172a 80%);border:3px solid #facc15;border-radius:20px;padding:32px 24px;text-align:center;box-shadow:0 0 70px rgba(250,204,21,0.6);">
@@ -668,21 +682,21 @@
     <div id="custom-tooltip" class="custom-tooltip"></div>
 
     <!-- SCRIPTS -->
-    <script src="js/engine/pixelSprites.js?v=39"></script>
-    <script src="js/config/traits.js?v=39"></script>
-    <script src="js/config/units.js?v=39"></script>
-    <script src="js/config/enemies.js?v=39"></script>
-    <script src="js/config/stages.js?v=39"></script>
-    <script src="js/config/shop.js?v=39"></script>
-    <script src="js/engine/timeService.js?v=39"></script>
-    <script src="saveService.js?v=39" onerror="this.onerror=null;this.src='js/engine/saveService.js?v=39'"></script>
-    <script src="js/engine/traitEngine.js?v=39"></script>
-    <script src="js/engine/gachaEngine.js?v=39"></script>
-    <script src="js/engine/audioService.js?v=39"></script>
-    <script src="js/engine/combatEngine.js?v=39"></script>
-    <script src="uiController.js?v=39" onerror="this.onerror=null;this.src='js/ui/uiController.js?v=39'"></script>
-    <script src="js/engine/aiChatbot.js?v=39"></script>
-    <script src="js/ui/wikiController.js?v=39"></script>
+    <script src="js/engine/pixelSprites.js?v=43"></script>
+    <script src="js/config/traits.js?v=43"></script>
+    <script src="js/config/units.js?v=43"></script>
+    <script src="js/config/enemies.js?v=43"></script>
+    <script src="js/config/stages.js?v=43"></script>
+    <script src="js/config/shop.js?v=43"></script>
+    <script src="js/engine/timeService.js?v=43"></script>
+    <script src="saveService.js?v=43" onerror="this.onerror=null;this.src='js/engine/saveService.js?v=43'"></script>
+    <script src="js/engine/traitEngine.js?v=43"></script>
+    <script src="js/engine/gachaEngine.js?v=43"></script>
+    <script src="js/engine/audioService.js?v=43"></script>
+    <script src="js/engine/combatEngine.js?v=43"></script>
+    <script src="uiController.js?v=43" onerror="this.onerror=null;this.src='js/ui/uiController.js?v=43'"></script>
+    <script src="js/engine/aiChatbot.js?v=43"></script>
+    <script src="js/ui/wikiController.js?v=43"></script>
 
     <script>
         // Start game on load

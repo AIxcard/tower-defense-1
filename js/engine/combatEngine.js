@@ -559,7 +559,7 @@ const CombatEngine = {
             }
         } else {
             // Infinite mode or fallback waves
-            const enemyPool = ["grunt", "scout_dasher", "armored_golem", "flying_harpy", "magic_shieldbearer", "berserker_orc"];
+            const enemyPool = ["grunt", "scout_dasher", "armored_golem", "flying_harpy", "magic_shieldbearer", "berserker_orc", "soaring_sky_serpent", "celestial_soarer"];
             const count = 8 + this.currentWave * 2;
             const compoundHp = Math.pow(1.15, this.currentWave);
             const speedScale = speedMultiplier * Math.min(1.60, 1.0 + this.currentWave * 0.015);
@@ -654,6 +654,7 @@ const CombatEngine = {
             speed: totalSpeed,
             baseSpeed: totalSpeed,
             isFlying: config.isFlying,
+            isSoaring: !!config.isSoaring,
             isBoss: config.isBoss,
             waypointIndex: 0,
             x: this.pathWaypoints[0].x,
@@ -862,7 +863,7 @@ const CombatEngine = {
         }
     },
 
-    // Strict Target Selector (Ground vs Hill vs Hybrid vs Flying)
+    // Strict Target Selector (Ground vs Hill vs Hybrid vs Flying vs Soaring)
     findTargetForUnit(unit) {
         const validEnemies = this.activeEnemies.filter(enemy => {
             // Rule: Ground-only units CANNOT attack Flying enemies!
@@ -871,6 +872,14 @@ const CombatEngine = {
             if (enemy.isFlying) {
                 if (unit.config.placement === "Ground") {
                     return false; // Ground-only unit CANNOT hit flying!
+                }
+            }
+
+            // Rule: Soaring enemies fly at extreme stratosphere altitude!
+            // They can ONLY be targeted by units with active Soaring capability!
+            if (enemy.isSoaring) {
+                if (!unit.stats || !unit.stats.soaringActive) {
+                    return false;
                 }
             }
 
@@ -1070,6 +1079,7 @@ const CombatEngine = {
             const next = this.activeEnemies.find(e => {
                 if (chained.includes(e)) return false;
                 if (e.isFlying && unit.config.placement === "Ground") return false;
+                if (e.isSoaring && !unit.stats.soaringActive) return false;
                 return Math.hypot(e.x - current.x, e.y - current.y) <= 130;
             });
 
@@ -1101,6 +1111,7 @@ const CombatEngine = {
 
         this.activeEnemies.forEach(e => {
             if (e.isFlying && unit.config.placement === "Ground") return;
+            if (e.isSoaring && !unit.stats.soaringActive) return;
             if (Math.hypot(e.x - unit.x, e.y - unit.y) <= radius) {
                 this.applyDamage(unit, e);
             }
@@ -1114,6 +1125,7 @@ const CombatEngine = {
 
         this.activeEnemies.forEach(e => {
             if (e.isFlying && unit.config.placement === "Ground") return;
+            if (e.isSoaring && !unit.stats.soaringActive) return;
             const dist = Math.hypot(e.x - unit.x, e.y - unit.y);
             if (dist <= unit.stats.range) {
                 const angleToEnemy = Math.atan2(e.y - unit.y, e.x - unit.x);
@@ -1130,6 +1142,7 @@ const CombatEngine = {
         this.visualEffects.push({ type: "hellfire_meteor", x: unit.x, y: unit.y, radius: unit.stats.range, duration: 0.5 });
         this.activeEnemies.forEach(e => {
             if (e.isFlying && unit.config.placement === "Ground") return;
+            if (e.isSoaring && !unit.stats.soaringActive) return;
             if (Math.hypot(e.x - unit.x, e.y - unit.y) <= unit.stats.range) {
                 this.applyDamage(unit, e);
             }
@@ -1141,6 +1154,7 @@ const CombatEngine = {
         this.visualEffects.push({ type: "cosmic_singularity", x: target.x, y: target.y, radius: radius, duration: 0.65 });
 
         this.activeEnemies.forEach(e => {
+            if (e.isSoaring && !unit.stats.soaringActive) return;
             if (Math.hypot(e.x - target.x, e.y - target.y) <= radius) {
                 // Pull inward
                 e.x += (target.x - e.x) * 0.3;
@@ -1154,6 +1168,7 @@ const CombatEngine = {
         const maxTargets = unit.config.maxTargets || 3;
         const targets = this.activeEnemies.filter(e => {
             if (e.isFlying && unit.config.placement === "Ground") return false;
+            if (e.isSoaring && !unit.stats.soaringActive) return false;
             return Math.hypot(e.x - unit.x, e.y - unit.y) <= unit.stats.range;
         }).slice(0, maxTargets);
 
@@ -2251,8 +2266,31 @@ const CombatEngine = {
 
         // 6. Draw Enemies
         for (const e of this.activeEnemies) {
-            // Flying wing indicator
-            if (e.isFlying) {
+            // Soaring visual slipstream aura under enemy
+            if (e.isSoaring) {
+                ctx.save();
+                ctx.strokeStyle = "rgba(56, 189, 248, 0.65)";
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.ellipse(e.x, e.y + e.config.size * 0.45, e.config.size * 1.35, e.config.size * 0.5, 0, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.strokeStyle = "rgba(250, 204, 21, 0.75)";
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.ellipse(e.x, e.y + e.config.size * 0.45, e.config.size * 0.85, e.config.size * 0.3, 0, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+
+                // Distinct Soaring Badge above
+                ctx.fillStyle = "#facc15";
+                ctx.font = "bold 9px sans-serif";
+                ctx.textAlign = "center";
+                ctx.shadowColor = "rgba(0,0,0,0.95)";
+                ctx.shadowBlur = 5;
+                ctx.fillText("🦅 SOARING", e.x, e.y - e.config.size - 22);
+                ctx.shadowBlur = 0;
+            } else if (e.isFlying) {
+                // Flying wing indicator
                 ctx.fillStyle = "#38bdf8";
                 ctx.font = "12px sans-serif";
                 ctx.fillText("🪽", e.x - 6, e.y - e.config.size - 22);

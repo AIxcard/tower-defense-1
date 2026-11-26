@@ -73,17 +73,8 @@ const TraitEngine = {
         const levelMult = Math.pow(1.01, lvl - 1);
         damage = damage * levelMult;
 
-        // Apply Soaring Bonus IF placed on a Hill (for Hill units and Hybrid units!)
-        let soaringActive = false;
-        if (baseUnitConfig.hasSoaring && isPlacedOnHill) {
-            soaringActive = true;
-            if (baseUnitConfig.soaringBonus) {
-                if (baseUnitConfig.soaringBonus.damage) damage *= (1 + baseUnitConfig.soaringBonus.damage);
-                if (baseUnitConfig.soaringBonus.spaMult) spa *= baseUnitConfig.soaringBonus.spaMult;
-                if (baseUnitConfig.soaringBonus.range) range += baseUnitConfig.soaringBonus.range;
-                if (baseUnitConfig.soaringBonus.splashRadiusMult) splashRadius *= baseUnitConfig.soaringBonus.splashRadiusMult;
-            }
-        }
+        // Soaring capability active IF placed on a Hill (allows hitting Soaring enemies)
+        let soaringActive = !!(baseUnitConfig.hasSoaring && isPlacedOnHill);
 
         // Apply Trait Bonuses
         let traitDetails = null;

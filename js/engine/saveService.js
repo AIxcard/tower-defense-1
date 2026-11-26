@@ -195,7 +195,10 @@ const SaveService = {
     loginWithGoogle(emailInput = null, passwordInput = null) {
         let email = emailInput;
         if (!email) {
-            email = prompt("Enter your Google Account email to sign in:", "player@gmail.com");
+            if (window.UIController && window.UIController.openAuthModal) {
+                window.UIController.openAuthModal();
+            }
+            return { success: false, message: "Please enter your email in the sign in window." };
         }
         if (email && email.trim() && email.includes("@")) {
             email = email.trim().toLowerCase();
@@ -842,10 +845,15 @@ const SaveService = {
             starFruits: { "normal_star_fruit": 10 },
             food: { "rice_ball": 5 }
         },
-        "PTD2026": {
+        "TD2026": {
             description: "Player welcome gift!",
             gems: 1000,
             traitRerolls: 10
+        },
+        "SORRYFORBUGS": {
+            description: "Bug apology compensation pack!",
+            gems: 2500,
+            traitRerolls: 25
         },
         "EVOLUTION": {
             description: "Evolution starter materials!",
@@ -863,7 +871,11 @@ const SaveService = {
             return { success: false, message: "Invalid promo code!" };
         }
 
-        if (this.state.redeemedCodes && this.state.redeemedCodes[cleaned]) {
+        if (cleaned === "TD2026" || cleaned === "PTD2026") {
+            if (this.state.redeemedCodes && (this.state.redeemedCodes["TD2026"] || this.state.redeemedCodes["PTD2026"])) {
+                return { success: false, message: "You have already redeemed this welcome code!" };
+            }
+        } else if (this.state.redeemedCodes && this.state.redeemedCodes[cleaned]) {
             return { success: false, message: "You have already redeemed this code!" };
         }
 
@@ -1025,63 +1037,36 @@ const SaveService = {
             return { success: false, message: `Insufficient Gold! Need 🪙 ${cost.gold.toLocaleString()} Gold.` };
         }
 
-        // Verify multiple material requirements if specified (e.g. Shinobi 3x scrolls)
-        if (cost.materials) {
-            for (const [matId, reqCount] of Object.entries(cost.materials)) {
-                const hasItemCount = this.getItemCount("materials", matId);
-                if (hasItemCount < reqCount) {
-                    const matName = matId.replace(/_/g, " ").toUpperCase();
-                    return { 
-                        success: false, 
-                        message: `Missing Evolution Materials! Need ${reqCount}x ${matName}.\nYou have ${hasItemCount}.` 
-                    };
-                }
-            }
-        }
+        const itemsMap = cost.requiredItems || cost.materials || (cost.requiredEvolutionItem ? { [cost.requiredEvolutionItem]: (cost.requiredCount || 1) } : {});
 
-        // Verify Evolution Item requirement
-        if (cost.requiredEvolutionItem) {
-            const reqCount = cost.requiredCount || 1;
-            const hasItemCount = this.getItemCount("materials", cost.requiredEvolutionItem);
+        // Verify all required items
+        for (const [matId, reqCount] of Object.entries(itemsMap)) {
+            const isFruit = matId.includes("star_fruit");
+            let hasItemCount = 0;
+            if (isFruit) {
+                hasItemCount = this.getItemCount("starFruits", matId);
+            } else {
+                hasItemCount = this.getItemCount("materials", matId) || this.getItemCount("relics", matId);
+            }
             if (hasItemCount < reqCount) {
+                const matName = matId.replace(/_/g, " ").toUpperCase();
                 return { 
                     success: false, 
-                    message: `Missing Evolution Materials! Need ${reqCount}x ${cost.evolutionItemName || 'Evolution Item'}.\nYou have ${hasItemCount}.` 
+                    message: `Missing Evolution Materials! Need ${reqCount}x ${matName}.\nYou have ${hasItemCount}.` 
                 };
-            }
-        }
-
-        // Verify Star Fruit requirements if specified directly
-        if (cost.starFruits) {
-            for (const [sfId, reqCount] of Object.entries(cost.starFruits)) {
-                const hasCount = this.getItemCount("starFruits", sfId);
-                if (hasCount < reqCount) {
-                    const sfName = sfId.replace(/_/g, " ").toUpperCase();
-                    return { success: false, message: `Missing materials! Need ${reqCount}x ${sfName} (You have: ${hasCount}).` };
-                }
             }
         }
 
         // Deduct Gold
         this.spendGold(cost.gold);
 
-        // Deduct multiple materials if any
-        if (cost.materials) {
-            for (const [matId, reqCount] of Object.entries(cost.materials)) {
+        // Deduct all items
+        for (const [matId, reqCount] of Object.entries(itemsMap)) {
+            const isFruit = matId.includes("star_fruit");
+            if (isFruit) {
+                this.consumeItem("starFruits", matId, reqCount);
+            } else {
                 this.consumeItem("materials", matId, reqCount);
-            }
-        }
-
-        // Deduct Evolution Item
-        if (cost.requiredEvolutionItem) {
-            const reqCount = cost.requiredCount || 1;
-            this.consumeItem("materials", cost.requiredEvolutionItem, reqCount);
-        }
-
-        // Deduct Star Fruits if any
-        if (cost.starFruits) {
-            for (const [sfId, reqCount] of Object.entries(cost.starFruits)) {
-                this.consumeItem("starFruits", sfId, reqCount);
             }
         }
 
@@ -1264,7 +1249,7 @@ const SaveService = {
     // GAME PASSES & CONSUMABLES
     // ----------------------------------------------------
     buyShinyHunter() {
-        const cost = 35000;
+        const cost = 150000;
         if (!this.state.gamepasses) this.state.gamepasses = {};
         if (this.state.gamepasses.shinyHunter) {
             return { success: false, message: "You already own the Shiny Hunter Game Pass!" };

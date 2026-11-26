@@ -118,15 +118,21 @@ const UIController = {
     switchTab(tabName) {
         if (!tabName) return;
 
-        // Prompt warning if currently in an active match
+        // Custom warning modal if currently in an active match
         if (window.CombatEngine && window.CombatEngine.isActive && tabName !== "battle") {
-            const leave = confirm("⚠️ ABANDON MATCH WARNING\n\nYou are currently in an active battle! Navigating away will forfeit this match and lose your progress.\n\nClick OK to Abandon Match, or Cancel to stay in battle.");
-            if (!leave) return;
-            // Clean up battle on abandon
-            window.CombatEngine.isActive = false;
-            if (window.CombatEngine.animationId) cancelAnimationFrame(window.CombatEngine.animationId);
-            window.CombatEngine.alliedMinions = [];
-            window.CombatEngine.placedUnits = [];
+            this.showConfirmModal({
+                title: "Exit Active Battle?",
+                message: "You are currently in an active battle! Navigating away will exit this match and forfeit your progress.",
+                icon: "🚪",
+                confirmText: "Exit Battle",
+                cancelText: "Stay in Battle",
+                confirmColor: "red",
+                onConfirm: () => {
+                    this.exitBattleToLobby();
+                    this.switchTab(tabName);
+                }
+            });
+            return;
         }
 
         this.currentTab = tabName;
@@ -319,7 +325,7 @@ const UIController = {
             stageIds.forEach(sId => {
                 const st = window.STAGE_CONFIG[sId];
                 if (!st) return;
-                const prog = state.stageProgress[sId] || state.stageProgress[altSId] || {};
+                const prog = (state.stageProgress && state.stageProgress[sId]) || {};
                 const normalDone = prog.normalCleared;
                 const hardDone = prog.hardCleared;
                 const isUnlocked = isLegend || window.SaveService.isActUnlocked(sId);
@@ -573,6 +579,91 @@ const UIController = {
         document.getElementById("battle-view").style.display = "none";
         document.getElementById("lobby-view").style.display = "block";
         this.switchTab("battle");
+    },
+
+    confirmExitBattle() {
+        this.showConfirmModal({
+            title: "Exit Battle?",
+            message: "Are you sure you want to exit and return to the lobby? Your current match progress will be lost.",
+            icon: "🚪",
+            confirmText: "Exit Battle",
+            cancelText: "Stay in Battle",
+            confirmColor: "red",
+            onConfirm: () => {
+                this.exitBattleToLobby();
+                this.showToast("Returned to Lobby", "info");
+            }
+        });
+    },
+
+    showConfirmModal({
+        title = "Confirm Action",
+        message = "Are you sure you want to proceed?",
+        icon = "⚠️",
+        confirmText = "Confirm",
+        cancelText = "Cancel",
+        confirmColor = "red",
+        onConfirm = null,
+        onCancel = null
+    } = {}) {
+        const modal = document.getElementById("universal-confirm-modal");
+        const iconEl = document.getElementById("confirm-modal-icon");
+        const titleEl = document.getElementById("confirm-modal-title");
+        const msgEl = document.getElementById("confirm-modal-message");
+        const okBtn = document.getElementById("confirm-modal-ok-btn");
+        const cancelBtn = document.getElementById("confirm-modal-cancel-btn");
+        if (!modal) return;
+
+        if (iconEl) iconEl.textContent = icon;
+        if (titleEl) titleEl.textContent = title;
+        if (msgEl) msgEl.textContent = message;
+
+        if (cancelBtn) {
+            cancelBtn.textContent = cancelText;
+            cancelBtn.onclick = () => {
+                modal.style.display = "none";
+                modal.classList.remove("open");
+                if (typeof onCancel === "function") onCancel();
+            };
+        }
+
+        if (okBtn) {
+            okBtn.textContent = confirmText;
+            if (confirmColor === "red") {
+                okBtn.style.background = "linear-gradient(180deg, #ef4444, #dc2626)";
+                okBtn.style.borderColor = "#f87171";
+                okBtn.style.boxShadow = "0 4px 14px rgba(239, 68, 68, 0.45)";
+            } else if (confirmColor === "green") {
+                okBtn.style.background = "linear-gradient(180deg, #22c55e, #16a34a)";
+                okBtn.style.borderColor = "#4ade80";
+                okBtn.style.boxShadow = "0 4px 14px rgba(34, 197, 94, 0.45)";
+            } else if (confirmColor === "gold") {
+                okBtn.style.background = "linear-gradient(180deg, #f59e0b, #d97706)";
+                okBtn.style.borderColor = "#facc15";
+                okBtn.style.boxShadow = "0 4px 14px rgba(245, 158, 11, 0.45)";
+            } else {
+                okBtn.style.background = "linear-gradient(180deg, #3b82f6, #2563eb)";
+                okBtn.style.borderColor = "#60a5fa";
+                okBtn.style.boxShadow = "0 4px 14px rgba(59, 130, 246, 0.45)";
+            }
+
+            okBtn.onclick = () => {
+                modal.style.display = "none";
+                modal.classList.remove("open");
+                if (typeof onConfirm === "function") onConfirm();
+            };
+        }
+
+        modal.style.display = "flex";
+        modal.classList.add("open");
+    },
+
+    closeConfirmModal() {
+        const modal = document.getElementById("universal-confirm-modal");
+        if (modal) {
+            modal.style.display = "none";
+            modal.classList.remove("open");
+        }
     },
 
     getElementBadge(elem) {
@@ -861,11 +952,6 @@ const UIController = {
             }
         }
 
-        // 4. Hill Soaring Bonus
-        if (placedUnit.isHill && conf.hasSoaring) {
-            buffs.push(`<div style="color:#38bdf8;">• <b>Hill Soaring:</b> +20% Dmg & +20 Range</div>`);
-        }
-
         // 5. Relic Bonus
         const uRelic = window.SaveService && window.SaveService.getUnitEquippedRelic ? window.SaveService.getUnitEquippedRelic(inst.id || placedUnit.id) : null;
         if (uRelic) {
@@ -913,7 +999,7 @@ const UIController = {
                 <div><b>Current Ability:</b> <span style="color:#38bdf8;font-weight:700;">${currentAbility}</span></div>
                 <div><b>Placements:</b> <span style="color:#94a3b8;">${placedCount} / ${limit} on field</span></div>
                 <div><b>Placement Tile:</b> ${conf.placement} ${placedUnit.isHill ? '(On Hill)' : '(On Ground)'}</div>
-                <div><b>Soaring Effect:</b> ${stats.soaringActive ? '<span style="color:#38bdf8;">ACTIVE 🪽</span>' : (conf.hasSoaring ? 'Inactive (Needs Hill)' : 'None')}</div>
+                <div><b>Soaring:</b> ${stats.soaringActive ? '<span style="color:#38bdf8;font-weight:700;">Can Hit Soaring Enemies 🪽</span>' : (conf.hasSoaring ? '<span style="color:#94a3b8;">Inactive (Needs Hill)</span>' : '<span style="color:#64748b;">None</span>')}</div>
                 <div><b>Trait:</b> ${placedUnit.unitInstance.trait || 'None'}</div>
                 
                 <!-- Active Buffs & Auras Section -->
@@ -1921,16 +2007,25 @@ const UIController = {
         const goldValue = goldValues[u.rarity] || 100;
         const conf = window.UNIT_CONFIG[u.unitId];
 
-        if (confirm(`Sell ${conf.name} (${u.rarity}) for 🪙${goldValue} Gold?\n(Gold is only obtained from selling units!)`)) {
-            const res = window.SaveService.sellUnit(instanceId);
-            if (res.success) {
-                if (window.AudioService) window.AudioService.playSellSound();
-                this.updateTopBar();
-                this.renderInventory();
-            } else {
-                this.showToast(res.message, res.success ? "success" : "warning");
+        this.showConfirmModal({
+            title: "Sell Unit?",
+            message: `Sell ${conf.name} (${u.rarity}) for 🪙${goldValue.toLocaleString()} Gold?\n(Gold is only obtained from selling units!)`,
+            icon: "🪙",
+            confirmText: `Sell (+🪙${goldValue.toLocaleString()})`,
+            cancelText: "Cancel",
+            confirmColor: "gold",
+            onConfirm: () => {
+                const res = window.SaveService.sellUnit(instanceId);
+                if (res.success) {
+                    if (window.AudioService) window.AudioService.playSellSound();
+                    this.updateTopBar();
+                    this.renderInventory();
+                    this.showToast(`🪙 Sold ${conf.name} for +${goldValue.toLocaleString()} Gold!`, "success");
+                } else {
+                    this.showToast(res.message, "warning");
+                }
             }
-        }
+        });
     },
 
     openFeedModal(instanceId) {
@@ -2568,10 +2663,9 @@ const UIController = {
 
         // 3. Game Passes (VIP & Shiny Hunter)
         if (passesContainer) {
-            const isVipInStock = window.TimeService.isVipInStockForCurrentDay();
-            const isShinyInStock = window.TimeService.isShinyHunterInStockForCurrentDay();
             const state = window.SaveService.state;
             const vipPass = window.SHOP_CONFIG.gamePasses[0];
+            const shinyPass = (window.SHOP_CONFIG.gamePasses || [])[1] || { goldPrice: 150000 };
             const hasShiny = window.SaveService.hasShinyHunter();
 
             let pHtml = `
@@ -2588,15 +2682,11 @@ const UIController = {
                     
                     ${state.vip ? `
                         <button class="shop-buy-btn disabled" disabled>✓ ALREADY OWNED</button>
-                    ` : (isVipInStock ? `
-                        <button class="shop-buy-btn special" onclick="UIController.buyVipPass()">
-                            Purchase VIP (🪙50,000)
-                        </button>
                     ` : `
-                        <div style="color:#ef4444;font-size:13px;margin-top:6px;font-weight:700;">
-                            Out of Stock Today (2% Daily Restock)
-                        </div>
-                    `)}
+                        <button class="shop-buy-btn special" onclick="UIController.buyVipPass()">
+                            Purchase VIP (🪙${vipPass.goldPrice.toLocaleString()})
+                        </button>
+                    `}
                 </div>
 
                 <!-- SHINY HUNTER PASS -->
@@ -2610,19 +2700,15 @@ const UIController = {
                             <li>✓ Displays shiny hunter status pill on HUD</li>
                         </ul>
                     </div>
-                    <div class="shop-price" style="font-size:18px;">🪙 35,000 Gold</div>
+                    <div class="shop-price" style="font-size:18px;">🪙 ${shinyPass.goldPrice.toLocaleString()} Gold</div>
 
                     ${hasShiny ? `
                         <button class="shop-buy-btn disabled" disabled style="background:#22c55e;color:#fff;">✓ ALREADY OWNED</button>
-                    ` : (isShinyInStock ? `
-                        <button class="shop-buy-btn special" onclick="UIController.buyShinyHunter()" style="background:linear-gradient(180deg,#0284c7,#0369a1);border:1px solid #38bdf8;">
-                            Purchase Shiny Hunter (🪙35,000)
-                        </button>
                     ` : `
-                        <div style="color:#ef4444;font-size:13px;margin-top:6px;font-weight:700;">
-                            Out of Stock Today (2% Daily Restock)
-                        </div>
-                    `)}
+                        <button class="shop-buy-btn special" onclick="UIController.buyShinyHunter()" style="background:linear-gradient(180deg,#0284c7,#0369a1);border:1px solid #38bdf8;">
+                            Purchase Shiny Hunter (🪙${shinyPass.goldPrice.toLocaleString()})
+                        </button>
+                    `}
                 </div>
             `;
             passesContainer.innerHTML = pHtml;
@@ -3426,41 +3512,37 @@ const UIController = {
         let allMatsMet = true;
         let matsListHtml = "";
         
-        if (evoCost.materials) {
-            matsListHtml = Object.entries(evoCost.materials).map(([matId, reqCount]) => {
-                const owned = window.SaveService.getItemCount("materials", matId);
-                const isMet = owned >= reqCount;
-                if (!isMet) allMatsMet = false;
-                const matIcon = window.PixelSprites && window.PixelSprites.getMaterialIcon ? window.PixelSprites.getMaterialIcon(matId, 24) : '📜';
-                const formattedName = matId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                return `
-                    <div style="display:flex;align-items:center;justify-content:space-between;background:#1e293b;padding:6px 10px;border-radius:6px;border:1px solid ${isMet ? '#22c55e' : '#ef4444'};margin-top:6px;">
-                        <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#f8fafc;">
-                            ${matIcon} ${formattedName}
-                        </span>
-                        <span style="font-size:12px;font-weight:900;color:${isMet ? '#4ade80' : '#f87171'};">
-                            ${owned} / ${reqCount}
-                        </span>
-                    </div>
-                `;
-            }).join("");
-        } else {
-            const reqItemCount = evoCost.requiredCount || 1;
-            const ownedItemCount = window.SaveService.getItemCount("materials", evoCost.requiredEvolutionItem);
-            const itemMet = ownedItemCount >= reqItemCount;
-            if (!itemMet) allMatsMet = false;
-            const itemIconSvg = window.PixelSprites && window.PixelSprites.getMaterialIcon ? window.PixelSprites.getMaterialIcon(evoCost.requiredEvolutionItem, 28) : '⚔️';
-            matsListHtml = `
-                <div style="display:flex;align-items:center;justify-content:space-between;background:#1e293b;padding:6px 10px;border-radius:6px;border:1px solid ${itemMet ? '#22c55e' : '#ef4444'};margin-top:6px;">
-                    <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#f8fafc;">
-                        ${itemIconSvg} ${evoCost.evolutionItemName || 'Evolution Item'}
+        const itemsMap = evoCost.requiredItems || evoCost.materials || (evoCost.requiredEvolutionItem ? { [evoCost.requiredEvolutionItem]: (evoCost.requiredCount || 1) } : {});
+        matsListHtml = Object.entries(itemsMap).map(([matId, reqCount]) => {
+            const isFruit = matId.includes("star_fruit");
+            let owned = 0;
+            if (isFruit) {
+                owned = window.SaveService.getItemCount("starFruits", matId);
+            } else {
+                owned = window.SaveService.getItemCount("materials", matId) || window.SaveService.getItemCount("relics", matId);
+            }
+            const isMet = owned >= reqCount;
+            if (!isMet) allMatsMet = false;
+
+            let matIcon = '📜';
+            if (isFruit && window.PixelSprites && window.PixelSprites.getStarFruit) {
+                matIcon = `<img src="${window.PixelSprites.getStarFruit(matId, 24)}" style="width:24px;height:24px;image-rendering:pixelated;vertical-align:middle;">`;
+            } else if (window.PixelSprites && window.PixelSprites.getMaterialIcon) {
+                matIcon = window.PixelSprites.getMaterialIcon(matId, 24);
+            }
+
+            const formattedName = matId.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            return `
+                <div style="display:flex;align-items:center;justify-content:space-between;background:#1e293b;padding:8px 12px;border-radius:8px;border:1px solid ${isMet ? '#22c55e' : '#ef4444'};margin-top:6px;">
+                    <span style="display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#f8fafc;">
+                        ${matIcon} <span>${formattedName}</span>
                     </span>
-                    <span style="font-size:12px;font-weight:900;color:${itemMet ? '#4ade80' : '#f87171'};">
-                        ${ownedItemCount} / ${reqItemCount}
+                    <span style="font-size:12px;font-weight:900;color:${isMet ? '#4ade80' : '#f87171'};">
+                        ${owned} / ${reqCount}
                     </span>
                 </div>
             `;
-        }
+        }).join("");
 
         const canEvolve = goldMet && allMatsMet;
 
@@ -4293,7 +4375,7 @@ const UIController = {
 
                 <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;">
                     <button onclick="UIController.closeAuthModal()" style="width:100%;height:48px;background:#22c55e;color:#000;border:none;border-radius:12px;font-weight:900;font-size:15px;cursor:pointer;box-shadow:0 0 20px rgba(34,197,94,0.35);transition:all 0.2s ease;">
-                        ▶ Resume Battle
+                        Go Back
                     </button>
                     <button onclick="UIController.handleLogout()" style="width:100%;height:44px;background:#1e293b;color:#ef4444;border:1px solid #334155;border-radius:12px;font-weight:800;font-size:13px;cursor:pointer;transition:all 0.2s ease;">
                         Log Out

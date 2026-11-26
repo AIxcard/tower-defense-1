@@ -70,6 +70,34 @@ const ENEMY_CONFIG = {
         description: "Armored flying dragon. Requires high-tier Hill or Hybrid units."
     },
 
+    // Soaring: Extreme stratosphere altitude. CAN ONLY BE ATTACKED by units with Soaring capability active!
+    "soaring_sky_serpent": {
+        id: "soaring_sky_serpent",
+        name: "Soaring Sky Serpent",
+        isFlying: true,
+        isSoaring: true,          // Strictly requires Soaring unit on Hill!
+        isBoss: false,
+        baseHp: 320,
+        speed: 0.70,
+        cashReward: 50,
+        color: "#38bdf8",
+        size: 22,
+        description: "Glides at high stratosphere altitude. Only Soaring units on hills can hit it!"
+    },
+    "celestial_soarer": {
+        id: "celestial_soarer",
+        name: "Celestial Soarer",
+        isFlying: true,
+        isSoaring: true,          // Strictly requires Soaring unit on Hill!
+        isBoss: false,
+        baseHp: 650,
+        speed: 0.65,
+        cashReward: 90,
+        color: "#facc15",
+        size: 26,
+        description: "Elite celestial soaring creature with storm slipstreams. Immune to all units unless they have Soaring capability active!"
+    },
+
     // Magic Shield: Resistant to Magical, weak to Physical
     "magic_shieldbearer": {
         id: "magic_shieldbearer",

@@ -41,8 +41,8 @@ const GachaEngine = {
             middleUnitId: "shadow_assassin",
             leftUnitId: "shinobi",
             rightUnitId: "wind_master",
-            costSingle: 40,
-            costMulti: 400,
+            costSingle: 50,
+            costMulti: 500,
             badgeRateUp: "RATE UP!!!",
             badgeBonus: "2x Mythic Chance!",
             shinyChance: 1.0,
@@ -61,8 +61,8 @@ const GachaEngine = {
             middleUnitId: "vampire_king",
             leftUnitId: "holy_knight",
             rightUnitId: "flame_emperor",
-            costSingle: 40,
-            costMulti: 400,
+            costSingle: 50,
+            costMulti: 500,
             badgeRateUp: "SECRET DROP",
             badgeBonus: "Rate Up!",
             shinyChance: 1.0,
@@ -76,16 +76,13 @@ const GachaEngine = {
         }
     },
 
-    // Gets actual cost after applying VIP 20% discount
+    // Gets actual cost after applying VIP 20% discount (50 -> 40, 500 -> 400)
     getSummonCost(bannerId, count) {
-        const banner = this.BANNERS[bannerId] || this.BANNERS["featured_mythics"];
-        const baseCost = count === 10 ? banner.costMulti : banner.costSingle;
         const isVip = window.SaveService && window.SaveService.state && window.SaveService.state.vip;
-        if (isVip) {
-            // 20% discount for VIP
-            return Math.floor(baseCost * 0.80);
+        if (count === 10) {
+            return isVip ? 400 : 500;
         }
-        return baseCost;
+        return isVip ? 40 : 50;
     },
 
     // Generates exact rate table for all individual characters for the Rate Details modal

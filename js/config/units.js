@@ -465,7 +465,7 @@ const UNIT_CONFIG = {
 
     "shinobi_god": {
         id: "shinobi_god",
-        name: "Shinobi (God)",
+        name: "Shinobi (Awakened)",
         rarity: "Mythic",
         isEvolved: true,
         evolvesFrom: "shinobi",
@@ -506,11 +506,14 @@ const UNIT_CONFIG = {
             description: "Target an area on the battlefield. After 5 seconds, a massive celestial meteor crashes down dealing 350% unit damage across a 160px AoE."
         },
         upgrades: [
-            { cost: 1200, damage: 1600, spa: 6.8, range: 275, splashRadius: 105, abilityName: "Upgrade 1" },
-            { cost: 2400, damage: 2900, spa: 6.8, range: 290, splashRadius: 110, abilityName: "Upgrade 2" },
-            { cost: 4200, damage: 4500, spa: 6.8, range: 305, splashRadius: 115, abilityName: "Upgrade 3" },
-            { cost: 6500, damage: 6300, spa: 7.0, range: 320, splashRadius: 120, abilityName: "Upgrade 4" },
-            { cost: 9500, damage: 8200, spa: 7.2, range: 340, splashRadius: 130, abilityName: "Upgrade 5" }
+            { cost: 800, damage: 1250, spa: 6.8, range: 270, splashRadius: 105, abilityName: "Upgrade 1" },
+            { cost: 1400, damage: 1850, spa: 6.8, range: 280, splashRadius: 105, abilityName: "Upgrade 2" },
+            { cost: 2200, damage: 2550, spa: 6.8, range: 290, splashRadius: 110, abilityName: "Upgrade 3" },
+            { cost: 3200, damage: 3400, spa: 6.9, range: 300, splashRadius: 115, abilityName: "Upgrade 4" },
+            { cost: 4500, damage: 4400, spa: 6.9, range: 310, splashRadius: 115, abilityName: "Upgrade 5" },
+            { cost: 6000, damage: 5500, spa: 7.0, range: 320, splashRadius: 120, abilityName: "Upgrade 6" },
+            { cost: 7800, damage: 6750, spa: 7.1, range: 330, splashRadius: 125, abilityName: "Upgrade 7" },
+            { cost: 9800, damage: 8100, spa: 7.2, range: 345, splashRadius: 130, abilityName: "Upgrade 8" }
         ]
     },
 
@@ -556,7 +559,7 @@ const UNIT_CONFIG = {
 
     "thunder_god_awakened": {
         id: "thunder_god_awakened",
-        name: "Thunder God (Divine)",
+        name: "Thunder God (Awakened)",
         rarity: "Mythic",
         isEvolved: true,
         evolvesFrom: "thunder_god",
@@ -585,7 +588,7 @@ const UNIT_CONFIG = {
             {
                 name: "Static Paralysis",
                 desc: "Applies a 0.5s shock stun to primary and chained targets.",
-                description: "Applies a 0.5s shock stun to primary and chained targets."
+                description: "Applies a 0.5s shock stun to primary creeping and chained targets."
             },
             {
                 name: "Thunderous Overload",
@@ -594,11 +597,15 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 1300, damage: 1700, spa: 7.5, range: 275, chainTargets: 4, abilityName: "Upgrade 1" },
-            { cost: 2600, damage: 3100, spa: 7.5, range: 290, chainTargets: 4, abilityName: "Upgrade 2" },
-            { cost: 4500, damage: 4800, spa: 7.6, range: 305, chainTargets: 4, abilityName: "Upgrade 3" },
-            { cost: 7000, damage: 6800, spa: 7.8, range: 320, chainTargets: 4, abilityName: "Upgrade 4" },
-            { cost: 10000, damage: 9000, spa: 8.0, range: 340, chainTargets: 4, abilityName: "Upgrade 5" }
+            { cost: 900, damage: 1300, spa: 7.5, range: 270, chainTargets: 4, abilityName: "Upgrade 1" },
+            { cost: 1500, damage: 1900, spa: 7.5, range: 280, chainTargets: 4, abilityName: "Upgrade 2" },
+            { cost: 2300, damage: 2650, spa: 7.5, range: 290, chainTargets: 4, abilityName: "Upgrade 3" },
+            { cost: 3300, damage: 3500, spa: 7.6, range: 300, chainTargets: 4, abilityName: "Upgrade 4" },
+            { cost: 4600, damage: 4500, spa: 7.6, range: 310, chainTargets: 4, abilityName: "Upgrade 5" },
+            { cost: 6100, damage: 5600, spa: 7.7, range: 320, chainTargets: 4, abilityName: "Upgrade 6" },
+            { cost: 7900, damage: 6850, spa: 7.8, range: 330, chainTargets: 4, abilityName: "Upgrade 7" },
+            { cost: 9900, damage: 8200, spa: 7.9, range: 340, chainTargets: 4, abilityName: "Upgrade 8" },
+            { cost: 12200, damage: 9600, spa: 8.0, range: 350, chainTargets: 4, abilityName: "Upgrade 9" }
         ]
     },
 
@@ -679,11 +686,14 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 1100, damage: 1650, spa: 5.8, range: 220, splashRadius: 75, abilityName: "Upgrade 1" },
-            { cost: 2300, damage: 2950, spa: 5.8, range: 230, splashRadius: 80, abilityName: "Upgrade 2" },
-            { cost: 4000, damage: 4600, spa: 6.0, range: 240, splashRadius: 85, abilityName: "Upgrade 3" },
-            { cost: 6300, damage: 6500, spa: 6.2, range: 250, splashRadius: 90, abilityName: "Upgrade 4" },
-            { cost: 9200, damage: 8500, spa: 6.4, range: 260, splashRadius: 95, abilityName: "Upgrade 5" }
+            { cost: 750, damage: 1200, spa: 5.8, range: 218, splashRadius: 75, abilityName: "Upgrade 1" },
+            { cost: 1350, damage: 1800, spa: 5.8, range: 225, splashRadius: 78, abilityName: "Upgrade 2" },
+            { cost: 2100, damage: 2500, spa: 5.9, range: 232, splashRadius: 82, abilityName: "Upgrade 3" },
+            { cost: 3050, damage: 3350, spa: 5.9, range: 240, splashRadius: 85, abilityName: "Upgrade 4" },
+            { cost: 4250, damage: 4350, spa: 6.0, range: 248, splashRadius: 88, abilityName: "Upgrade 5" },
+            { cost: 5700, damage: 5500, spa: 6.1, range: 255, splashRadius: 92, abilityName: "Upgrade 6" },
+            { cost: 7400, damage: 6800, spa: 6.2, range: 262, splashRadius: 95, abilityName: "Upgrade 7" },
+            { cost: 9400, damage: 8250, spa: 6.3, range: 270, splashRadius: 100, abilityName: "Upgrade 8" }
         ]
     },
 
@@ -728,7 +738,7 @@ const UNIT_CONFIG = {
 
     "flame_emperor_awakened": {
         id: "flame_emperor_awakened",
-        name: "Flame Emperor (Ruler)",
+        name: "Flame Emperor (Awakened)",
         rarity: "Mythic",
         isEvolved: true,
         evolvesFrom: "flame_emperor",
@@ -765,11 +775,14 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 1250, damage: 1800, spa: 7.2, range: 235, splashRadius: 100, abilityName: "Upgrade 1" },
-            { cost: 2500, damage: 3300, spa: 7.2, range: 250, splashRadius: 105, abilityName: "Upgrade 2" },
-            { cost: 4400, damage: 5100, spa: 7.4, range: 265, splashRadius: 110, abilityName: "Upgrade 3" },
-            { cost: 6800, damage: 7200, spa: 7.6, range: 280, splashRadius: 115, abilityName: "Upgrade 4" },
-            { cost: 9800, damage: 9500, spa: 7.8, range: 300, splashRadius: 125, abilityName: "Upgrade 5" }
+            { cost: 850, damage: 1350, spa: 7.2, range: 230, splashRadius: 98, abilityName: "Upgrade 1" },
+            { cost: 1500, damage: 2000, spa: 7.2, range: 240, splashRadius: 102, abilityName: "Upgrade 2" },
+            { cost: 2350, damage: 2800, spa: 7.3, range: 250, splashRadius: 106, abilityName: "Upgrade 3" },
+            { cost: 3400, damage: 3750, spa: 7.3, range: 260, splashRadius: 110, abilityName: "Upgrade 4" },
+            { cost: 4700, damage: 4850, spa: 7.4, range: 270, splashRadius: 114, abilityName: "Upgrade 5" },
+            { cost: 6300, damage: 6100, spa: 7.5, range: 280, splashRadius: 118, abilityName: "Upgrade 6" },
+            { cost: 8200, damage: 7500, spa: 7.6, range: 290, splashRadius: 122, abilityName: "Upgrade 7" },
+            { cost: 10400, damage: 9050, spa: 7.7, range: 305, splashRadius: 128, abilityName: "Upgrade 8" }
         ]
     },
 
@@ -814,7 +827,7 @@ const UNIT_CONFIG = {
 
     "holy_knight_awakened": {
         id: "holy_knight_awakened",
-        name: "Holy Knight (Power)",
+        name: "Holy Knight (Awakened)",
         rarity: "Mythic",
         isEvolved: true,
         evolvesFrom: "holy_knight",
@@ -851,11 +864,13 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 1150, damage: 1620, spa: 6.5, range: 210, splashRadius: 90, abilityName: "Upgrade 1" },
-            { cost: 2350, damage: 2900, spa: 6.5, range: 220, splashRadius: 95, abilityName: "Upgrade 2" },
-            { cost: 4100, damage: 4500, spa: 6.6, range: 230, splashRadius: 100, abilityName: "Upgrade 3" },
-            { cost: 6400, damage: 6400, spa: 6.8, range: 240, splashRadius: 105, abilityName: "Upgrade 4" },
-            { cost: 9300, damage: 8400, spa: 7.0, range: 255, splashRadius: 115, abilityName: "Upgrade 5" }
+            { cost: 800, damage: 1300, spa: 6.5, range: 210, splashRadius: 90, abilityName: "Upgrade 1" },
+            { cost: 1450, damage: 1950, spa: 6.5, range: 220, splashRadius: 95, abilityName: "Upgrade 2" },
+            { cost: 2300, damage: 2750, spa: 6.6, range: 230, splashRadius: 100, abilityName: "Upgrade 3" },
+            { cost: 3400, damage: 3700, spa: 6.6, range: 240, splashRadius: 105, abilityName: "Upgrade 4" },
+            { cost: 4800, damage: 4850, spa: 6.7, range: 250, splashRadius: 110, abilityName: "Upgrade 5" },
+            { cost: 6600, damage: 6200, spa: 6.8, range: 260, splashRadius: 115, abilityName: "Upgrade 6" },
+            { cost: 8800, damage: 7800, spa: 6.9, range: 272, splashRadius: 120, abilityName: "Upgrade 7" }
         ]
     },
 
@@ -900,7 +915,7 @@ const UNIT_CONFIG = {
 
     "wind_master_awakened": {
         id: "wind_master_awakened",
-        name: "Wind Master (Tornado)",
+        name: "Wind Master (Awakened)",
         rarity: "Mythic",
         isEvolved: true,
         evolvesFrom: "wind_master",
@@ -910,7 +925,7 @@ const UNIT_CONFIG = {
         element: "Nature",
         role: "Damage",
         baseCost: 1200,
-        baseDamage: 720,
+        baseDamage: 710,
         baseSpa: 6.2,
         baseRange: 280,
         attackType: "Splash",
@@ -937,11 +952,14 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 1200, damage: 1550, spa: 6.2, range: 295, splashRadius: 90, abilityName: "Upgrade 1" },
-            { cost: 2400, damage: 2750, spa: 6.2, range: 310, splashRadius: 95, abilityName: "Upgrade 2" },
-            { cost: 4200, damage: 4300, spa: 6.4, range: 325, splashRadius: 100, abilityName: "Upgrade 3" },
-            { cost: 6500, damage: 6100, spa: 6.6, range: 340, splashRadius: 105, abilityName: "Upgrade 4" },
-            { cost: 9500, damage: 8100, spa: 6.8, range: 360, splashRadius: 115, abilityName: "Upgrade 5" }
+            { cost: 800, damage: 1220, spa: 6.2, range: 292, splashRadius: 90, abilityName: "Upgrade 1" },
+            { cost: 1400, damage: 1850, spa: 6.2, range: 304, splashRadius: 94, abilityName: "Upgrade 2" },
+            { cost: 2200, damage: 2600, spa: 6.3, range: 316, splashRadius: 98, abilityName: "Upgrade 3" },
+            { cost: 3200, damage: 3500, spa: 6.3, range: 328, splashRadius: 102, abilityName: "Upgrade 4" },
+            { cost: 4500, damage: 4550, spa: 6.4, range: 340, splashRadius: 106, abilityName: "Upgrade 5" },
+            { cost: 6050, damage: 5750, spa: 6.5, range: 352, splashRadius: 110, abilityName: "Upgrade 6" },
+            { cost: 7900, damage: 7100, spa: 6.6, range: 364, splashRadius: 114, abilityName: "Upgrade 7" },
+            { cost: 10100, damage: 8600, spa: 6.7, range: 380, splashRadius: 120, abilityName: "Upgrade 8" }
         ]
     },
 
@@ -989,7 +1007,7 @@ const UNIT_CONFIG = {
 
     "star_mage_explosion": {
         id: "star_mage_explosion",
-        name: "Star Mage (Explosion)",
+        name: "Star Mage (Awakened)",
         rarity: "Secret",
         isEvolved: true,
         evolvesFrom: "star_mage",
@@ -999,7 +1017,7 @@ const UNIT_CONFIG = {
         element: "Light",
         role: "Damage",
         baseCost: 1800,
-        baseDamage: 1200,
+        baseDamage: 1150,
         baseSpa: 7.5,
         baseRange: 280,
         attackType: "FullAoE",
@@ -1026,11 +1044,16 @@ const UNIT_CONFIG = {
             }
         ],
         upgrades: [
-            { cost: 1800, damage: 2600, spa: 7.5, range: 295, splashRadius: 200, abilityName: "Upgrade 1" },
-            { cost: 3800, damage: 4500, spa: 7.5, range: 310, splashRadius: 200, abilityName: "Upgrade 2" },
-            { cost: 6500, damage: 6900, spa: 7.8, range: 325, splashRadius: 200, abilityName: "Upgrade 3" },
-            { cost: 10000, damage: 9800, spa: 8.0, range: 340, splashRadius: 200, abilityName: "Upgrade 4" },
-            { cost: 15000, damage: 13500, spa: 8.2, range: 360, splashRadius: 200, abilityName: "Upgrade 5" }
+            { cost: 1200, damage: 1900, spa: 7.5, range: 290, splashRadius: 200, abilityName: "Upgrade 1" },
+            { cost: 2100, damage: 2800, spa: 7.5, range: 300, splashRadius: 200, abilityName: "Upgrade 2" },
+            { cost: 3200, damage: 3900, spa: 7.6, range: 310, splashRadius: 200, abilityName: "Upgrade 3" },
+            { cost: 4600, damage: 5150, spa: 7.6, range: 320, splashRadius: 200, abilityName: "Upgrade 4" },
+            { cost: 6300, damage: 6600, spa: 7.7, range: 330, splashRadius: 200, abilityName: "Upgrade 5" },
+            { cost: 8300, damage: 8250, spa: 7.7, range: 340, splashRadius: 200, abilityName: "Upgrade 6" },
+            { cost: 10700, damage: 10100, spa: 7.8, range: 350, splashRadius: 200, abilityName: "Upgrade 7" },
+            { cost: 13500, damage: 12200, spa: 7.9, range: 360, splashRadius: 200, abilityName: "Upgrade 8" },
+            { cost: 16800, damage: 14500, spa: 8.0, range: 370, splashRadius: 200, abilityName: "Upgrade 9" },
+            { cost: 20500, damage: 17000, spa: 8.1, range: 385, splashRadius: 200, abilityName: "Upgrade 10" }
         ]
     },
 

@@ -113,21 +113,32 @@ const SHOP_CONFIG = {
 
     // ----------------------------------------------------
     // CATEGORY 3: GAME PASSES
-    // Exactly ONE Game Pass: VIP
-    // Price: 50,000 Gold. 0.5% chance to appear in daily stock.
+    // VIP Pass (🪙100,000) & Shiny Hunter Pass (🪙150,000)
+    // Always in stock!
     // ----------------------------------------------------
     gamePasses: [
         {
             id: "vip_pass",
             name: "VIP Pass",
-            goldPrice: 50000,
-            restockProbability: 0.005, // 0.5% chance to appear during daily restock
+            goldPrice: 100000,
             icon: "👑",
             benefits: [
-                "20% reduced summon Gem cost on all banners",
+                "20% reduced summon Gem cost on all banners (40 / 400 Gems)",
                 "+25% player account EXP gain (levels up account faster)"
             ],
-            description: "Exclusive lifetime VIP privilege. Restocks with a 0.5% daily chance."
+            description: "Exclusive lifetime VIP privilege. Always in stock."
+        },
+        {
+            id: "shiny_hunter",
+            name: "Shiny Hunter Pass",
+            goldPrice: 150000,
+            icon: "✨",
+            benefits: [
+                "Triples summon Shiny chance on all banners (1% ➔ 3%)",
+                "Permanent account unlock",
+                "Displays shiny hunter status pill on HUD"
+            ],
+            description: "Exclusive lifetime shiny hunter boost. Always in stock."
         }
     ]
 };
