@@ -99,7 +99,16 @@ const SaveService = {
             localStorage.setItem("ptd_active_profile_id", profile.id);
             this.LOCAL_STORAGE_KEY = `ptd_player_save_${user.id}_${profile.id}`;
 
+            // Anti-wipe: scan best candidate across all local keys to preserve units and progress
+            const bestSave = this.scanBestLocalSave();
             let localData = this.loadLocal();
+
+            if (bestSave && (!localData || !this.validateState(localData) || this.calculateStateScore(bestSave) > this.calculateStateScore(localData))) {
+                console.log("[SaveService] setGoogleUser migrated higher-value save into account storage");
+                localData = JSON.parse(JSON.stringify(bestSave));
+                this.saveLocal(localData);
+            }
+
             if (!localData || !this.validateState(localData)) {
                 localData = this.createDefaultState();
                 if (profile.name && profile.usernameChosen) {
@@ -345,10 +354,25 @@ const SaveService = {
 
     // Initialize Save Service
     async init() {
+        // Automatically adopt Google User key if signed in
+        const existingGoogleUser = this.getGoogleUser();
+        if (existingGoogleUser) {
+            const profile = this.getUserProfile();
+            this.activeProfileId = profile.id;
+            this.LOCAL_STORAGE_KEY = `ptd_player_save_${existingGoogleUser.id}_${profile.id}`;
+        }
+
         const playerId = this.getPlayerId();
 
-        // 1. Load from local cache first (instant response)
+        // 1. Scan across all local storage keys to guarantee zero progress or unit loss
         let localData = this.loadLocal();
+        const bestCandidate = this.scanBestLocalSave();
+        if (bestCandidate && (!localData || !this.validateState(localData) || this.calculateStateScore(bestCandidate) > this.calculateStateScore(localData))) {
+            console.log("[SaveService] Restored highest-progress local save state");
+            localData = JSON.parse(JSON.stringify(bestCandidate));
+            this.saveLocal(localData);
+        }
+
         if (!localData || !this.validateState(localData)) {
             console.log("[SaveService] Creating new default state");
             localData = this.createDefaultState();
@@ -455,14 +479,60 @@ const SaveService = {
         return true;
     },
 
-    // Load from LocalStorage with corruption protection
+    // Calculate overall progress score to prevent overwriting high-value saves with empty saves
+    calculateStateScore(stateObj) {
+        if (!stateObj || !this.validateState(stateObj)) return -1;
+        let score = (stateObj.gems || 0) + (stateObj.gold || 0) * 0.1;
+        score += (stateObj.playerLevel || 1) * 10000;
+        score += ((stateObj.inventoryUnits && stateObj.inventoryUnits.length) || 0) * 50000;
+        score += (stateObj.traitRerolls || 0) * 1000;
+        score += (stateObj.summonTickets || 0) * 2000;
+        return score;
+    },
+
+    // Anti-Rollback Scanner: Scans all local storage keys for highest progress save
+    scanBestLocalSave() {
+        try {
+            if (typeof localStorage === "undefined") return null;
+            let bestCandidate = null;
+            let highestScore = -1;
+
+            const checkCandidate = (raw) => {
+                if (!raw) return;
+                try {
+                    const parsed = JSON.parse(raw);
+                    if (this.validateState(parsed)) {
+                        const sc = this.calculateStateScore(parsed);
+                        if (sc > highestScore) {
+                            highestScore = sc;
+                            bestCandidate = parsed;
+                        }
+                    }
+                } catch(e) {}
+            };
+
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && (k.startsWith("ptd_player_save") || k === "ptd_player_save_backup_auto")) {
+                    checkCandidate(localStorage.getItem(k));
+                }
+            }
+            return bestCandidate;
+        } catch(e) {
+            console.warn("[SaveService] scanBestLocalSave failed:", e);
+            return null;
+        }
+    },
+
+    // Load from LocalStorage with corruption protection and auto-fallback
     loadLocal() {
         try {
             const raw = localStorage.getItem(this.LOCAL_STORAGE_KEY);
-            if (!raw) return null;
-            const parsed = JSON.parse(raw);
-            if (this.validateState(parsed)) {
-                return parsed;
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (this.validateState(parsed)) {
+                    return parsed;
+                }
             }
         } catch (e) {
             console.error("[SaveService] Error reading local save:", e);
@@ -470,7 +540,7 @@ const SaveService = {
         return null;
     },
 
-    // Save synchronously to LocalStorage
+    // Save synchronously to LocalStorage with automatic backup snapshot
     saveLocal(dataToSave) {
         if (!this.validateState(dataToSave)) {
             console.error("[SaveService] BLOCKED SAVE: Corrupt/empty state attempted to overwrite local save!");
@@ -478,7 +548,10 @@ const SaveService = {
         }
         dataToSave.lastSavedAt = new Date().toISOString();
         try {
-            localStorage.setItem(this.LOCAL_STORAGE_KEY, JSON.stringify(dataToSave));
+            const serialized = JSON.stringify(dataToSave);
+            localStorage.setItem(this.LOCAL_STORAGE_KEY, serialized);
+            // Redundant persistent backup key that survives cache wipes & key switches
+            localStorage.setItem("ptd_player_save_backup_auto", serialized);
             return true;
         } catch (e) {
             console.error("[SaveService] LocalStorage quota or write error:", e);
@@ -493,7 +566,7 @@ const SaveService = {
         this.pushToSupabaseAsync();
     },
 
-    // Asynchronous non-blocking Supabase sync with anti-wipe guard
+    // Asynchronous non-blocking Supabase sync with full cloud JSON snapshot
     async pushToSupabaseAsync() {
         if (this.isSyncing) return;
         this.isSyncing = true;
@@ -501,7 +574,7 @@ const SaveService = {
         try {
             const playerId = this.state.id;
             const googleUser = this.getGoogleUser();
-            // Upsert profile in Supabase
+            // Full snapshot profile in Supabase
             const profilePayload = {
                 id: playerId,
                 username: this.state.username || "Player",
@@ -510,8 +583,11 @@ const SaveService = {
                 gold: this.state.gold,
                 player_level: this.state.playerLevel,
                 player_exp: this.state.playerExp,
-                vip: this.state.vip,
-                vip_purchased_at: this.state.vipPurchasedAt,
+                trait_rerolls: this.state.traitRerolls || 0,
+                summon_tickets: this.state.summonTickets || 0,
+                vip: this.state.vip || false,
+                vip_purchased_at: this.state.vipPurchasedAt || null,
+                save_data: this.state,
                 updated_at: new Date().toISOString()
             };
 
@@ -538,10 +614,91 @@ const SaveService = {
         }
     },
 
-    // Initial pull and merge with Supabase
+    // Deep merge helper that combines cloud and local states non-destructively
+    mergeCloudState(cloudProfile) {
+        if (!cloudProfile) return;
+        
+        // 1. Primitive resources: highest progress wins
+        if (typeof cloudProfile.gems === "number" && cloudProfile.gems > (this.state.gems || 0)) this.state.gems = cloudProfile.gems;
+        if (typeof cloudProfile.gold === "number" && cloudProfile.gold > (this.state.gold || 0)) this.state.gold = cloudProfile.gold;
+        if (typeof cloudProfile.trait_rerolls === "number" && cloudProfile.trait_rerolls > (this.state.traitRerolls || 0)) this.state.traitRerolls = cloudProfile.trait_rerolls;
+        if (typeof cloudProfile.summon_tickets === "number" && cloudProfile.summon_tickets > (this.state.summonTickets || 0)) this.state.summonTickets = cloudProfile.summon_tickets;
+        if (typeof cloudProfile.player_level === "number" && cloudProfile.player_level > (this.state.playerLevel || 1)) this.state.playerLevel = cloudProfile.player_level;
+        if (cloudProfile.vip) this.state.vip = true;
+
+        // 2. Full save_data jsonb snapshot merge
+        const cloudSd = cloudProfile.save_data;
+        if (cloudSd && typeof cloudSd === "object") {
+            if (typeof cloudSd.gems === "number" && cloudSd.gems > (this.state.gems || 0)) this.state.gems = cloudSd.gems;
+            if (typeof cloudSd.gold === "number" && cloudSd.gold > (this.state.gold || 0)) this.state.gold = cloudSd.gold;
+            if (typeof cloudSd.traitRerolls === "number" && cloudSd.traitRerolls > (this.state.traitRerolls || 0)) this.state.traitRerolls = cloudSd.traitRerolls;
+            if (typeof cloudSd.summonTickets === "number" && cloudSd.summonTickets > (this.state.summonTickets || 0)) this.state.summonTickets = cloudSd.summonTickets;
+
+            // Merge Units (Union by unit ID to prevent unit loss)
+            if (Array.isArray(cloudSd.inventoryUnits)) {
+                if (!Array.isArray(this.state.inventoryUnits)) this.state.inventoryUnits = [];
+                const localUnitMap = new Map();
+                this.state.inventoryUnits.forEach(u => localUnitMap.set(u.id, u));
+                cloudSd.inventoryUnits.forEach(cu => {
+                    if (!localUnitMap.has(cu.id)) {
+                        this.state.inventoryUnits.push(cu);
+                        localUnitMap.set(cu.id, cu);
+                    }
+                });
+            }
+
+            // Merge Star Fruits, Food, Materials (Take highest count for each item)
+            if (cloudSd.inventoryItems && typeof cloudSd.inventoryItems === "object") {
+                if (!this.state.inventoryItems) this.state.inventoryItems = {};
+                ["starFruits", "food", "materials", "relics"].forEach(cat => {
+                    if (cloudSd.inventoryItems[cat] && typeof cloudSd.inventoryItems[cat] === "object") {
+                        if (!this.state.inventoryItems[cat]) this.state.inventoryItems[cat] = {};
+                        Object.keys(cloudSd.inventoryItems[cat]).forEach(itemKey => {
+                            const cloudCount = cloudSd.inventoryItems[cat][itemKey] || 0;
+                            const localCount = this.state.inventoryItems[cat][itemKey] || 0;
+                            this.state.inventoryItems[cat][itemKey] = Math.max(localCount, cloudCount);
+                        });
+                    }
+                });
+            }
+
+            // Merge Redeemed Codes
+            if (cloudSd.redeemedCodes && typeof cloudSd.redeemedCodes === "object") {
+                if (!this.state.redeemedCodes) this.state.redeemedCodes = {};
+                Object.assign(this.state.redeemedCodes, cloudSd.redeemedCodes);
+            }
+
+            // Merge Stage Progress
+            if (cloudSd.stageProgress && typeof cloudSd.stageProgress === "object") {
+                if (!this.state.stageProgress) this.state.stageProgress = {};
+                Object.assign(this.state.stageProgress, cloudSd.stageProgress);
+            }
+
+            // Merge Unlocked Unit Index
+            if (cloudSd.unlockedUnitIndex && typeof cloudSd.unlockedUnitIndex === "object") {
+                if (!this.state.unlockedUnitIndex) this.state.unlockedUnitIndex = {};
+                Object.assign(this.state.unlockedUnitIndex, cloudSd.unlockedUnitIndex);
+            }
+        }
+
+        // Save back merged snapshot locally
+        this.saveLocal(this.state);
+        this.syncStatus = "synced";
+    },
+
+    // Initial pull and merge with Supabase (queries by email first, then playerId)
     async syncWithSupabase() {
-        const playerId = this.getPlayerId();
-        const res = await fetch(`${this.SUPABASE_URL}/rest/v1/ptd_profiles?id=eq.${playerId}&select=*`, {
+        const googleUser = this.getGoogleUser();
+        let queryUrl = null;
+
+        if (googleUser && googleUser.email) {
+            queryUrl = `${this.SUPABASE_URL}/rest/v1/ptd_profiles?email=eq.${encodeURIComponent(googleUser.email)}&order=updated_at.desc&limit=1`;
+        } else {
+            const playerId = this.getPlayerId();
+            queryUrl = `${this.SUPABASE_URL}/rest/v1/ptd_profiles?id=eq.${playerId}&select=*`;
+        }
+
+        const res = await fetch(queryUrl, {
             headers: {
                 "apikey": this.SUPABASE_ANON_KEY,
                 "Authorization": `Bearer ${this.SUPABASE_ANON_KEY}`
@@ -556,13 +713,12 @@ const SaveService = {
         const data = await res.json();
         if (data && data.length > 0) {
             const cloudProfile = data[0];
-            // Non-destructive merge: highest progress wins
-            if (cloudProfile.gems > this.state.gems) this.state.gems = cloudProfile.gems;
-            if (cloudProfile.gold > this.state.gold) this.state.gold = cloudProfile.gold;
-            if (cloudProfile.vip) this.state.vip = true;
-            if (cloudProfile.player_level > this.state.playerLevel) this.state.playerLevel = cloudProfile.player_level;
-            this.saveLocal(this.state);
-            this.syncStatus = "synced";
+            // Bind player ID to existing profile if found by email
+            if (cloudProfile.id && cloudProfile.id !== this.state.id) {
+                this.state.id = cloudProfile.id;
+                try { localStorage.setItem(this.PLAYER_ID_KEY, cloudProfile.id); } catch(e) {}
+            }
+            this.mergeCloudState(cloudProfile);
         } else {
             // First time cloud registration: push local state
             await this.pushToSupabaseAsync();
