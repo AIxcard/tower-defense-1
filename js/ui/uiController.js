@@ -4333,8 +4333,8 @@ const UIController = {
 
     handleContinueWithGoogle() {
         this.showToast("Opening Google Sign-In...", "info");
-        const clientId = "780493286065-m69482n34lv29hmaef49jqjgg9k8e3uk.apps.googleusercontent.com";
-        const redirectUri = window.location.origin + window.location.pathname;
+        const clientId = "514483287401-c16joefvhh30fjilurp8dp89fio55e9t.apps.googleusercontent.com";
+        const redirectUri = window.location.origin + "/";
         const nonce = "ptd_" + Date.now();
         const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${nonce}&prompt=select_account`;
         window.location.href = authUrl;
