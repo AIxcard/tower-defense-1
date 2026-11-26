@@ -19,10 +19,10 @@ const UIController = {
         // Check for returning Google OAuth redirect callback
         this.checkGoogleOAuthCallback();
 
-        // Force Login & Profile selection before playing
+        // Force Login & Username selection before playing
         const googleUser = window.SaveService && window.SaveService.getGoogleUser();
-        const activeProfileId = localStorage.getItem("ptd_active_profile_id");
-        if (!googleUser || !activeProfileId) {
+        const profile = window.SaveService && window.SaveService.getUserProfile();
+        if (!googleUser || !profile || !profile.usernameChosen) {
             this.openAuthModal();
         }
     },
@@ -217,13 +217,11 @@ const UIController = {
         const userNameEl = document.getElementById("hud-user-name");
         if (userNameEl) {
             const googleUser = window.SaveService && window.SaveService.getGoogleUser();
-            const activeProfileId = localStorage.getItem("ptd_active_profile_id");
-            if (googleUser && activeProfileId) {
-                const profiles = window.SaveService.getUserProfiles();
-                const activeProfile = profiles.find(p => p.id === activeProfileId);
-                userNameEl.textContent = activeProfile ? activeProfile.name : (googleUser.name || "Player");
+            const profile = window.SaveService && window.SaveService.getUserProfile();
+            if (googleUser && profile && profile.usernameChosen && profile.name) {
+                userNameEl.textContent = profile.name;
             } else if (googleUser) {
-                userNameEl.textContent = "Select Profile";
+                userNameEl.textContent = "Choose Username";
             } else {
                 userNameEl.textContent = "Sign In";
             }
@@ -4186,9 +4184,13 @@ const UIController = {
 
     closeAuthModal() {
         const googleUser = window.SaveService && window.SaveService.getGoogleUser();
-        const activeProfileId = localStorage.getItem("ptd_active_profile_id");
-        if (!googleUser || !activeProfileId) {
+        if (!googleUser) {
             this.showToast("Please sign in with Google to play!", "warning");
+            return;
+        }
+        const profile = window.SaveService && window.SaveService.getUserProfile();
+        if (!profile || !profile.usernameChosen || !profile.name || !profile.name.trim()) {
+            this.showToast("You cannot play until you choose your Commander username!", "warning");
             return;
         }
         const modal = document.getElementById("auth-gateway-modal");
@@ -4203,8 +4205,7 @@ const UIController = {
         if (!container) return;
 
         const googleUser = window.SaveService && window.SaveService.getGoogleUser();
-        const activeProfileId = localStorage.getItem("ptd_active_profile_id");
-        const profiles = window.SaveService ? window.SaveService.getUserProfiles() : [];
+        const profile = window.SaveService ? window.SaveService.getUserProfile() : null;
 
         if (!googleUser) {
             container.innerHTML = `
@@ -4233,58 +4234,71 @@ const UIController = {
                     <span>Continue with Google</span>
                 </button>
             `;
-        } else {
-            // Logged in — show user info and player profiles selection
+        } else if (!profile || !profile.usernameChosen || !profile.name || !profile.name.trim()) {
+            // Screen 2: Logged in, BUT MUST CHOOSE USERNAME BEFORE PLAYING!
             container.innerHTML = `
-                <div style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-                    <div style="display:flex;align-items:center;gap:12px;text-align:left;">
-                        <div style="width:40px;height:40px;border-radius:50%;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;box-shadow:0 0 10px rgba(37,99,235,0.5);">
-                            ${(googleUser.name || "P")[0].toUpperCase()}
+                <div style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                    <div style="display:flex;align-items:center;gap:10px;text-align:left;">
+                        <div style="width:32px;height:32px;border-radius:50%;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;">
+                            ${(googleUser.name || "G")[0].toUpperCase()}
                         </div>
-                        <div>
-                            <div style="font-weight:800;color:#f8fafc;font-size:14px;">${googleUser.name}</div>
-                            <div style="font-size:12px;color:#94a3b8;">${googleUser.email}</div>
+                        <div style="font-size:12px;color:#94a3b8;overflow:hidden;text-overflow:ellipsis;max-width:200px;white-space:nowrap;">
+                            ${googleUser.email}
                         </div>
                     </div>
-                    <button onclick="UIController.handleLogout()" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;">
+                    <button onclick="UIController.handleLogout()" style="background:transparent;color:#ef4444;border:none;font-size:11px;font-weight:700;cursor:pointer;padding:4px 6px;">
+                        Switch Account
+                    </button>
+                </div>
+
+                <div style="display:flex;justify-content:center;margin-bottom:14px;">
+                    <div style="width:64px;height:64px;border-radius:20px;background:#0f172a;border:2px solid #facc15;display:flex;align-items:center;justify-content:center;box-shadow:0 0 25px rgba(250,204,21,0.3);font-size:30px;">
+                        ⚔️
+                    </div>
+                </div>
+
+                <h2 style="color:#ffffff;font-size:22px;font-weight:900;letter-spacing:-0.5px;margin-bottom:6px;">Choose Your Username</h2>
+                <p style="color:#94a3b8;font-size:13px;line-height:1.4;margin-bottom:22px;">
+                    Enter your in-game Commander name to start playing. You cannot proceed without choosing a username.
+                </p>
+
+                <div style="margin-bottom:20px;text-align:left;">
+                    <label style="display:block;font-size:11px;font-weight:800;color:#38bdf8;margin-bottom:6px;letter-spacing:0.5px;">COMMANDER USERNAME</label>
+                    <input id="choose-username-input" type="text" maxlength="16" placeholder="Enter username (3-16 chars)" style="width:100%;height:50px;background:#0f172a;border:2px solid #334155;border-radius:12px;padding:0 16px;color:#f8fafc;font-size:15px;font-weight:700;box-sizing:border-box;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='#38bdf8'" onblur="this.style.borderColor='#334155'" onkeydown="if(event.key==='Enter') UIController.handleConfirmUsername();" />
+                    <div id="username-error-msg" style="display:none;color:#ef4444;font-size:12px;font-weight:700;margin-top:6px;"></div>
+                </div>
+
+                <button onclick="UIController.handleConfirmUsername()" style="width:100%;height:52px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-weight:900;font-size:15px;cursor:pointer;box-shadow:0 0 25px rgba(37,99,235,0.45);transition:all 0.2s ease;" onmouseover="this.style.background='#1d4ed8';" onmouseout="this.style.background='#2563eb';">
+                    Confirm Username & Start Playing ▶
+                </button>
+            `;
+
+            setTimeout(() => {
+                const inp = document.getElementById("choose-username-input");
+                if (inp) inp.focus();
+            }, 100);
+        } else {
+            // Screen 3: Logged in and username chosen — Single Profile View
+            const state = window.SaveService.state || {};
+            const pLevel = state.playerLevel || 1;
+            container.innerHTML = `
+                <div style="display:flex;justify-content:center;margin-bottom:16px;">
+                    <div style="width:60px;height:60px;border-radius:50%;background:#0284c7;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:24px;border:3px solid #38bdf8;box-shadow:0 0 20px rgba(56,189,248,0.4);">
+                        ${profile.name[0].toUpperCase()}
+                    </div>
+                </div>
+
+                <h2 style="color:#facc15;font-size:22px;font-weight:900;margin-bottom:4px;">${profile.name}</h2>
+                <div style="font-size:12px;color:#94a3b8;margin-bottom:18px;">Level ${pLevel} Commander • ${googleUser.email}</div>
+
+                <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;">
+                    <button onclick="UIController.closeAuthModal()" style="width:100%;height:48px;background:#22c55e;color:#000;border:none;border-radius:12px;font-weight:900;font-size:15px;cursor:pointer;box-shadow:0 0 20px rgba(34,197,94,0.35);transition:all 0.2s ease;">
+                        ▶ Resume Battle
+                    </button>
+                    <button onclick="UIController.handleLogout()" style="width:100%;height:44px;background:#1e293b;color:#ef4444;border:1px solid #334155;border-radius:12px;font-weight:800;font-size:13px;cursor:pointer;transition:all 0.2s ease;">
                         Log Out
                     </button>
                 </div>
-
-                <h3 style="color:#facc15;font-size:16px;font-weight:900;margin-bottom:8px;">SELECT PLAYER PROFILE</h3>
-                <p style="color:#94a3b8;font-size:13px;margin-bottom:16px;">Pick a profile to load your save data and start playing:</p>
-
-                <div style="display:flex;flex-direction:column;gap:10px;max-height:200px;overflow-y:auto;margin-bottom:16px;">
-                    ${profiles.map(p => {
-                        const isCurrent = p.id === activeProfileId;
-                        return `
-                            <div style="background:${isCurrent ? '#0369a1' : '#0f172a'};border:1px solid ${isCurrent ? '#38bdf8' : '#334155'};border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;">
-                                <div style="text-align:left;">
-                                    <div style="font-weight:800;color:#fff;font-size:14px;">
-                                        ${p.name} ${isCurrent ? '<span style="font-size:10px;background:#38bdf8;color:#000;padding:2px 6px;border-radius:4px;font-weight:900;margin-left:6px;">ACTIVE</span>' : ''}
-                                    </div>
-                                    <div style="font-size:11px;color:#cbd5e1;">Level ${p.level || 1} • Profile ID: ${p.id}</div>
-                                </div>
-                                <button onclick="UIController.handleSelectProfile('${p.id}')" style="background:${isCurrent ? '#22c55e' : '#2563eb'};color:#fff;border:none;border-radius:6px;padding:8px 16px;font-weight:800;font-size:12px;cursor:pointer;">
-                                    ${isCurrent ? 'Playing ▶' : 'Select ▶'}
-                                </button>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-
-                <div style="display:flex;gap:8px;margin-bottom:18px;">
-                    <input id="new-profile-name-input" type="text" placeholder="New Username" style="flex:1;background:#1e293b;border:1px solid #475569;border-radius:8px;padding:10px 12px;color:#fff;font-size:13px;" onkeydown="if(event.key==='Enter') UIController.handleCreateProfile();" />
-                    <button onclick="UIController.handleCreateProfile()" style="background:#10b981;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:800;font-size:13px;cursor:pointer;">
-                        + New Username
-                    </button>
-                </div>
-
-                ${activeProfileId ? `
-                    <button onclick="UIController.closeAuthModal()" style="width:100%;background:#22c55e;color:#000;border:none;border-radius:10px;padding:14px;font-weight:900;font-size:15px;cursor:pointer;box-shadow:0 0 20px rgba(34,197,94,0.4);transition:all 0.2s ease;">
-                        ▶ Start Playing
-                    </button>
-                ` : ''}
             `;
         }
     },
@@ -4314,12 +4328,20 @@ const UIController = {
                     };
                     window.SaveService.setGoogleUser(userObj);
                     window.SaveService.pushToSupabaseAsync();
+
+                    const profile = window.SaveService.getUserProfile();
                     this.updateTopBar();
                     this.renderStages();
                     this.renderBanners();
                     this.renderInventory();
-                    this.closeAuthModal();
-                    this.showToast("Welcome back, " + userObj.name + "!", "success");
+
+                    if (profile && profile.usernameChosen && profile.name && profile.name.trim()) {
+                        this.closeAuthModal();
+                        this.showToast("Welcome back, Commander " + profile.name + "!", "success");
+                    } else {
+                        // Open and enforce username selection screen!
+                        this.openAuthModal();
+                    }
                 }
             }
         } catch (e) {
@@ -4347,42 +4369,59 @@ const UIController = {
         this.showToast("Logged out successfully.", "info");
     },
 
-    handleSelectProfile(profileId) {
-        window.SaveService.selectProfile(profileId);
-        this.renderAuthModal();
-        this.updateTopBar();
-        this.renderStages();
-        this.renderBanners();
-        this.renderInventory();
-        this.showToast("Profile loaded successfully!", "success");
-        this.closeAuthModal();
-    },
+    handleConfirmUsername() {
+        const input = document.getElementById("choose-username-input");
+        const errorDiv = document.getElementById("username-error-msg");
+        if (!input) return;
 
-    handleCreateProfile() {
-        const input = document.getElementById("new-profile-name-input");
-        const name = input ? input.value : "";
-        if (!name.trim()) {
-            this.showToast("Please enter a username for the new profile!", "warning");
+        const name = input.value.trim();
+        if (!name || name.length < 3) {
+            if (errorDiv) {
+                errorDiv.innerText = "Username must be at least 3 characters long.";
+                errorDiv.style.display = "block";
+            }
+            input.focus();
             return;
         }
-        window.SaveService.createProfile(name);
-        this.renderAuthModal();
+
+        if (name.length > 16) {
+            if (errorDiv) {
+                errorDiv.innerText = "Username cannot exceed 16 characters.";
+                errorDiv.style.display = "block";
+            }
+            input.focus();
+            return;
+        }
+
+        if (!/^[a-zA-Z0-9_ ]+$/.test(name)) {
+            if (errorDiv) {
+                errorDiv.innerText = "Only letters, numbers, spaces, and underscores allowed.";
+                errorDiv.style.display = "block";
+            }
+            input.focus();
+            return;
+        }
+
+        const prof = window.SaveService.setUsername(name);
         this.updateTopBar();
         this.renderStages();
         this.renderBanners();
         this.renderInventory();
-        this.showToast("Created profile " + name + "!", "success");
         this.closeAuthModal();
+        this.showToast("Welcome, Commander " + prof.name + "!", "success");
     },
 
     closeAllModals() {
         document.querySelectorAll(".modal-overlay").forEach(m => {
             if (m.id === "auth-gateway-modal") {
                 const googleUser = window.SaveService && window.SaveService.getGoogleUser();
-                const activeProfileId = localStorage.getItem("ptd_active_profile_id");
-                if (!googleUser || !activeProfileId) return; // do not close auth modal if not logged in and profile selected!
+                const profile = window.SaveService && window.SaveService.getUserProfile();
+                if (!googleUser || !profile || !profile.usernameChosen) return; // do not close auth modal if not logged in or username not chosen!
             }
             m.classList.remove("open");
+            m.style.display = "none";
+        });
+    }
             m.style.display = "none";
         });
     }
