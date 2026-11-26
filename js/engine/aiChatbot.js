@@ -273,14 +273,19 @@ ${this.getRandomCloser()}`,
     // PROMO CODES
     // ----------------------------------------------------
     getPromoCodesResponse() {
-        let customList = "";
-        if (typeof window !== "undefined" && window.SaveService && window.SaveService.getCustomPromoCodes) {
-            const customCodes = window.SaveService.getCustomPromoCodes();
-            for (const [code, data] of Object.entries(customCodes)) {
+        let codeLines = [];
+        if (typeof window !== "undefined" && window.SaveService && window.SaveService.getActivePromoCodes) {
+            const activeCodes = window.SaveService.getActivePromoCodes();
+            for (const [code, data] of Object.entries(activeCodes)) {
                 const parts = [];
                 if (data.gems) parts.push(`<b>${data.gems.toLocaleString()} Gems</b>`);
                 if (data.gold) parts.push(`<b>${data.gold.toLocaleString()} Gold</b>`);
                 if (data.traitRerolls) parts.push(`<b>${data.traitRerolls} Trait RR</b>`);
+                if (data.food) {
+                    for (const [fId, qty] of Object.entries(data.food)) {
+                        parts.push(`<b>${qty}x ${fId.replace(/_/g, ' ')}</b>`);
+                    }
+                }
                 if (data.starFruits) {
                     for (const [fId, qty] of Object.entries(data.starFruits)) {
                         parts.push(`<b>${qty}x ${fId.replace(/_/g, ' ')}</b>`);
@@ -291,19 +296,23 @@ ${this.getRandomCloser()}`,
                         parts.push(`<b>${qty}x ${mId.replace(/_/g, ' ')}</b>`);
                     }
                 }
-                customList += `\n• <b>${code}</b> : ${parts.join(" + ")}`;
+                if (data.luckPotions) {
+                    parts.push(`<b>${data.luckPotions}x Luck Potion</b>`);
+                }
+                codeLines.push(`• <b>${code}</b> : ${parts.join(" + ")}`);
             }
         }
+
+        const codesText = codeLines.length > 0
+            ? codeLines.join("\n")
+            : "No active promo codes right now.";
 
         return {
             role: "assistant",
             text: `${this.getRandomGreeting("active promo codes")}
 
 Here are all active working codes right now:
-• <b>SORRYFORBUGS</b> : <b>2,500 Gems</b> + <b>25 Trait RR</b> tokens!
-• <b>TD2026</b> : <b>1,000 Gems</b> + <b>10 Trait RR</b> tokens!
-• <b>RELEASE</b> : <b>500 Gems</b> + <b>5 Trait RR</b> tokens!
-• <b>EVOLUTION</b> : <b>10,000 Gold</b> + <b>1 Rainbow Star Fruit</b> + <b>3 Blue Star Fruits</b> + <b>3 Pink Star Fruits</b>!${customList}
+${codesText}
 
 Head over to the Codes tab in the top bar to claim your rewards! Note that each code can be redeemed once per account.
 

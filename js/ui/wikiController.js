@@ -1156,38 +1156,57 @@ const WikiController = {
     },
 
     renderCodesWiki(container) {
-        const allCodes = window.SaveService ? window.SaveService.getAllPromoCodes() : {};
+        const allCodes = window.SaveService ? window.SaveService.getAllPromoCodes(true) : {};
         const entries = Object.entries(allCodes);
 
         let cardsHtml = "";
         for (const [code, data] of entries) {
             const rewardBadges = [];
-            if (data.gems) rewardBadges.push(`<span style="background:rgba(56,189,248,0.15);color:#38bdf8;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:4px;">💎 ${data.gems.toLocaleString()} Gems</span>`);
-            if (data.gold) rewardBadges.push(`<span style="background:rgba(234,179,8,0.15);color:#facc15;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:4px;">🪙 ${data.gold.toLocaleString()} Gold</span>`);
-            if (data.traitRerolls) rewardBadges.push(`<span style="background:rgba(168,85,247,0.15);color:#c084fc;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:4px;">🔮 ${data.traitRerolls} Trait RR</span>`);
-            if (data.food) {
+            if (data.gems && window.PixelSprites) {
+                rewardBadges.push(`<span style="background:rgba(56,189,248,0.15);color:#38bdf8;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:6px;">${window.PixelSprites.getGemIcon(16)} <span>${data.gems.toLocaleString()} Gems</span></span>`);
+            }
+            if (data.gold && window.PixelSprites) {
+                rewardBadges.push(`<span style="background:rgba(234,179,8,0.15);color:#facc15;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:6px;">${window.PixelSprites.getGoldIcon(16)} <span>${data.gold.toLocaleString()} Gold</span></span>`);
+            }
+            if (data.traitRerolls && window.PixelSprites) {
+                rewardBadges.push(`<span style="background:rgba(168,85,247,0.15);color:#c084fc;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:6px;">${window.PixelSprites.getTraitRRIcon(16)} <span>${data.traitRerolls} Trait RR</span></span>`);
+            }
+            if (data.food && window.PixelSprites) {
                 for (const [fId, qty] of Object.entries(data.food)) {
-                    rewardBadges.push(`<span style="background:rgba(34,197,94,0.15);color:#4ade80;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;">🍙 ${qty}x ${fId.replace(/_/g, ' ')}</span>`);
+                    rewardBadges.push(`<span style="background:rgba(34,197,94,0.15);color:#4ade80;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:6px;">${window.PixelSprites.getFoodIcon(fId, 16)} <span>${qty}x ${fId.replace(/_/g, ' ')}</span></span>`);
                 }
             }
-            if (data.starFruits) {
+            if (data.starFruits && window.PixelSprites) {
                 for (const [sfId, qty] of Object.entries(data.starFruits)) {
-                    rewardBadges.push(`<span style="background:rgba(244,63,94,0.15);color:#fb7185;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;">⭐ ${qty}x ${sfId.replace(/_/g, ' ')}</span>`);
+                    rewardBadges.push(`<span style="background:rgba(244,63,94,0.15);color:#fb7185;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:6px;"><img src="${window.PixelSprites.getStarFruit(sfId, 16)}" style="width:16px;height:16px;vertical-align:middle;display:inline-block;image-rendering:pixelated;"> <span>${qty}x ${sfId.replace(/_/g, ' ')}</span></span>`);
                 }
             }
-            if (data.materials) {
+            if (data.materials && window.PixelSprites) {
                 for (const [mId, qty] of Object.entries(data.materials)) {
-                    rewardBadges.push(`<span style="background:rgba(148,163,184,0.15);color:#cbd5e1;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;">📦 ${qty}x ${mId.replace(/_/g, ' ')}</span>`);
+                    rewardBadges.push(`<span style="background:rgba(148,163,184,0.15);color:#cbd5e1;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:6px;">${window.PixelSprites.getMaterialIcon(mId, 16)} <span>${qty}x ${mId.replace(/_/g, ' ')}</span></span>`);
                 }
+            }
+            if (data.luckPotions && window.PixelSprites) {
+                rewardBadges.push(`<span style="background:rgba(168,85,247,0.15);color:#a855f7;padding:4px 10px;border-radius:6px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:6px;">${window.PixelSprites.getLuckPotionIcon(16)} <span>${data.luckPotions}x Luck Potion</span></span>`);
             }
 
+            const isExpired = !!data.expired;
+            const codeTitle = isExpired ? `${code} (Expired)` : code;
+            const statusBadge = isExpired
+                ? `<span style="background:rgba(239,68,68,0.2);color:#ef4444;font-size:11px;font-weight:800;padding:2px 8px;border-radius:4px;border:1px solid #ef4444;letter-spacing:0.5px;">EXPIRED</span>`
+                : `<span style="background:rgba(34,197,94,0.2);color:#22c55e;font-size:11px;font-weight:800;padding:2px 8px;border-radius:4px;border:1px solid #22c55e;letter-spacing:0.5px;">ACTIVE</span>`;
+
+            const cardBorder = isExpired ? "border:1px solid rgba(239,68,68,0.35);" : "border:1px solid #334155;";
+            const cardOpacity = isExpired ? "opacity:0.65;" : "";
+            const titleColor = isExpired ? "#94a3b8" : "#38bdf8";
+
             cardsHtml += `
-                <div style="background:#0b1324;border:1px solid #334155;border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+                <div style="background:#0b1324;${cardBorder}${cardOpacity}border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 4px 12px rgba(0,0,0,0.3);">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
-                        <span style="font-family:'Lilita One',cursive;font-size:20px;letter-spacing:1px;color:#38bdf8;">${code}</span>
-                        <span style="background:#1e293b;color:#22c55e;font-size:11px;font-weight:800;padding:2px 8px;border-radius:4px;border:1px solid #22c55e;">ACTIVE</span>
+                        <span style="font-family:'Lilita One',cursive;font-size:20px;letter-spacing:1px;color:${titleColor};">${codeTitle}</span>
+                        ${statusBadge}
                     </div>
-                    <p style="color:#94a3b8;font-size:12px;margin:0;">${data.description || 'Active official promo code.'}</p>
+                    ${data.description && !data.description.toLowerCase().includes("creator generated") ? `<p style="color:#94a3b8;font-size:12px;margin:0;">${data.description}</p>` : ''}
                     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
                         ${rewardBadges.join('')}
                     </div>
@@ -1199,10 +1218,10 @@ const WikiController = {
             <div style="max-width:800px;margin:0 auto;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
                     <div>
-                        <h3 style="color:#f8fafc;margin:0;font-size:20px;">📜 Active Promo Codes Encyclopedia</h3>
-                        <p style="color:#94a3b8;font-size:13px;margin:4px 0 0 0;">All working codes and their exact redemption rewards. Enter them in the Codes tab to claim!</p>
+                        <h3 style="color:#f8fafc;margin:0;font-size:20px;">Promo Codes Encyclopedia</h3>
+                        <p style="color:#94a3b8;font-size:13px;margin:4px 0 0 0;">All working codes and past expired codes with their exact redemption rewards.</p>
                     </div>
-                    <button class="tactile-blue-btn" onclick="UIController.switchTab('codes')" style="padding:8px 16px;font-size:13px;">🎁 Go to Codes Tab</button>
+                    <button class="tactile-blue-btn" onclick="UIController.switchTab('codes')" style="padding:8px 16px;font-size:13px;">Go to Codes Tab</button>
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:14px;">
                     ${cardsHtml}

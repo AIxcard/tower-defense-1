@@ -4165,33 +4165,37 @@ const UIController = {
         if (input) input.value = "";
         if (msg) msg.style.display = "none";
 
-        // Render Active Codes List
+        // Render Active Codes List (Only Active, Non-Expired, Non-Deleted Codes)
         const listEl = document.getElementById("active-codes-list");
         if (listEl && window.SaveService) {
-            const allCodes = window.SaveService.getAllPromoCodes ? window.SaveService.getAllPromoCodes() : window.SaveService.PROMO_CODES;
+            const activeCodes = window.SaveService.getActivePromoCodes ? window.SaveService.getActivePromoCodes() : window.SaveService.PROMO_CODES;
             let html = "";
-            for (const [code, data] of Object.entries(allCodes)) {
+            for (const [code, data] of Object.entries(activeCodes)) {
                 const parts = [];
-                if (data.gems) parts.push(`<span style="color:#38bdf8;">${data.gems.toLocaleString()} Gems</span>`);
-                if (data.gold) parts.push(`<span style="color:#facc15;">${data.gold.toLocaleString()} Gold</span>`);
-                if (data.traitRerolls) parts.push(`<span style="color:#c084fc;">${data.traitRerolls} Trait RR</span>`);
-                if (data.food) {
+                if (data.gems && window.PixelSprites) parts.push(`<span style="color:#38bdf8;display:inline-flex;align-items:center;gap:4px;">${window.PixelSprites.getGemIcon(14)} <span>${data.gems.toLocaleString()} Gems</span></span>`);
+                if (data.gold && window.PixelSprites) parts.push(`<span style="color:#facc15;display:inline-flex;align-items:center;gap:4px;">${window.PixelSprites.getGoldIcon(14)} <span>${data.gold.toLocaleString()} Gold</span></span>`);
+                if (data.traitRerolls && window.PixelSprites) parts.push(`<span style="color:#c084fc;display:inline-flex;align-items:center;gap:4px;">${window.PixelSprites.getTraitRRIcon(14)} <span>${data.traitRerolls} Trait RR</span></span>`);
+                if (data.food && window.PixelSprites) {
                     for (const [fId, qty] of Object.entries(data.food)) {
-                        parts.push(`<span style="color:#4ade80;">${qty}x ${fId.replace(/_/g, ' ')}</span>`);
+                        parts.push(`<span style="color:#4ade80;display:inline-flex;align-items:center;gap:4px;">${window.PixelSprites.getFoodIcon(fId, 14)} <span>${qty}x ${fId.replace(/_/g, ' ')}</span></span>`);
                     }
                 }
-                if (data.starFruits) {
+                if (data.starFruits && window.PixelSprites) {
                     for (const [sfId, qty] of Object.entries(data.starFruits)) {
-                        parts.push(`<span style="color:#fb7185;">${qty}x ${sfId.replace(/_/g, ' ')}</span>`);
+                        parts.push(`<span style="color:#fb7185;display:inline-flex;align-items:center;gap:4px;"><img src="${window.PixelSprites.getStarFruit(sfId, 14)}" style="width:14px;height:14px;vertical-align:middle;display:inline-block;image-rendering:pixelated;"> <span>${qty}x ${sfId.replace(/_/g, ' ')}</span></span>`);
                     }
                 }
-                if (data.materials) {
+                if (data.materials && window.PixelSprites) {
                     for (const [mId, qty] of Object.entries(data.materials)) {
-                        parts.push(`<span style="color:#94a3b8;">${qty}x ${mId.replace(/_/g, ' ')}</span>`);
+                        parts.push(`<span style="color:#94a3b8;display:inline-flex;align-items:center;gap:4px;">${window.PixelSprites.getMaterialIcon(mId, 14)} <span>${qty}x ${mId.replace(/_/g, ' ')}</span></span>`);
                     }
                 }
-                html += `<div>• <b style="color:#fff;">${code}</b>: ${parts.join(', ')}</div>`;
+                if (data.luckPotions && window.PixelSprites) {
+                    parts.push(`<span style="color:#a855f7;display:inline-flex;align-items:center;gap:4px;">${window.PixelSprites.getLuckPotionIcon(14)} <span>${data.luckPotions}x Luck Potion</span></span>`);
+                }
+                html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">• <b style="color:#fff;font-family:'Lilita One',cursive;letter-spacing:0.5px;font-size:14px;">${code}</b> : ${parts.join(', ')}</div>`;
             }
+            if (!html) html = `<div style="color:#64748b;font-style:italic;">No active promo codes right now.</div>`;
             listEl.innerHTML = html;
         }
 
@@ -4295,12 +4299,60 @@ const UIController = {
                 `;
             }
 
+            // Build Code Management rows (Expire / Delete)
+            const allManageCodes = window.SaveService ? window.SaveService.getAllPromoCodes(true) : {};
+            let manageRowsHtml = "";
+            for (const [cName, cData] of Object.entries(allManageCodes)) {
+                const isExp = !!cData.expired;
+                const badges = [];
+                if (cData.gems && window.PixelSprites) badges.push(`<span style="color:#38bdf8;display:inline-flex;align-items:center;gap:3px;">${window.PixelSprites.getGemIcon(12)} ${cData.gems.toLocaleString()}</span>`);
+                if (cData.gold && window.PixelSprites) badges.push(`<span style="color:#facc15;display:inline-flex;align-items:center;gap:3px;">${window.PixelSprites.getGoldIcon(12)} ${cData.gold.toLocaleString()}</span>`);
+                if (cData.traitRerolls && window.PixelSprites) badges.push(`<span style="color:#c084fc;display:inline-flex;align-items:center;gap:3px;">${window.PixelSprites.getTraitRRIcon(12)} ${cData.traitRerolls} RR</span>`);
+                if (cData.food && window.PixelSprites) {
+                    for (const [fId, qty] of Object.entries(cData.food)) {
+                        badges.push(`<span style="color:#4ade80;display:inline-flex;align-items:center;gap:3px;">${window.PixelSprites.getFoodIcon(fId, 12)} ${qty}x ${fId.replace(/_/g, ' ')}</span>`);
+                    }
+                }
+                if (cData.starFruits && window.PixelSprites) {
+                    for (const [sfId, qty] of Object.entries(cData.starFruits)) {
+                        badges.push(`<span style="color:#fb7185;display:inline-flex;align-items:center;gap:3px;"><img src="${window.PixelSprites.getStarFruit(sfId, 12)}" style="width:12px;height:12px;vertical-align:middle;display:inline-block;image-rendering:pixelated;"> ${qty}x ${sfId.replace(/_/g, ' ')}</span>`);
+                    }
+                }
+                if (cData.materials && window.PixelSprites) {
+                    for (const [mId, qty] of Object.entries(cData.materials)) {
+                        badges.push(`<span style="color:#94a3b8;display:inline-flex;align-items:center;gap:3px;">${window.PixelSprites.getMaterialIcon(mId, 12)} ${qty}x ${mId.replace(/_/g, ' ')}</span>`);
+                    }
+                }
+
+                const statusTag = isExp
+                    ? `<span style="background:rgba(239,68,68,0.2);color:#ef4444;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;border:1px solid #ef4444;">EXPIRED</span>`
+                    : `<span style="background:rgba(34,197,94,0.2);color:#4ade80;font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;border:1px solid #22c55e;">ACTIVE</span>`;
+
+                const expireBtn = isExp
+                    ? `<button type="button" onclick="UIController.reactivateCode('${cName}')" style="background:#15803d;color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;font-weight:800;cursor:pointer;">Reactivate</button>`
+                    : `<button type="button" onclick="UIController.expireCode('${cName}')" style="background:#c2410c;color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;font-weight:800;cursor:pointer;">Expire</button>`;
+
+                manageRowsHtml += `
+                    <div style="background:#060a12;border:1px solid ${isExp ? 'rgba(239,68,68,0.3)' : '#1e293b'};border-radius:6px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                        <div style="display:flex;align-items:center;gap:8px;min-width:0;">
+                            <span style="font-family:'Lilita One',cursive;font-size:15px;color:${isExp ? '#94a3b8' : '#38bdf8'};">${cName}</span>
+                            ${statusTag}
+                            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;">${badges.join(', ')}</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            ${expireBtn}
+                            <button type="button" onclick="UIController.deleteCode('${cName}')" style="background:#991b1b;color:#fecaca;border:1px solid #dc2626;border-radius:4px;padding:4px 8px;font-size:11px;font-weight:800;cursor:pointer;">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }
+
             studioEl.innerHTML = `
                 <div style="background:#0b1324;border:2px solid #eab308;border-radius:14px;padding:20px;box-shadow:0 0 30px rgba(234,179,8,0.25);">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:1px solid #1e293b;padding-bottom:12px;flex-wrap:wrap;gap:8px;">
                         <div>
                             <h3 style="margin:0;color:#facc15;font-family:'Lilita One',cursive;font-size:22px;letter-spacing:1px;display:flex;align-items:center;gap:8px;">
-                                <span>👑</span> CREATOR CODE STUDIO
+                                CREATOR CODE STUDIO
                             </h3>
                             <p style="margin:4px 0 0 0;color:#94a3b8;font-size:12px;">Exclusive code generator for <b>thabpanaphat.p2031@icsn.ac.th</b>. Build custom codes with any item rewards.</p>
                         </div>
@@ -4324,9 +4376,18 @@ const UIController = {
                         ${sectionsHtml}
                     </div>
 
-                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
                         <button type="button" onclick="UIController.clearCreatorQuantities()" style="background:#1e293b;color:#94a3b8;border:1px solid #334155;border-radius:8px;padding:10px 18px;font-weight:700;cursor:pointer;font-size:13px;">Reset Quantities</button>
-                        <button type="button" onclick="UIController.generateCreatorCode()" class="tactile-green-btn" style="padding:12px 28px;font-size:15px;font-weight:900;letter-spacing:0.5px;">⚡ Generate & Publish Code</button>
+                        <button type="button" onclick="UIController.generateCreatorCode()" class="tactile-green-btn" style="padding:12px 28px;font-size:15px;font-weight:900;letter-spacing:0.5px;">Generate & Publish Code</button>
+                    </div>
+
+                    <!-- Code Control Section: Expire & Delete -->
+                    <div style="background:#090d16;border:1px solid #334155;border-radius:10px;padding:16px;">
+                        <h4 style="margin:0 0 4px 0;color:#38bdf8;font-size:15px;font-weight:800;letter-spacing:0.5px;">ACTIVE & EXPIRED CODES MANAGEMENT</h4>
+                        <p style="margin:0 0 12px 0;color:#94a3b8;font-size:12px;">Expire codes to remove from the active Codes tab while keeping on the Wiki, or Delete to permanently wipe test codes.</p>
+                        <div style="display:flex;flex-direction:column;gap:8px;">
+                            ${manageRowsHtml}
+                        </div>
                     </div>
                 </div>
             `;
@@ -4346,6 +4407,39 @@ const UIController = {
         if (nameInp) nameInp.value = "";
         const descInp = document.getElementById("creator-code-desc");
         if (descInp) descInp.value = "";
+    },
+
+    expireCode(code) {
+        if (!window.SaveService) return;
+        const res = window.SaveService.expirePromoCode(code);
+        if (res.success) {
+            this.showToast(`Code "${code}" is now expired.`, "info");
+            this.renderCodes();
+        } else {
+            this.showToast(res.message || "Failed to expire code.", "warning");
+        }
+    },
+
+    reactivateCode(code) {
+        if (!window.SaveService) return;
+        const res = window.SaveService.reactivatePromoCode(code);
+        if (res.success) {
+            this.showToast(`Code "${code}" reactivated!`, "success");
+            this.renderCodes();
+        } else {
+            this.showToast(res.message || "Failed to reactivate code.", "warning");
+        }
+    },
+
+    deleteCode(code) {
+        if (!window.SaveService) return;
+        const res = window.SaveService.deletePromoCode(code);
+        if (res.success) {
+            this.showToast(`Code "${code}" deleted permanently.`, "info");
+            this.renderCodes();
+        } else {
+            this.showToast(res.message || "Failed to delete code.", "warning");
+        }
     },
 
     generateCreatorCode() {
@@ -4405,7 +4499,7 @@ const UIController = {
         const res = window.SaveService.createCustomPromoCode(codeName, rewards);
         if (res.success) {
             if (window.AudioService) window.AudioService.playVictorySound();
-            this.showToast(`🎉 Code "${codeName}" created and active! Auto-updated in Wiki and AI Bot!`, "success");
+            this.showToast(`Code "${codeName}" created and active! Auto-updated in Wiki and AI Bot!`, "success");
             this.clearCreatorQuantities();
             this.renderCodes();
         } else {

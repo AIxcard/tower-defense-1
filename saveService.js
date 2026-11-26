@@ -867,6 +867,40 @@ const SaveService = {
         return email === "thabpanaphat.p2031@icsn.ac.th";
     },
 
+    getExpiredCodes() {
+        if (!this.state.expiredCodes) {
+            try {
+                const raw = localStorage.getItem("ptd_expired_promo_codes");
+                this.state.expiredCodes = raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                this.state.expiredCodes = [];
+            }
+        }
+        return this.state.expiredCodes || [];
+    },
+
+    getDeletedCodes() {
+        if (!this.state.deletedCodes) {
+            try {
+                const raw = localStorage.getItem("ptd_deleted_promo_codes");
+                this.state.deletedCodes = raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                this.state.deletedCodes = [];
+            }
+        }
+        return this.state.deletedCodes || [];
+    },
+
+    isCodeExpired(code) {
+        const cleaned = (code || "").trim().toUpperCase();
+        return this.getExpiredCodes().includes(cleaned);
+    },
+
+    isCodeDeleted(code) {
+        const cleaned = (code || "").trim().toUpperCase();
+        return this.getDeletedCodes().includes(cleaned);
+    },
+
     getCustomPromoCodes() {
         if (!this.state.customPromoCodes) {
             try {
@@ -876,14 +910,165 @@ const SaveService = {
                 this.state.customPromoCodes = {};
             }
         }
-        return this.state.customPromoCodes || {};
+        const codes = this.state.customPromoCodes || {};
+        const deleted = this.getDeletedCodes();
+        for (const [k, v] of Object.entries(codes)) {
+            if (deleted.includes(k)) {
+                delete codes[k];
+                continue;
+            }
+            if (v && v.description && v.description.toLowerCase().includes("creator generated")) {
+                v.description = "";
+            }
+        }
+        return codes;
     },
 
-    getAllPromoCodes() {
-        return {
-            ...this.PROMO_CODES,
-            ...this.getCustomPromoCodes()
-        };
+    getAllPromoCodes(includeExpired = true) {
+        const deleted = this.getDeletedCodes();
+        const combined = {};
+
+        // 1. Base codes
+        for (const [c, data] of Object.entries(this.PROMO_CODES)) {
+            if (deleted.includes(c)) continue;
+            const isExp = this.isCodeExpired(c);
+            if (!includeExpired && isExp) continue;
+            combined[c] = {
+                ...data,
+                expired: isExp
+            };
+        }
+
+        // 2. Custom codes
+        const custom = this.getCustomPromoCodes();
+        for (const [c, data] of Object.entries(custom)) {
+            if (deleted.includes(c)) continue;
+            const isExp = this.isCodeExpired(c) || !!data.expired;
+            if (!includeExpired && isExp) continue;
+            combined[c] = {
+                ...data,
+                expired: isExp
+            };
+        }
+
+        return combined;
+    },
+
+    getActivePromoCodes() {
+        return this.getAllPromoCodes(false);
+    },
+
+    expirePromoCode(codeName) {
+        if (!this.isCreatorAccount()) {
+            return { success: false, message: "Unauthorized. Creator access only." };
+        }
+        const cleaned = (codeName || "").trim().toUpperCase();
+        if (!cleaned) return { success: false, message: "Invalid code name." };
+
+        const expiredList = this.getExpiredCodes();
+        if (!expiredList.includes(cleaned)) {
+            expiredList.push(cleaned);
+            this.state.expiredCodes = expiredList;
+            try {
+                localStorage.setItem("ptd_expired_promo_codes", JSON.stringify(expiredList));
+            } catch (e) {}
+        }
+
+        const custom = this.getCustomPromoCodes();
+        if (custom[cleaned]) {
+            custom[cleaned].expired = true;
+            this.state.customPromoCodes = custom;
+            try {
+                localStorage.setItem("ptd_custom_promo_codes", JSON.stringify(custom));
+            } catch (e) {}
+        }
+
+        this.save();
+        if (window.WikiController && window.WikiController.renderCodesWiki) {
+            const wArea = document.getElementById("wiki-content-area");
+            if (wArea && window.WikiController.currentCategory === "codes") {
+                window.WikiController.renderCodesWiki(wArea);
+            }
+        }
+        return { success: true, message: `Code "${cleaned}" has been expired.` };
+    },
+
+    reactivatePromoCode(codeName) {
+        if (!this.isCreatorAccount()) {
+            return { success: false, message: "Unauthorized. Creator access only." };
+        }
+        const cleaned = (codeName || "").trim().toUpperCase();
+        let expiredList = this.getExpiredCodes();
+        expiredList = expiredList.filter(c => c !== cleaned);
+        this.state.expiredCodes = expiredList;
+        try {
+            localStorage.setItem("ptd_expired_promo_codes", JSON.stringify(expiredList));
+        } catch (e) {}
+
+        const custom = this.getCustomPromoCodes();
+        if (custom[cleaned]) {
+            custom[cleaned].expired = false;
+            this.state.customPromoCodes = custom;
+            try {
+                localStorage.setItem("ptd_custom_promo_codes", JSON.stringify(custom));
+            } catch (e) {}
+        }
+
+        this.save();
+        if (window.WikiController && window.WikiController.renderCodesWiki) {
+            const wArea = document.getElementById("wiki-content-area");
+            if (wArea && window.WikiController.currentCategory === "codes") {
+                window.WikiController.renderCodesWiki(wArea);
+            }
+        }
+        return { success: true, message: `Code "${cleaned}" has been reactivated.` };
+    },
+
+    deletePromoCode(codeName) {
+        if (!this.isCreatorAccount()) {
+            return { success: false, message: "Unauthorized. Creator access only." };
+        }
+        const cleaned = (codeName || "").trim().toUpperCase();
+        if (!cleaned) return { success: false, message: "Invalid code name." };
+
+        // 1. Delete from custom codes
+        const custom = this.getCustomPromoCodes();
+        if (custom[cleaned]) {
+            delete custom[cleaned];
+            this.state.customPromoCodes = custom;
+            try {
+                localStorage.setItem("ptd_custom_promo_codes", JSON.stringify(custom));
+            } catch (e) {}
+        }
+
+        // 2. Add to deleted codes (silently wipes even base codes if deleted as test)
+        const deletedList = this.getDeletedCodes();
+        if (!deletedList.includes(cleaned)) {
+            deletedList.push(cleaned);
+            this.state.deletedCodes = deletedList;
+            try {
+                localStorage.setItem("ptd_deleted_promo_codes", JSON.stringify(deletedList));
+            } catch (e) {}
+        }
+
+        // 3. Remove from expired codes if it was in there
+        let expiredList = this.getExpiredCodes();
+        if (expiredList.includes(cleaned)) {
+            expiredList = expiredList.filter(c => c !== cleaned);
+            this.state.expiredCodes = expiredList;
+            try {
+                localStorage.setItem("ptd_expired_promo_codes", JSON.stringify(expiredList));
+            } catch (e) {}
+        }
+
+        this.save();
+        if (window.WikiController && window.WikiController.renderCodesWiki) {
+            const wArea = document.getElementById("wiki-content-area");
+            if (wArea && window.WikiController.currentCategory === "codes") {
+                window.WikiController.renderCodesWiki(wArea);
+            }
+        }
+        return { success: true, message: `Code "${cleaned}" deleted.` };
     },
 
     createCustomPromoCode(codeName, rewards) {
@@ -894,16 +1079,26 @@ const SaveService = {
         if (!cleaned || cleaned.length < 3) {
             return { success: false, message: "Code must be at least 3 characters long!" };
         }
-        if (this.PROMO_CODES[cleaned]) {
-            return { success: false, message: "This code name is reserved as a base game code!" };
-        }
 
         const customCodes = this.getCustomPromoCodes();
         customCodes[cleaned] = {
-            description: "Creator generated reward pack!",
+            description: (rewards.description || "").trim(),
             createdAt: new Date().toISOString(),
             ...rewards
         };
+
+        // Remove from deleted and expired lists if it was previously removed
+        let deletedList = this.getDeletedCodes().filter(c => c !== cleaned);
+        this.state.deletedCodes = deletedList;
+        try {
+            localStorage.setItem("ptd_deleted_promo_codes", JSON.stringify(deletedList));
+        } catch (e) {}
+
+        let expiredList = this.getExpiredCodes().filter(c => c !== cleaned);
+        this.state.expiredCodes = expiredList;
+        try {
+            localStorage.setItem("ptd_expired_promo_codes", JSON.stringify(expiredList));
+        } catch (e) {}
 
         this.state.customPromoCodes = customCodes;
         try {
@@ -912,8 +1107,11 @@ const SaveService = {
 
         this.save();
 
-        if (window.WikiController && window.WikiController.render) {
-            window.WikiController.render();
+        if (window.WikiController && window.WikiController.renderCodesWiki) {
+            const wArea = document.getElementById("wiki-content-area");
+            if (wArea && window.WikiController.currentCategory === "codes") {
+                window.WikiController.renderCodesWiki(wArea);
+            }
         }
 
         return { success: true, message: `Code "${cleaned}" generated successfully!`, code: cleaned };
@@ -922,11 +1120,15 @@ const SaveService = {
     redeemPromoCode(codeStr) {
         if (!codeStr) return { success: false, message: "Please enter a code!" };
         const cleaned = codeStr.trim().toUpperCase();
-        const allCodes = this.getAllPromoCodes();
+        const allCodes = this.getAllPromoCodes(true);
         const codeData = allCodes[cleaned];
 
-        if (!codeData) {
+        if (!codeData || this.isCodeDeleted(cleaned)) {
             return { success: false, message: "Invalid promo code!" };
+        }
+
+        if (codeData.expired || this.isCodeExpired(cleaned)) {
+            return { success: false, message: "This promo code has expired!" };
         }
 
         if (cleaned === "TD2026" || cleaned === "PTD2026") {
@@ -964,9 +1166,10 @@ const SaveService = {
         this.state.redeemedCodes[cleaned] = new Date().toISOString();
         this.save();
 
+        const descMsg = (codeData.description && !codeData.description.toLowerCase().includes("creator generated")) ? ` ${codeData.description}` : '';
         return {
             success: true,
-            message: `Code redeemed successfully! ${codeData.description || ''}`
+            message: `Code redeemed successfully!${descMsg}`
         };
     },
 

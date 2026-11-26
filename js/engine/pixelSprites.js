@@ -89,6 +89,22 @@ const PixelSprites = {
         </svg>`;
     },
 
+    getPromoCodeIcon(size = 20) {
+        return `<svg width="${size}" height="${size}" viewBox="0 0 64 64" title="Promo Code" style="vertical-align:middle;display:inline-block;filter:drop-shadow(0 0 4px rgba(56,189,248,0.6));">
+            <g transform="rotate(-10 32 32)">
+                <rect x="8" y="16" width="48" height="32" rx="4" fill="#0369a1"/>
+                <rect x="10" y="18" width="44" height="28" rx="3" fill="#0284c7"/>
+                <rect x="12" y="20" width="40" height="24" rx="2" fill="#38bdf8"/>
+                <line x1="26" y1="20" x2="26" y2="44" stroke="#0284c7" stroke-width="2" stroke-dasharray="2,2"/>
+                <circle cx="8" cy="32" r="4" fill="#0b0f19" stroke="#0369a1" stroke-width="2"/>
+                <circle cx="56" cy="32" r="4" fill="#0b0f19" stroke="#0369a1" stroke-width="2"/>
+                <rect x="32" y="27" width="14" height="4" rx="1" fill="#0c4a6e"/>
+                <rect x="32" y="33" width="10" height="4" rx="1" fill="#0c4a6e"/>
+                <polygon points="19,26 21,30 25,30 22,33 23,37 19,35 15,37 16,33 13,30 17,30" fill="#fef08a"/>
+            </g>
+        </svg>`;
+    },
+
     getDamageTypeIcon(type, size = 20) {
         const tLower = (type || "").toLowerCase();
         if (tLower === "magical" || tLower === "magic") {
