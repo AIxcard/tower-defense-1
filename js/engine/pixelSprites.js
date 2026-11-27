@@ -624,6 +624,9 @@ const PixelSprites = {
     // Detailed vector illustrations with hair strands, anime eyes, horns, wings, armor, and glowing auras
     // ----------------------------------------------------
     getUnitModel(unitId, width = 180, height = 220) {
+        if ((unitId === "breeze_scout" || unitId === "archer") && window.ARCHER_8DIR_SPRITES && window.ARCHER_8DIR_SPRITES["S"]) {
+            return window.ARCHER_8DIR_SPRITES["S"];
+        }
         const key = `model_${unitId}_${width}_${height}`;
         if (this.cache[key]) return this.cache[key];
 
@@ -1370,6 +1373,9 @@ const PixelSprites = {
     // High-clarity 48x48 icon with drop shadows and distinct silhouettes
     // ----------------------------------------------------
     getUnitSprite(unitId, size = 48) {
+        if ((unitId === "breeze_scout" || unitId === "archer") && window.ARCHER_8DIR_SPRITES && window.ARCHER_8DIR_SPRITES["S"]) {
+            return window.ARCHER_8DIR_SPRITES["S"];
+        }
         // Reuse the rich model scaled for crisp canvas rendering
         return this.getUnitModel(unitId, size, size);
     },

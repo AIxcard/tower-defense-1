@@ -1015,6 +1015,12 @@ const UIController = {
         const auraBuff = conf.damageType === "Physical" ? this.getCommanderBonus(placedUnit) : this.getMagicGirlBonus(placedUnit);
         const auraLabel = conf.damageType === "Physical" ? "Commander" : "Arcane";
 
+        // Effective damage accounting for trait and aura buffs
+        const effectiveDamageNow = Math.round(stats.damage * (1 + auraBuff));
+        const effectiveDamageNext = nextEffectiveStats ? Math.round(nextEffectiveStats.damage * (1 + auraBuff)) : (nextUpgrade ? Math.round(nextUpgrade.damage * (1 + auraBuff)) : effectiveDamageNow);
+        const effectiveSpaNext = nextEffectiveStats ? nextEffectiveStats.spa : (nextUpgrade ? nextUpgrade.spa : stats.spa);
+        const effectiveRangeNext = nextEffectiveStats ? nextEffectiveStats.range : (nextUpgrade ? nextUpgrade.range : stats.range);
+
         // DPS Calculation Breakdown
         const dpsData = this.calculateDPSBreakdown(conf, placedUnit.upgradeLevel, placedUnit.unitInstance.trait, placedUnit.unitInstance.level || 1, placedUnit.isHill);
         const effectiveDps = Math.round(dpsData.directDps * (1 + auraBuff));
@@ -1123,15 +1129,15 @@ const UIController = {
                         ${!isFarm && nextUpgrade ? `
                             <div class="upgrade-diff-row">
                                 <span>Damage:</span>
-                                <span>${stats.damage} ➔ <b class="upgrade-diff-val">${nextEffectiveStats ? nextEffectiveStats.damage : nextUpgrade.damage} (${((nextEffectiveStats ? nextEffectiveStats.damage : nextUpgrade.damage) - stats.damage) >= 0 ? '+' : ''}${((nextEffectiveStats ? nextEffectiveStats.damage : nextUpgrade.damage) - stats.damage)})</b></span>
+                                <span>${effectiveDamageNow} ➔ <b class="upgrade-diff-val">${effectiveDamageNext} (${(effectiveDamageNext - effectiveDamageNow) >= 0 ? '+' : ''}${effectiveDamageNext - effectiveDamageNow})</b></span>
                             </div>
                             <div class="upgrade-diff-row">
                                 <span>SPA:</span>
-                                <span>${stats.spa}s ➔ <b class="upgrade-diff-val">${nextEffectiveStats ? nextEffectiveStats.spa : nextUpgrade.spa}s ${((nextEffectiveStats ? nextEffectiveStats.spa : nextUpgrade.spa) - stats.spa) < 0 ? `(${((nextEffectiveStats ? nextEffectiveStats.spa : nextUpgrade.spa) - stats.spa).toFixed(2)}s)` : ''}</b></span>
+                                <span>${stats.spa}s ➔ <b class="upgrade-diff-val">${effectiveSpaNext}s ${((effectiveSpaNext - stats.spa) < 0) ? `(${((effectiveSpaNext - stats.spa)).toFixed(2)}s)` : ''}</b></span>
                             </div>
                             <div class="upgrade-diff-row">
                                 <span>Range:</span>
-                                <span>${stats.range} ➔ <b class="upgrade-diff-val">${nextEffectiveStats ? nextEffectiveStats.range : nextUpgrade.range} (${((nextEffectiveStats ? nextEffectiveStats.range : nextUpgrade.range) - stats.range) >= 0 ? '+' : ''}${((nextEffectiveStats ? nextEffectiveStats.range : nextUpgrade.range) - stats.range)})</b></span>
+                                <span>${stats.range} ➔ <b class="upgrade-diff-val">${effectiveRangeNext} (${(effectiveRangeNext - stats.range) >= 0 ? '+' : ''}${effectiveRangeNext - stats.range})</b></span>
                             </div>
                         ` : ''}
                         ${nextUpgrade.abilityName ? `

@@ -290,8 +290,12 @@ const CombatEngine = {
         }
 
         // Check Unique limit (unique unit or Unique trait, max 1)
-        if (unitConfig.isUnique || this.selectedUnitToPlace.trait === "Unique") {
-            const sameUniqueCount = this.placedUnits.filter(u => u.config.id === unitConfig.id || (u.unitInstance.unitId === this.selectedUnitToPlace.unitId && u.unitInstance.trait === "Unique")).length;
+        if (unitConfig.isUnique || (this.selectedUnitToPlace && this.selectedUnitToPlace.trait === "Unique")) {
+            const sameUniqueCount = this.placedUnits.filter(u => {
+                if (unitConfig.isUnique && u.config.id === unitConfig.id) return true;
+                if (this.selectedUnitToPlace && this.selectedUnitToPlace.trait === "Unique" && u.unitInstance && u.unitInstance.unitId === this.selectedUnitToPlace.unitId && u.unitInstance.trait === "Unique") return true;
+                return false;
+            }).length;
             if (sameUniqueCount >= 1) {
                 return { valid: false, reason: "Unique unit limit: Max 1 placement allowed!" };
             }
@@ -716,6 +720,9 @@ const CombatEngine = {
                 } else {
                     const target = this.findTargetForUnit(unit);
                     if (target) {
+                        if (window.get8WayDirection) {
+                            unit.facingDir = window.get8WayDirection(target.x - unit.x, target.y - unit.y);
+                        }
                         this.executeUnitAttack(unit, target);
                         unit.cooldown = unit.stats.spa;
                     }
@@ -963,6 +970,9 @@ const CombatEngine = {
         }
     },
     executeUnitAttack(unit, target) {
+        if (target && window.get8WayDirection) {
+            unit.facingDir = window.get8WayDirection(target.x - unit.x, target.y - unit.y);
+        }
         if (window.AudioService) window.AudioService.playShootSound(unit.config.damageType);
 
         if (unit.config.attackType === "Single" || unit.config.attackType === "Splash") {
@@ -2113,7 +2123,13 @@ const CombatEngine = {
             }
 
             // Unit Model / Sprite
-            const spriteUrl = window.PixelSprites.getUnitModel(u.config.id, 48, 56);
+            let spriteUrl;
+            if ((u.config.id === "breeze_scout" || u.config.name === "Archer") && window.ARCHER_8DIR_SPRITES) {
+                const dir = u.facingDir || "S";
+                spriteUrl = window.ARCHER_8DIR_SPRITES[dir] || window.ARCHER_8DIR_SPRITES["S"];
+            } else {
+                spriteUrl = window.PixelSprites.getUnitModel(u.config.id, 48, 56);
+            }
             const spriteImg = this.getImage(spriteUrl);
             if (spriteImg.complete && spriteImg.naturalWidth > 0) {
                 ctx.drawImage(spriteImg, u.x - 24, u.y - 28 + bobY, 48, 56);

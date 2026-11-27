@@ -364,13 +364,19 @@ const SaveService = {
 
         const playerId = this.getPlayerId();
 
-        // 1. Scan across all local storage keys to guarantee zero progress or unit loss
+        // 1. Load user local save with dedicated backup fallback
         let localData = this.loadLocal();
-        const bestCandidate = this.scanBestLocalSave();
-        if (bestCandidate && (!localData || !this.validateState(localData) || this.calculateStateScore(bestCandidate) > this.calculateStateScore(localData))) {
-            console.log("[SaveService] Restored highest-progress local save state");
-            localData = JSON.parse(JSON.stringify(bestCandidate));
-            this.saveLocal(localData);
+        const backupKey = this.LOCAL_STORAGE_KEY + "_backup";
+        const backupRaw = localStorage.getItem(backupKey);
+        if (backupRaw) {
+            try {
+                const backupData = JSON.parse(backupRaw);
+                if (this.validateState(backupData) && (!localData || !this.validateState(localData) || this.calculateStateScore(backupData) > this.calculateStateScore(localData))) {
+                    console.log("[SaveService] Restored safe backup snapshot");
+                    localData = backupData;
+                    this.saveLocal(localData);
+                }
+            } catch(e) {}
         }
 
         if (!localData || !this.validateState(localData)) {
@@ -540,18 +546,38 @@ const SaveService = {
         return null;
     },
 
-    // Save synchronously to LocalStorage with automatic backup snapshot
+    // Save synchronously to LocalStorage with automatic backup snapshot and anti-wipe guard
     saveLocal(dataToSave) {
         if (!this.validateState(dataToSave)) {
             console.error("[SaveService] BLOCKED SAVE: Corrupt/empty state attempted to overwrite local save!");
             return false;
         }
+
+        // Anti-Wipe Guard: Never overwrite a populated save with a default starter state during updates
+        try {
+            const existingRaw = localStorage.getItem(this.LOCAL_STORAGE_KEY);
+            if (existingRaw) {
+                const existing = JSON.parse(existingRaw);
+                if (this.validateState(existing)) {
+                    const existingScore = this.calculateStateScore(existing);
+                    const newScore = this.calculateStateScore(dataToSave);
+                    const isNewBlankStarter = (dataToSave.playerLevel === 1 && (!dataToSave.inventoryUnits || dataToSave.inventoryUnits.length <= 2) && dataToSave.gems <= 250);
+                    const existingHasProgress = (existing.playerLevel > 1 || (existing.inventoryUnits && existing.inventoryUnits.length > 2) || existing.gems > 250);
+                    if (isNewBlankStarter && existingHasProgress && existingScore > newScore) {
+                        console.warn("[SaveService] ANTI-WIPE GUARD: Blocked blank starter state from overwriting saved progress!");
+                        this.state = existing;
+                        return false;
+                    }
+                }
+            }
+        } catch (e) {}
+
         dataToSave.lastSavedAt = new Date().toISOString();
         try {
             const serialized = JSON.stringify(dataToSave);
             localStorage.setItem(this.LOCAL_STORAGE_KEY, serialized);
-            // Redundant persistent backup key that survives cache wipes & key switches
-            localStorage.setItem("ptd_player_save_backup_auto", serialized);
+            const backupKey = this.LOCAL_STORAGE_KEY + "_backup";
+            localStorage.setItem(backupKey, serialized);
             return true;
         } catch (e) {
             console.error("[SaveService] LocalStorage quota or write error:", e);
